@@ -618,6 +618,9 @@ function setDot(state,txt){
   d.className='sdot'+(state==='spin'?' spin':state==='off'?' off':'');
   l.textContent=txt;
 }
+function makeRowId(){
+  return Date.now()*1000 + Math.floor(Math.random()*1000);
+}
 
 // ═══════════════════════════════════════════════════════
 // AUTH
@@ -753,6 +756,7 @@ async function saveToSupabase(table, data){
   if(!S.user){ console.warn('saveToSupabase: no user session'); return; }
   try {
     var row = Object.assign({user_id: S.user.id}, data);
+    if(!row.id) row.id = makeRowId();
     var res = await sb.from(table).insert([row]);
     if(res.error){
       console.error('Supabase insert error ['+table+']:', res.error.message, res.error.details);
