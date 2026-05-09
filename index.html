@@ -756,11 +756,21 @@ async function saveToSupabase(table, data){
   if(!S.user){ console.warn('saveToSupabase: no user session'); return; }
   try {
     var row = Object.assign({user_id: S.user.id}, data);
-    if(!row.id) row.id = makeRowId();
     var res;
     if(table==='credit_info'){
-      res = await sb.from(table).upsert([row],{onConflict:'user_id,credit_name'});
+      var updateRow = Object.assign({}, row, {updated_at:new Date().toISOString()});
+      delete updateRow.id;
+      res = await sb.from(table)
+        .update(updateRow)
+        .eq('user_id',S.user.id)
+        .eq('credit_name',row.credit_name)
+        .select('id');
+      if(!res.error && (!res.data || !res.data.length)){
+        row.id = makeRowId();
+        res = await sb.from(table).insert([row]);
+      }
     } else {
+      if(!row.id) row.id = makeRowId();
       res = await sb.from(table).insert([row]);
     }
     if(res.error){
