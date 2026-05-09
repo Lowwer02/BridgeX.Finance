@@ -354,9 +354,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--tx);min-height:100
     <div class="fchip on" onclick="setCRF('overview',this)">📊 ภาพรวม</div>
     <div class="fchip" onclick="setCRF('plan',this)">🧠 Smart Plan</div>
     <div class="fchip" onclick="setCRF('all',this)">รายการ</div>
-    <div class="fchip" onclick="setCRF('revolving',this)">วงเงิน</div>
-    <div class="fchip" onclick="setCRF('fixed',this)">ผ่อน</div>
-    <div class="fchip" onclick="setCRF('expense',this)">ประจำ</div>
+    <div class="fchip" onclick="setCRF('revolving',this)">สินเชื่อหมุนเวียน</div>
+    <div class="fchip" onclick="setCRF('fixed',this)">สินเชื่อหลักประกัน</div>
+    <div class="fchip" onclick="setCRF('expense',this)">ให้ครอบครัว</div>
   </div>
   <div id="debt-overview-card"></div>
   <div id="match-summary-card"></div>
@@ -988,19 +988,22 @@ function renderCR(){
   if(crf==='plan'){ renderSmartDebt(); return; }
   if(crf==='overview'){ return; } // overview only shows the two cards above
   var types=crf==='all'?['revolving','fixed','expense']:[crf];
-  var TL={revolving:'วงเงินหมุนเวียน',fixed:'สินเชื่อผ่อนชำระตายตัว',expense:'ค่าใช้จ่ายประจำ'};
+  var TL={revolving:'💳 สินเชื่อหมุนเวียน',fixed:'🏠 สินเชื่อหลักประกัน',expense:'👨‍👩‍👦 ให้ครอบครัว'};
+  var TLC={revolving:'var(--p)',fixed:'var(--b)',expense:'var(--a)'};
   var mo=thisMo();
   types.forEach(function(t){
     var grp=allCR().filter(function(c){ return c.t===t; });
     if(!grp.length) return;
-    var sec=document.createElement('div'); sec.className='cr-sec';
-    var sHdr=document.createElement('div'); sHdr.className='cr-sechdr';
-    var lbl=document.createElement('span'); lbl.textContent=TL[t];
-    var addBtn=document.createElement('button'); addBtn.className='btn-sm';
-    addBtn.style.cssText='width:auto;font-size:11px;padding:4px 10px';
-    addBtn.textContent='+ เพิ่ม';
-    (function(type){ addBtn.onclick=function(){ addCR(type); }; })(t);
-    sHdr.appendChild(lbl); sHdr.appendChild(addBtn); sec.appendChild(sHdr);
+    var paidCnt=grp.filter(function(cr){ var st=S.crStatus[cr.id]||{}; return st.paid&&(st.date||'').slice(0,7)===mo; }).length;
+    var totAmt=grp.filter(function(cr){ var st=S.crStatus[cr.id]||{}; return st.paid&&(st.date||'').slice(0,7)===mo; }).reduce(function(s,cr){ return s+(S.crStatus[cr.id].amount||0); },0);
+    // Collapsible section — same style as dashboard
+    var secDiv=document.createElement('div'); secDiv.className='dash-section'; secDiv.dataset.type=t;
+    var isOpen=S['crSec_'+t]!==false;
+    var sHdr=document.createElement('div'); sHdr.className='dash-section-hdr';
+    sHdr.innerHTML='<div class="dash-section-title" style="color:'+TLC[t]+'">'+TL[t]+'</div><div class="dash-section-meta"><span style="color:var(--mut);font-size:11px">'+paidCnt+'/'+grp.length+'</span>'+(totAmt?'<span style="color:var(--gl);font-weight:700;font-size:11px;font-family:var(--mono)">฿'+fmt(totAmt)+'</span>':'')+' <button class="btn-sm" onclick="event.stopPropagation();addCR(\''+t+'\')" style="width:auto;font-size:10px;padding:3px 9px;margin-left:4px">+ เพิ่ม</button><span class="dash-chevron '+(isOpen?'open':'')+'">▾</span></div>';
+    (function(type,sd,sh){ sh.onclick=function(e){ if(e.target.tagName==='BUTTON') return; var b=sd.querySelector('.dash-section-body'),ch=sh.querySelector('.dash-chevron'),open=b.classList.contains('open'); b.classList.toggle('open',!open); ch.classList.toggle('open',!open); S['crSec_'+type]=!open; }; })(t,secDiv,sHdr);
+    var sBody=document.createElement('div'); sBody.className='dash-section-body'+(isOpen?' open':'');
+    var inner=document.createElement('div'); inner.className='dash-body-inner';
     grp.forEach(function(cr){
       var st=S.crStatus[cr.id]||{},info=S.crInfo[cr.id]||{};
       var isPaid=st.paid&&(st.date||'').slice(0,7)===mo;
@@ -1012,9 +1015,10 @@ function renderCR(){
       var barColor=isPaid?'var(--gl)':'var(--a)';
       var progressHtml=info.limit?'<div class="cr-progress-wrap"><div class="cr-progress-row"><div class="cr-progress-lbl">ใช้ '+pct+'%</div><div class="cr-progress-track"><div class="cr-progress-fill" style="width:'+pct+'%;background:'+barColor+'"></div></div><div class="cr-months">'+(moLeft!=null?'~'+moLeft+' เดือน':'ยังไม่ทราบ')+'</div></div></div>':'';
       item.innerHTML='<div style="display:flex;align-items:center;gap:9px;width:100%">'+topHtml+'</div>'+progressHtml;
-      sec.appendChild(item);
+      inner.appendChild(item);
     });
-    list.appendChild(sec);
+    sBody.appendChild(inner); secDiv.appendChild(sHdr); secDiv.appendChild(sBody);
+    list.appendChild(secDiv);
   });
 }
 
@@ -1296,7 +1300,98 @@ function renderDash(){
   if(incMo) g.appendChild(mkK(net>=0?'✅ เหลือสุทธิ':'⚠️ ขาดทุน','฿'+fmt(Math.abs(net)),net>=0?'var(--gl)':'var(--rl)','รายรับ ฿'+fmt(incMo),true,net>=0?'var(--gl)':'var(--rl)'));
   w.appendChild(g);
 
-  // Category chart
+  // ── Daily Calendar Heatmap ─────────────────────────────
+  if(df==='mo'||df==='all'){
+    var calMo = mo; // always show current month calendar
+    var calItems = S.expenses.filter(function(e){ return e.date&&e.date.slice(0,7)===calMo; });
+    // Determine number of people for threshold
+    var people=1;
+    if(df==='mo'){
+      var hasJ=calItems.some(function(e){ return e.paidBy==='เจ'; });
+      var hasF=calItems.some(function(e){ return e.paidBy==='แฟง'; });
+      people=(hasJ&&hasF)?2:1;
+    }
+    // Build day totals
+    var dayTotals={};
+    calItems.forEach(function(e){ var d=e.date||''; if(!dayTotals[d]) dayTotals[d]=0; dayTotals[d]+=e.amount; });
+    // Calendar header
+    var calDiv=document.createElement('div'); calDiv.className='card';
+    calDiv.innerHTML='<div class="ctitle">📅 ปฏิทินรายจ่าย <span style="font-size:9px;opacity:.5;font-weight:400">'+people+' คน · เขียว≤'+(500*people)+' · ส้ม≤'+(1500*people)+'</span></div>';
+    // Day-of-week headers
+    var DOW=['อา','จ','อ','พ','พฤ','ศ','ส'];
+    var dowRow=document.createElement('div');
+    dowRow.style.cssText='display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px;text-align:center';
+    DOW.forEach(function(d){ var cell=document.createElement('div'); cell.style.cssText='font-size:9px;font-weight:700;color:var(--mut);padding:2px 0'; cell.textContent=d; dowRow.appendChild(cell); });
+    calDiv.appendChild(dowRow);
+    // Calendar grid
+    var grid=document.createElement('div');
+    grid.style.cssText='display:grid;grid-template-columns:repeat(7,1fr);gap:3px';
+    var yr=parseInt(calMo.split('-')[0]), mnth=parseInt(calMo.split('-')[1])-1;
+    var firstDay=new Date(yr,mnth,1).getDay(); // 0=Sun
+    var daysInMonth=new Date(yr,mnth+1,0).getDate();
+    // Empty cells before first day
+    for(var i=0;i<firstDay;i++){
+      var empty=document.createElement('div'); empty.style.cssText='aspect-ratio:1;border-radius:5px'; grid.appendChild(empty);
+    }
+    var todayStr=today();
+    for(var d=1;d<=daysInMonth;d++){
+      var dateStr=calMo+'-'+String(d).padStart(2,'0');
+      var amt=dayTotals[dateStr]||0;
+      var cell=document.createElement('div');
+      var green=500*people, orange=1500*people;
+      var bg,color,bdr2;
+      if(amt===0){ bg='var(--card2)'; color='var(--mut)'; bdr2='var(--bdr)'; }
+      else if(amt<=green){ bg='rgba(34,201,138,.18)'; color='var(--gl)'; bdr2='rgba(34,201,138,.35)'; }
+      else if(amt<=orange){ bg='rgba(245,166,35,.18)'; color='var(--a)'; bdr2='rgba(245,166,35,.35)'; }
+      else { bg='rgba(240,82,79,.18)'; color='var(--rl)'; bdr2='rgba(240,82,79,.35)'; }
+      var isToday=dateStr===todayStr;
+      cell.style.cssText='aspect-ratio:1;border-radius:5px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:'+(amt>0?'pointer':'default')+';background:'+bg+';border:1px solid '+(isToday?'var(--p)':bdr2)+';transition:all .15s;position:relative'+(isToday?';box-shadow:0 0 0 2px var(--pbg)':'');
+      var dayNum=document.createElement('div'); dayNum.style.cssText='font-size:11px;font-weight:'+(isToday?'800':'600')+';color:'+(isToday?'var(--pl)':amt>0?color:'var(--mut)');
+      dayNum.textContent=d;
+      cell.appendChild(dayNum);
+      if(amt>0){
+        var amtLabel=document.createElement('div'); amtLabel.style.cssText='font-size:8px;font-weight:700;color:'+color+';font-family:var(--mono);line-height:1;margin-top:1px';
+        amtLabel.textContent=amt>=1000?Math.round(amt/100)/10+'k':Math.round(amt);
+        cell.appendChild(amtLabel);
+      }
+      // Click to show tooltip / drill
+      if(amt>0){
+        (function(ds,dayAmt,dayItems2){
+          cell.onclick=function(){
+            var existing=calDiv.querySelector('.cal-popup');
+            if(existing&&existing.dataset.date===ds){ existing.remove(); return; }
+            if(existing) existing.remove();
+            var pop=document.createElement('div'); pop.className='cal-popup'; pop.dataset.date=ds;
+            pop.style.cssText='margin-top:8px;background:var(--bg2);border-radius:var(--rds);padding:12px;border:1px solid var(--bdr);animation:up .2s ease both';
+            var dStr2=new Date(ds).toLocaleDateString('th-TH',{weekday:'short',day:'numeric',month:'short'});
+            var hdr2=document.createElement('div'); hdr2.style.cssText='font-size:11px;font-weight:700;color:var(--p);margin-bottom:8px;display:flex;justify-content:space-between';
+            hdr2.innerHTML='<span>'+dStr2+' ('+dayItems2.length+' รายการ)</span><span style="font-family:var(--mono)">฿'+fmt(dayAmt)+'</span>';
+            pop.appendChild(hdr2);
+            dayItems2.slice(0,10).forEach(function(e){
+              var dr=document.createElement('div'); dr.style.cssText='display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--bdr);font-size:12px';
+              var ico=(e.category||'').split(' ')[0]||'💸';
+              var l=document.createElement('div'); l.innerHTML='<span style="margin-right:5px">'+ico+'</span><span style="color:var(--tx);font-weight:500">'+esc(e.detail)+'</span><span style="font-size:10px;color:var(--mut);margin-left:5px">'+esc(e.payment||'')+'</span>';
+              var r=document.createElement('div'); r.style.cssText='font-weight:700;font-family:var(--mono);color:var(--tx);flex-shrink:0;margin-left:8px'; r.textContent='฿'+fmt(e.amount);
+              dr.appendChild(l); dr.appendChild(r); pop.appendChild(dr);
+            });
+            if(dayItems2.length>10){ var m=document.createElement('div'); m.style.cssText='font-size:10px;color:var(--mut);text-align:center;padding-top:6px'; m.textContent='+ อีก '+(dayItems2.length-10)+' รายการ'; pop.appendChild(m); }
+            calDiv.appendChild(pop);
+          };
+        })(dateStr, amt, calItems.filter(function(e){ return e.date===dateStr; }).sort(function(a,b){ return b.amount-a.amount; }));
+      }
+      grid.appendChild(cell);
+    }
+    calDiv.appendChild(grid);
+    // Legend
+    var leg=document.createElement('div'); leg.style.cssText='display:flex;gap:10px;margin-top:8px;flex-wrap:wrap';
+    function mkLeg(col,txt){ var l=document.createElement('div'); l.style.cssText='display:flex;align-items:center;gap:4px;font-size:10px;color:var(--sub)'; l.innerHTML='<div style="width:10px;height:10px;border-radius:3px;background:'+col+';flex-shrink:0"></div>'+txt; return l; }
+    leg.appendChild(mkLeg('var(--card2)','ไม่มีรายการ'));
+    leg.appendChild(mkLeg('rgba(34,201,138,.4)','0–'+fmt(500*people)+' บาท'));
+    leg.appendChild(mkLeg('rgba(245,166,35,.4)','501–'+fmt(1500*people)+' บาท'));
+    leg.appendChild(mkLeg('rgba(240,82,79,.4)',fmt(1500*people+1)+'+ บาท'));
+    calDiv.appendChild(leg);
+    w.appendChild(calDiv);
+  }
   if(cats.length){
     var cc=document.createElement('div'); cc.className='card';
     cc.innerHTML='<div class="ctitle">หมวดหมู่ <span style="font-size:9px;opacity:.5;font-weight:400">กดเพื่อดูรายการ</span></div>';
@@ -1336,10 +1431,41 @@ function renderDash(){
     cc.appendChild(drillWrap);
     w.appendChild(cc);
   }
-  // Payment chart
+  // Payment chart — clickable drill-down (เหมือน Category)
   if(pays.length){
-    var pc=document.createElement('div'); pc.className='card'; pc.innerHTML='<div class="ctitle">ช่องทางชำระ</div>';
-    pays.forEach(function(p){ var row=document.createElement('div'); row.className='brow'; row.innerHTML='<div class="bnm">'+esc(p[0])+'</div><div class="btr"><div class="bfi" style="width:'+Math.round(p[1]/maxP*100)+'%;background:var(--p)"></div></div><div class="bam">฿'+fmt(p[1])+'</div>'; pc.appendChild(row); });
+    var pc=document.createElement('div'); pc.className='card';
+    pc.innerHTML='<div class="ctitle">ช่องทางชำระ <span style="font-size:9px;opacity:.5;font-weight:400">กดเพื่อดูรายการ</span></div>';
+    var payDrillWrap=document.createElement('div');
+    payDrillWrap.id='pay-drill'; payDrillWrap.style.cssText='margin-top:10px;display:none;background:var(--bg2);border-radius:var(--rds);padding:12px;border:1px solid var(--bdr)';
+    pays.forEach(function(p){
+      var row=document.createElement('div'); row.className='brow'; row.style.cursor='pointer';
+      row.innerHTML='<div class="bnm">'+esc(p[0])+'</div><div class="btr"><div class="bfi" style="width:'+Math.round(p[1]/maxP*100)+'%;background:var(--p)"></div></div><div class="bam">฿'+fmt(p[1])+'</div>';
+      (function(payName, payItems){
+        row.onclick=function(){
+          var drill=document.getElementById('pay-drill');
+          var same=drill.dataset.pay===payName&&drill.style.display!=='none';
+          if(same){ drill.style.display='none'; drill.dataset.pay=''; return; }
+          drill.dataset.pay=payName;
+          drill.style.display='block';
+          var title=drill.querySelector('.pay-drill-title');
+          if(!title){ title=document.createElement('div'); title.className='pay-drill-title'; title.style.cssText='font-size:11px;font-weight:700;color:var(--p);margin-bottom:8px;text-transform:uppercase;letter-spacing:.07em'; drill.insertBefore(title,drill.firstChild); }
+          title.textContent=payName+' — '+payItems.length+' รายการ';
+          Array.from(drill.querySelectorAll('.pay-drill-row')).forEach(function(r){ r.remove(); });
+          payItems.slice(0,20).forEach(function(e){
+            var dr=document.createElement('div'); dr.className='pay-drill-row';
+            dr.style.cssText='display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--bdr);font-size:12.5px';
+            var left=document.createElement('div');
+            var dStr=e.date?new Date(e.date).toLocaleDateString('th-TH',{day:'numeric',month:'short'}):'';
+            left.innerHTML='<div style="font-weight:600;color:var(--tx)">'+esc(e.detail)+'</div><div style="font-size:11px;color:var(--mut)">'+dStr+' · '+esc(e.category||'')+' · '+(e.paidBy==='เจ'?'👨':'👩')+' '+esc(e.paidBy||'')+'</div>';
+            var right=document.createElement('div'); right.style.cssText='font-weight:700;font-family:var(--mono);color:var(--tx)'; right.textContent='฿'+fmt(e.amount);
+            dr.appendChild(left); dr.appendChild(right); drill.appendChild(dr);
+          });
+          if(payItems.length>20){ var more=document.createElement('div'); more.style.cssText='font-size:11px;color:var(--mut);text-align:center;padding-top:8px'; more.textContent='แสดง 20 รายการล่าสุด จาก '+payItems.length; drill.appendChild(more); }
+        };
+      })(p[0], items.filter(function(e){ return e.payment===p[0]; }).sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); }));
+      pc.appendChild(row);
+    });
+    pc.appendChild(payDrillWrap);
     w.appendChild(pc);
   }
 
