@@ -729,7 +729,7 @@ async function loadFromSupabase(){
         if(!found) return;
         if(!S.crInfo[found.id]||!S.crInfo[found.id].limit){
           S.crInfo[found.id]={
-            limit:Number(r.limit||0), rate:Number(r.rate||found.rate||0),
+            limit:Number(r.credit_limit||r.limit||0), rate:Number(r.rate||found.rate||0),
             minPay:Number(r.min_pay||r.minPay||0),
             billCycle:r.bill_cycle||r.billCycle||'',
             dueDate:r.due_date||r.dueDate||''
@@ -757,7 +757,12 @@ async function saveToSupabase(table, data){
   try {
     var row = Object.assign({user_id: S.user.id}, data);
     if(!row.id) row.id = makeRowId();
-    var res = await sb.from(table).insert([row]);
+    var res;
+    if(table==='credit_info'){
+      res = await sb.from(table).upsert([row],{onConflict:'user_id,credit_name'});
+    } else {
+      res = await sb.from(table).insert([row]);
+    }
     if(res.error){
       console.error('Supabase insert error ['+table+']:', res.error.message, res.error.details);
       toast('บันทึก DB ไม่สำเร็จ: '+res.error.message,'err');
@@ -1033,17 +1038,17 @@ function openInfo(id){
   activeInfoId=id;
   var cr=allCR().find(function(c){ return c.id===id; }),info=S.crInfo[id]||{};
   document.getElementById('inf-title').textContent='ข้อมูล '+cr.n;
-  document.getElementById('inf-limit').value=info.limit||''; document.getElementById('inf-rate').value=info.rate||'';
+  document.getElementById('inf-credit_limit').value=info.limit||''; document.getElementById('inf-rate').value=info.rate||'';
   document.getElementById('inf-min').value=info.minPay||''; document.getElementById('inf-bill').value=info.billCycle||'';
   document.getElementById('inf-due').value=info.dueDate||'';
   document.getElementById('info-drawer').classList.add('on');
 }
 async function saveInfo(){
   var cr=allCR().find(function(c){ return c.id===activeInfoId; });
-  var info={limit:parseFloat(document.getElementById('inf-limit').value)||0,rate:parseFloat(document.getElementById('inf-rate').value)||0,minPay:parseFloat(document.getElementById('inf-min').value)||0,billCycle:document.getElementById('inf-bill').value,dueDate:document.getElementById('inf-due').value};
+  var info={limit:parseFloat(document.getElementById('inf-credit_limit').value)||0,rate:parseFloat(document.getElementById('inf-rate').value)||0,minPay:parseFloat(document.getElementById('inf-min').value)||0,billCycle:document.getElementById('inf-bill').value,dueDate:document.getElementById('inf-due').value};
   S.crInfo[activeInfoId]=info; sv(); closeD('info-drawer'); renderCR();
   toast('✅ บันทึกข้อมูล '+cr.n,'ok');
-  saveToSupabase('credit_info',{credit_name:cr.n,type:cr.t,limit:info.limit,rate:info.rate,min_pay:info.minPay,bill_cycle:info.billCycle,due_date:info.dueDate});
+  saveToSupabase('credit_info',{credit_name:cr.n,type:cr.t,credit_limit:info.limit,rate:info.rate,min_pay:info.minPay,bill_cycle:info.billCycle,due_date:info.dueDate});
 }
 function closeD(id){ document.getElementById(id).classList.remove('on'); }
 function closeDrBg(e,id){ if(e.target===document.getElementById(id)) closeD(id); }
