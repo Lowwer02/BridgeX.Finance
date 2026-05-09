@@ -608,6 +608,29 @@ function calcMoLeft(remaining, minPay, rateYr){
   while(r>0&&m<600){ r=r*(1+rt)-minPay; m++; }
   return m<600?m:null;
 }
+function creditExpenseUsage(crId,mo){
+  var payLabels=Object.keys(PAY2CR).filter(function(k){ return PAY2CR[k]===crId; });
+  return S.expenses.filter(function(e){
+    return e.date&&e.date.slice(0,7)===mo&&payLabels.indexOf(e.payment)>=0;
+  }).reduce(function(s,e){ return s+Number(e.amount||0); },0);
+}
+function recomputeMatchedCreditBalances(){
+  var mo=thisMo(),seen={};
+  Object.keys(PAY2CR).forEach(function(payLabel){
+    var crId=PAY2CR[payLabel];
+    if(seen[crId]) return; seen[crId]=1;
+    var cr=allCR().find(function(c){ return c.id===crId; });
+    if(!cr||cr.t!=='revolving') return;
+    var used=creditExpenseUsage(crId,mo);
+    var st=S.crStatus[crId]||{paid:false,amount:0,remaining:null,date:''};
+    var info=S.crInfo[crId]||{};
+    var base = st.baseRemaining!=null ? st.baseRemaining : (st.remaining!=null ? st.remaining : (info.limit||0));
+    st.baseRemaining = base;
+    st.matchedUsed = used;
+    st.remaining = base ? Math.max(0,base-used) : (st.remaining||0);
+    S.crStatus[crId]=st;
+  });
+}
 function toast(msg,type){
   var t=document.getElementById('toast');
   t.textContent=msg; t.className='toast on'+(type?' '+type:'');
@@ -717,7 +740,7 @@ async function loadFromSupabase(){
         var found=allCR().find(function(c){ return c.n===(r.credit_name||r.name||''); });
         if(!found) return;
         if((r.date||'').slice(0,7)===mo){
-          S.crStatus[found.id]={paid:true,amount:Number(r.amount||0),remaining:Number(r.remaining||0),date:r.date||''};
+          S.crStatus[found.id]={paid:true,amount:Number(r.amount||0),baseRemaining:Number(r.remaining||0),matchedUsed:0,remaining:Number(r.remaining||0),date:r.date||''};
         }
       });
     }
@@ -737,6 +760,7 @@ async function loadFromSupabase(){
         }
       });
     }
+    recomputeMatchedCreditBalances();
     sv();
     renderHist(); renderCR(); renderDash(); renderIncSum(); renderSetStats();
     setDot('ok','Synced ✅');
@@ -861,7 +885,9 @@ function autoMatch(ex){
   if(!crId) return;
   if((crId==='shopee'||crId==='shopeem')&&ex.paidBy!=='เจ') return;
   var st=S.crStatus[crId]||{paid:false,amount:0,remaining:0,date:''};
-  st.remaining=Math.max(0,(parseFloat(st.remaining)||0)-ex.amount);
+  if(st.baseRemaining==null) st.baseRemaining = st.remaining||0;
+  st.matchedUsed = (st.matchedUsed||0)+ex.amount;
+  st.remaining=Math.max(0,(parseFloat(st.baseRemaining)||0)-st.matchedUsed);
   S.crStatus[crId]=st; sv();
 }
 
@@ -1039,7 +1065,8 @@ async function submitCredit(){
   var dt=document.getElementById('dr-dt').value;
   if(!amt||amt<=0) return toast('ใส่จำนวนเงินด้วย','err');
   var cr=allCR().find(function(c){ return c.id===activeCrId; });
-  S.crStatus[activeCrId]={paid:true,amount:amt,remaining:rem,date:dt};
+  S.crStatus[activeCrId]={paid:true,amount:amt,baseRemaining:rem,matchedUsed:0,remaining:rem,date:dt};
+  recomputeMatchedCreditBalances();
   sv(); closeD('pay-drawer'); renderCR(); renderDash();
   toast('✅ บันทึกชำระ '+cr.n,'ok');
   saveToSupabase('credits',{date:dt,credit_name:cr.n,type:cr.t,amount:amt,remaining:rem,status:'จ่ายแล้ว'});
