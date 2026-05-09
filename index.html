@@ -546,17 +546,32 @@ const PAY2CR = {
 // ═══════════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════════
+function readLS(key, fallback){
+  try {
+    var raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch(e) {
+    return fallback;
+  }
+}
+function mergeById(saved, defs){
+  var out = Array.isArray(saved) ? saved.slice() : [];
+  var seen = {};
+  out.forEach(function(x){ if(x&&x.id) seen[x.id]=1; });
+  defs.forEach(function(x){ if(!seen[x.id]) out.push(x); });
+  return out;
+}
 var S = {
   user: null,
   expenses: [],
   incomes: [],
-  crInfo: JSON.parse(localStorage.getItem('crInfo')||'{}'),
-  crStatus: JSON.parse(localStorage.getItem('crStatus')||'{}'),
-  customCr: JSON.parse(localStorage.getItem('customCr')||'[]'),
-  cats: JSON.parse(localStorage.getItem('cats')||'null') || DEF_CATS,
-  pays: JSON.parse(localStorage.getItem('pays')||'null') || DEF_PAYS,
-  incc: JSON.parse(localStorage.getItem('incc')||'null') || DEF_INCC,
-  inch: JSON.parse(localStorage.getItem('inch')||'null') || DEF_INCH,
+  crInfo: readLS('crInfo',{}),
+  crStatus: readLS('crStatus',{}),
+  customCr: readLS('customCr',[]),
+  cats: mergeById(readLS('cats',null), DEF_CATS),
+  pays: mergeById(readLS('pays',null), DEF_PAYS),
+  incc: mergeById(readLS('incc',null), DEF_INCC),
+  inch: mergeById(readLS('inch',null), DEF_INCH),
   fc:{cat:'',pay:'',payer:''},
   fi:{cat:'',ch:'',rcv:''},
   hf:'all', df:'mo', crf:'overview',
@@ -670,7 +685,7 @@ async function loadFromSupabase(){
         if(!exSet[key]) S.expenses.push({
           id:r.id||('sb'+Date.now()+i), date:r.date||'',
           detail:r.detail||'-', category:r.category||'',
-          catC:r.cat_color||'#6b7280', payment:r.payment||'',
+          catC:r.cat_color||'#7c6ef5', payment:r.payment||'',
           amount:Number(r.amount||0), paidBy:r.paid_by||''
         });
       });
@@ -819,7 +834,7 @@ async function submitExp(){
   document.getElementById('py-f').classList.remove('on');
   toast('✅ บันทึกแล้ว','ok');
   // Save to Supabase
-  saveToSupabase('expenses',{date:ex.date,detail:ex.detail,category:ex.category,cat_color:ex.catC,payment:ex.payment,amount:ex.amount,paid_by:ex.paidBy});
+  saveToSupabase('expenses',{date:ex.date,detail:ex.detail,category:ex.category,payment:ex.payment,amount:ex.amount,paid_by:ex.paidBy});
 }
 
 function autoMatch(ex){
@@ -973,17 +988,21 @@ function renderMatchSummary(){
     if(!cr||cr.t!=='revolving') return;
     var st=S.crStatus[crId]||{};
     var info=S.crInfo[crId]||{};
-    if(!info.limit) return;
     var payLabels=Object.keys(PAY2CR).filter(function(k){ return PAY2CR[k]===crId; });
     var usedInExp=S.expenses.filter(function(e){ return e.date&&e.date.slice(0,7)===mo&&payLabels.indexOf(e.payment)>=0; }).reduce(function(s,e){ return s+e.amount; },0);
-    if(usedInExp>0) matched.push({cr:cr,st:st,info:info,usedInExp:usedInExp});
+    if(usedInExp>0||st.paid) matched.push({cr:cr,st:st,info:info,usedInExp:usedInExp});
   });
-  if(!matched.length){ w.innerHTML=''; return; }
+  if(!matched.length){
+    w.innerHTML='<div class="match-summary" style="opacity:.72"><div class="match-sum-title">🔄 Match-up: วนใช้สินเชื่อเดือนนี้</div><div style="font-size:12px;color:var(--mut);text-align:center;padding:8px 0">ยังไม่มีรายจ่ายผ่านบัตรเครดิตเดือนนี้</div></div>';
+    return;
+  }
   var rows=matched.map(function(m){
-    var rem=m.st.remaining!=null?m.st.remaining:m.info.limit;
-    return '<div class="match-row"><div class="match-cr-name">'+esc(m.cr.ico)+' '+esc(m.cr.n)+'</div><div style="display:flex;gap:8px;align-items:center"><span class="match-used">-฿'+fmt(m.usedInExp)+'</span><span style="color:var(--mut);font-size:11px">เหลือ</span><span class="match-left">฿'+fmt2(rem)+'</span></div></div>';
+    var rem=m.st.remaining!=null?m.st.remaining:(m.info.limit||0);
+    var usedHtml=m.usedInExp>0?'<span class="match-used">-฿'+fmt(m.usedInExp)+'</span>':'<span style="color:var(--mut);font-size:12px">ไม่มีรายจ่ายเดือนนี้</span>';
+    var remHtml=rem>0?'<span style="color:var(--mut);font-size:11px">เหลือ</span><span class="match-left">฿'+fmt2(rem)+'</span>':'';
+    return '<div class="match-row"><div class="match-cr-name">'+esc(m.cr.ico)+' '+esc(m.cr.n)+'</div><div style="display:flex;gap:8px;align-items:center">'+usedHtml+remHtml+'</div></div>';
   }).join('');
-  w.innerHTML='<div class="match-summary"><div class="match-sum-title">🔄 Match-up: วนใช้สินเชื่อเดือนนี้</div>'+rows+'<div style="font-size:10px;color:var(--mut);margin-top:8px">ยอดวนใช้หักจากวงเงินคงเหลืออัตโนมัติ</div></div>';
+  w.innerHTML='<div class="match-summary"><div class="match-sum-title">🔄 Match-up: วนใช้สินเชื่อเดือนนี้</div>'+rows+'<div style="font-size:10px;color:var(--mut);margin-top:8px">ยอดวนใช้หักจากวงเงินคงเหลืออัตโนมัติเมื่อบันทึกรายจ่าย</div></div>';
 }
 
 // ── Pay & Info drawers ────────────────────────────────
