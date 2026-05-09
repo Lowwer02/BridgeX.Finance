@@ -608,10 +608,21 @@ function calcMoLeft(remaining, minPay, rateYr){
   while(r>0&&m<600){ r=r*(1+rt)-minPay; m++; }
   return m<600?m:null;
 }
-function creditExpenseUsage(crId,mo){
+function validCreatedTime(v){
+  if(!v) return 0;
+  var t=new Date(v).getTime();
+  if(!Number.isFinite(t)) return 0;
+  if(t>Date.now()+86400000) return 0;
+  return t;
+}
+function creditExpenseUsage(crId,mo,baseAt){
   var payLabels=Object.keys(PAY2CR).filter(function(k){ return PAY2CR[k]===crId; });
+  var baseTime=validCreatedTime(baseAt);
   return S.expenses.filter(function(e){
-    return e.date&&e.date.slice(0,7)===mo&&payLabels.indexOf(e.payment)>=0;
+    if(!e.date||e.date.slice(0,7)!==mo||payLabels.indexOf(e.payment)<0) return false;
+    if(!baseTime) return false;
+    if(!e.createdAt) return false;
+    return validCreatedTime(e.createdAt)>baseTime;
   }).reduce(function(s,e){ return s+Number(e.amount||0); },0);
 }
 function recomputeMatchedCreditBalances(){
@@ -621,10 +632,10 @@ function recomputeMatchedCreditBalances(){
     if(seen[crId]) return; seen[crId]=1;
     var cr=allCR().find(function(c){ return c.id===crId; });
     if(!cr||cr.t!=='revolving') return;
-    var used=creditExpenseUsage(crId,mo);
     var st=S.crStatus[crId]||{paid:false,amount:0,remaining:null,date:''};
     var info=S.crInfo[crId]||{};
     var base = st.baseRemaining!=null ? st.baseRemaining : (st.remaining!=null ? st.remaining : (info.limit||0));
+    var used=creditExpenseUsage(crId,mo,st.baseAt);
     st.baseRemaining = base;
     st.matchedUsed = used;
     st.remaining = base ? Math.max(0,base-used) : (st.remaining||0);
@@ -712,7 +723,7 @@ async function loadFromSupabase(){
           id:r.id||('sb'+Date.now()+i), date:r.date||'',
           detail:r.detail||'-', category:r.category||'',
           catC:r.cat_color||'#7c6ef5', payment:r.payment||'',
-          amount:Number(r.amount||0), paidBy:r.paid_by||''
+          amount:Number(r.amount||0), paidBy:r.paid_by||'', createdAt:r.created_at||''
         });
       });
       S.expenses.sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
@@ -740,7 +751,12 @@ async function loadFromSupabase(){
         var found=allCR().find(function(c){ return c.n===(r.credit_name||r.name||''); });
         if(!found) return;
         if((r.date||'').slice(0,7)===mo){
-          S.crStatus[found.id]={paid:true,amount:Number(r.amount||0),baseRemaining:Number(r.remaining||0),matchedUsed:0,remaining:Number(r.remaining||0),date:r.date||''};
+          var existing=S.crStatus[found.id]||{};
+          var curKey=String(r.date||'')+'T'+String(r.created_at||'');
+          var oldKey=String(existing.date||'')+'T'+String(existing.baseAt||'');
+          if(!existing.date||curKey>=oldKey){
+            S.crStatus[found.id]={paid:true,amount:Number(r.amount||0),baseRemaining:Number(r.remaining||0),baseAt:r.created_at||'',matchedUsed:0,remaining:Number(r.remaining||0),date:r.date||''};
+          }
         }
       });
     }
@@ -780,6 +796,7 @@ async function saveToSupabase(table, data){
   if(!S.user){ console.warn('saveToSupabase: no user session'); return; }
   try {
     var row = Object.assign({user_id: S.user.id}, data);
+    if(table!=='credit_info'&&!row.created_at) row.created_at = new Date().toISOString();
     var res;
     if(table==='credit_info'){
       var updateRow = Object.assign({}, row, {updated_at:new Date().toISOString()});
@@ -864,7 +881,7 @@ async function submitExp(){
   if(!dt) return toast('เลือกวันที่ด้วย','err');
   var cat=S.cats.find(function(c){ return c.id===S.fc.cat; });
   var pay=S.pays.find(function(p){ return p.id===S.fc.pay; });
-  var ex={id:Date.now(),date:dt,detail:det||'-',category:cat.l,catId:cat.id,catC:cat.c||'#7c6ef5',payment:pay.l,amount:amt,paidBy:S.fc.payer};
+  var ex={id:Date.now(),date:dt,detail:det||'-',category:cat.l,catId:cat.id,catC:cat.c||'#7c6ef5',payment:pay.l,amount:amt,paidBy:S.fc.payer,createdAt:new Date().toISOString()};
   S.expenses.unshift(ex);
   autoMatch(ex);
   // Reset form
@@ -877,7 +894,7 @@ async function submitExp(){
   document.getElementById('py-f').classList.remove('on');
   toast('✅ บันทึกแล้ว','ok');
   // Save to Supabase
-  saveToSupabase('expenses',{date:ex.date,detail:ex.detail,category:ex.category,payment:ex.payment,amount:ex.amount,paid_by:ex.paidBy});
+  saveToSupabase('expenses',{date:ex.date,detail:ex.detail,category:ex.category,payment:ex.payment,amount:ex.amount,paid_by:ex.paidBy,created_at:ex.createdAt});
 }
 
 function autoMatch(ex){
@@ -886,6 +903,7 @@ function autoMatch(ex){
   if((crId==='shopee'||crId==='shopeem')&&ex.paidBy!=='เจ') return;
   var st=S.crStatus[crId]||{paid:false,amount:0,remaining:0,date:''};
   if(st.baseRemaining==null) st.baseRemaining = st.remaining||0;
+  if(!st.baseAt) st.baseAt = new Date().toISOString();
   st.matchedUsed = (st.matchedUsed||0)+ex.amount;
   st.remaining=Math.max(0,(parseFloat(st.baseRemaining)||0)-st.matchedUsed);
   S.crStatus[crId]=st; sv();
@@ -1033,8 +1051,7 @@ function renderMatchSummary(){
     if(!cr||cr.t!=='revolving') return;
     var st=S.crStatus[crId]||{};
     var info=S.crInfo[crId]||{};
-    var payLabels=Object.keys(PAY2CR).filter(function(k){ return PAY2CR[k]===crId; });
-    var usedInExp=S.expenses.filter(function(e){ return e.date&&e.date.slice(0,7)===mo&&payLabels.indexOf(e.payment)>=0; }).reduce(function(s,e){ return s+e.amount; },0);
+    var usedInExp=creditExpenseUsage(crId,mo,st.baseAt);
     if(usedInExp>0||st.paid) matched.push({cr:cr,st:st,info:info,usedInExp:usedInExp});
   });
   if(!matched.length){
@@ -1065,11 +1082,12 @@ async function submitCredit(){
   var dt=document.getElementById('dr-dt').value;
   if(!amt||amt<=0) return toast('ใส่จำนวนเงินด้วย','err');
   var cr=allCR().find(function(c){ return c.id===activeCrId; });
-  S.crStatus[activeCrId]={paid:true,amount:amt,baseRemaining:rem,matchedUsed:0,remaining:rem,date:dt};
+  var baseAt=new Date().toISOString();
+  S.crStatus[activeCrId]={paid:true,amount:amt,baseRemaining:rem,baseAt:baseAt,matchedUsed:0,remaining:rem,date:dt};
   recomputeMatchedCreditBalances();
   sv(); closeD('pay-drawer'); renderCR(); renderDash();
   toast('✅ บันทึกชำระ '+cr.n,'ok');
-  saveToSupabase('credits',{date:dt,credit_name:cr.n,type:cr.t,amount:amt,remaining:rem,status:'จ่ายแล้ว'});
+  saveToSupabase('credits',{date:dt,credit_name:cr.n,type:cr.t,amount:amt,remaining:rem,status:'จ่ายแล้ว',created_at:baseAt});
 }
 function openInfo(id){
   activeInfoId=id;
