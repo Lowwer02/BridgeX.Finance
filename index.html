@@ -280,8 +280,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--tx);min-height:100
 <div class="auth-screen" id="auth-screen">
   <div class="auth-box">
     <div class="auth-logo-big">BX</div>
-    <div class="auth-title">Bridge<span>X</span>.Finance</div>
+    <div class="auth-title">Bridge<span>X</span>.Wallet</div>
     <div class="auth-sub">ระบบบริหารการเงินส่วนตัว</div>
+    <div style="font-size:11px;color:var(--mut);margin-top:-20px;margin-bottom:28px">Powered by BridgeX.Finance</div>
     <div class="auth-form">
       <div class="auth-err" id="auth-err">อีเมลหรือรหัสผ่านไม่ถูกต้อง</div>
       <div class="fld"><label>อีเมล</label><input type="email" id="auth-email" placeholder="email@example.com" autocomplete="email"></div>
@@ -471,10 +472,39 @@ body{font-family:var(--font);background:var(--bg);color:var(--tx);min-height:100
       <button class="btn-sm danger" onclick="clearLocal('all')">🗑 ล้าง cache ทั้งหมด</button>
     </div>
   </div>
+  <div class="card" style="margin-bottom:20px;text-align:center">
+    <div class="ctitle" style="justify-content:center">เกี่ยวกับแอป</div>
+    <div style="font-size:28px;margin-bottom:8px">💰</div>
+    <div style="font-size:17px;font-weight:800;color:var(--tx);letter-spacing:-.3px">BridgeX<span style="color:var(--p)">.Wallet</span></div>
+    <div style="font-size:11px;color:var(--mut);margin-top:2px;margin-bottom:14px">Powered by BridgeX.Finance</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;text-align:left">
+      <div style="background:var(--card2);border-radius:var(--rds);padding:11px;border:1px solid var(--bdr)">
+        <div style="font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">เวอร์ชัน</div>
+        <div style="font-size:14px;font-weight:700;color:var(--p);font-family:var(--mono)">3.0.0</div>
+      </div>
+      <div style="background:var(--card2);border-radius:var(--rds);padding:11px;border:1px solid var(--bdr)">
+        <div style="font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">Database</div>
+        <div style="font-size:14px;font-weight:700;color:var(--gl);font-family:var(--mono)">Supabase</div>
+      </div>
+      <div style="background:var(--card2);border-radius:var(--rds);padding:11px;border:1px solid var(--bdr)">
+        <div style="font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">Hosting</div>
+        <div style="font-size:14px;font-weight:700;color:var(--b);font-family:var(--mono)">Vercel</div>
+      </div>
+      <div style="background:var(--card2);border-radius:var(--rds);padding:11px;border:1px solid var(--bdr)">
+        <div style="font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">อัปเดตล่าสุด</div>
+        <div style="font-size:14px;font-weight:700;color:var(--a);font-family:var(--mono)">2025</div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--mut);line-height:1.7;border-top:1px solid var(--bdr);padding-top:12px">
+      แอปบริหารการเงินส่วนตัว ออกแบบสำหรับคู่รัก<br>
+      ติดตามรายรับ-รายจ่าย และสินเชื่อแบบ Real-time<br><br>
+      <span style="color:var(--mut);font-size:10px">© 2025 BridgeX.Finance · All rights reserved</span>
+    </div>
+  </div>
 </div>
 
 <div class="bn">
-  <button class="tbtn on" onclick="goTab('add',this)"><span class="ico">➕</span>บันทึก</button>
+  <button class="tbtn on" onclick="goTab('add',this)"><span class="ico">➕</span>รายจ่าย</button>
   <button class="tbtn" onclick="goTab('hist',this)"><span class="ico">📋</span>ประวัติ</button>
   <button class="tbtn" onclick="goTab('cr',this)"><span class="ico">💳</span>สินเชื่อ</button>
   <button class="tbtn" onclick="goTab('dash',this)"><span class="ico">📊</span>Dashboard</button>
@@ -495,11 +525,13 @@ const sb = supabase.createClient(SUPA_URL, SUPA_ANON);
 // ═══════════════════════════════════════════════════════
 const DEF_CATS = [
   {id:'food',l:'🍜 อาหาร',c:'#f59e0b'},{id:'drink',l:'🧋 เครื่องดื่ม',c:'#3b82f6'},
-  {id:'snack',l:'🍿 ขนม',c:'#f97316'},{id:'cat',l:'😺 แมว',c:'#fb923c'},
+  {id:'snack',l:'🍿 ขนม',c:'#f97316'},{id:'cat',l:'🐾 สัตว์เลี้ยง',c:'#fb923c'},
   {id:'shop',l:'🛍 ช้อปปิ้ง',c:'#ec4899'},{id:'act',l:'🎯 กิจกรรม',c:'#10b981'},
-  {id:'trans',l:'🚗 การขนส่ง',c:'#8b5cf6'},{id:'place',l:'🏠 สถานที่',c:'#64748b'},
-  {id:'inv',l:'💹 ลงทุน',c:'#06b6d4'},
-  {id:'health',l:'🏥 สุขภาพ',c:'#22d3ee'}
+  {id:'trans',l:'✈️ การเดินทาง',c:'#8b5cf6'},{id:'place',l:'🏠 สถานที่',c:'#64748b'},
+  {id:'inv',l:'💹 การลงทุน',c:'#06b6d4'},{id:'health',l:'🏥 สุขภาพ',c:'#22d3ee'},
+  {id:'bill',l:'📄 บิล',c:'#6366f1'},{id:'edu',l:'📚 การศึกษา',c:'#0ea5e9'},
+  {id:'donate',l:'🤝 การบริจาค',c:'#14b8a6'},{id:'travel',l:'🌍 ท่องเที่ยว',c:'#f43f5e'},
+  {id:'fam',l:'👨‍👩‍👦 ให้ครอบครัว',c:'#a855f7'},{id:'other',l:'💼 อื่นๆ',c:'#78716c'}
 ];
 const DEF_PAYS = [
   {id:'cash',l:'💵 เงินสด'},{id:'xfer',l:'📲 โอนเงิน'},
@@ -556,9 +588,17 @@ function readLS(key, fallback){
 }
 function mergeById(saved, defs){
   var out = Array.isArray(saved) ? saved.slice() : [];
-  var seen = {};
-  out.forEach(function(x){ if(x&&x.id) seen[x.id]=1; });
-  defs.forEach(function(x){ if(!seen[x.id]) out.push(x); });
+  var idxMap = {};
+  out.forEach(function(x,i){ if(x&&x.id) idxMap[x.id]=i; });
+  defs.forEach(function(x){
+    if(idxMap[x.id]!==undefined){
+      // Update label and color from defaults (keeps renamed categories in sync)
+      out[idxMap[x.id]].l = x.l;
+      if(x.c) out[idxMap[x.id]].c = x.c;
+    } else {
+      out.push(x);
+    }
+  });
   return out;
 }
 var S = {
@@ -973,7 +1013,23 @@ function renderHist(){
     list.appendChild(moDiv);
   });
 }
-function delEx(idOrEl){ var id=typeof idOrEl==='object'?idOrEl.dataset.id:idOrEl; if(!confirm('ลบรายการนี้?')) return; S.expenses=S.expenses.filter(function(e){ return String(e.id)!==String(id); }); renderHist(); renderDash(); }
+async function delEx(idOrEl){
+  var id=typeof idOrEl==='object'?idOrEl.dataset.id:idOrEl;
+  // Confirm dialog
+  if(!confirm('⚠️ ลบรายการนี้ออกจากฐานข้อมูล?\n\nการลบไม่สามารถย้อนกลับได้')) return;
+  // Remove from local state immediately (optimistic)
+  S.expenses=S.expenses.filter(function(e){ return String(e.id)!==String(id); });
+  renderHist(); renderDash();
+  // Delete from Supabase
+  if(S.user){
+    try{
+      var numId=Number(id);
+      var res=await sb.from('expenses').delete().eq('id', isNaN(numId)?id:numId).eq('user_id',S.user.id);
+      if(res.error){ toast('⚠️ ลบจาก DB ไม่สำเร็จ: '+res.error.message,'err'); }
+      else{ toast('🗑 ลบรายการแล้ว','ok'); }
+    }catch(e){ toast('⚠️ เกิดข้อผิดพลาด: '+(e.message||e),'err'); }
+  }
+}
 
 // ═══════════════════════════════════════════════════════
 // CREDIT TAB
