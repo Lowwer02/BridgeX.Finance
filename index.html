@@ -171,7 +171,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--tx);min-height:100
 /* ── Credit items ── */
 .cr-sec{margin-bottom:16px}
 .cr-sechdr{font-size:11px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.08em;padding:0 2px 8px;display:flex;align-items:center;justify-content:space-between}
-.cr-item{background:var(--card);border-radius:var(--rds);padding:13px 14px;margin-bottom:8px;box-shadow:var(--sh);display:flex;align-items:center;gap:9px;border:1px solid var(--bdr);animation:up .25s ease both;position:relative;overflow:hidden}
+.cr-item{background:var(--card);border-radius:var(--rds);padding:13px 14px;margin-bottom:8px;box-shadow:var(--sh);display:block;border:1px solid var(--bdr);animation:up .25s ease both;position:relative;overflow:hidden}
 .cr-item.paid{border-left:3px solid var(--gl)}
 .cr-item.unpaid{border-left:3px solid var(--rl)}
 .cr-name{font-size:13.5px;font-weight:700;color:var(--tx)}
@@ -357,7 +357,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--tx);min-height:100
     <div class="fchip" onclick="setCRF('all',this)">รายการ</div>
     <div class="fchip" onclick="setCRF('revolving',this)">สินเชื่อหมุนเวียน</div>
     <div class="fchip" onclick="setCRF('fixed',this)">สินเชื่อหลักประกัน</div>
-    <div class="fchip" onclick="setCRF('expense',this)">ให้ครอบครัว</div>
   </div>
   <div id="debt-overview-card"></div>
   <div id="match-summary-card"></div>
@@ -561,9 +560,7 @@ const BASE_CR = [
   {id:'true',n:'True Pay Later',t:'revolving',ico:'💜',rate:22},
   {id:'thisshop',n:'This Shop',t:'revolving',ico:'🛒',rate:20},
   {id:'gold',n:'ทอง',t:'fixed',ico:'🥇',rate:0},
-  {id:'car',n:'รถยนต์',t:'fixed',ico:'🚗',rate:0},
-  {id:'famj',n:'ให้เงินครอบครัวเจ',t:'expense',ico:'👨‍👩‍👦',rate:0},
-  {id:'famf',n:'ให้เงินครอบครัวแฟง',t:'expense',ico:'👨‍👩‍👧',rate:0}
+  {id:'car',n:'รถยนต์',t:'fixed',ico:'🚗',rate:0}
 ];
 const PAY2CR = {
   '💚 K-Bank':'kbank','K-Bank':'kbank',
@@ -1043,9 +1040,9 @@ function renderCR(){
   var list=document.getElementById('cr-list'); list.innerHTML='';
   if(crf==='plan'){ renderSmartDebt(); return; }
   if(crf==='overview'){ return; } // overview only shows the two cards above
-  var types=crf==='all'?['revolving','fixed','expense']:[crf];
-  var TL={revolving:'💳 สินเชื่อหมุนเวียน',fixed:'🏠 สินเชื่อหลักประกัน',expense:'👨‍👩‍👦 ให้ครอบครัว'};
-  var TLC={revolving:'var(--p)',fixed:'var(--b)',expense:'var(--a)'};
+  var types=crf==='all'?['revolving','fixed']:[crf];
+  var TL={revolving:'💳 สินเชื่อหมุนเวียน',fixed:'🏠 สินเชื่อหลักประกัน'};
+  var TLC={revolving:'var(--p)',fixed:'var(--b)'};
   var mo=thisMo();
   types.forEach(function(t){
     var grp=allCR().filter(function(c){ return c.t===t; });
@@ -1174,8 +1171,9 @@ function closeDrBg(e,id){ if(e.target===document.getElementById(id)) closeD(id);
 function renderSmartDebt(){
   var list=document.getElementById('cr-list'); list.innerHTML='';
   var mo=thisMo();
-  // Get credits with data
+  // Get credits with data — exclude 'expense' type
   var debtList=allCR().filter(function(cr){
+    if(cr.t==='expense') return false;
     var info=S.crInfo[cr.id]||{};
     var st=S.crStatus[cr.id]||{};
     return (st.remaining!=null&&st.remaining>0)||(info.minPay&&info.minPay>0);
@@ -1194,27 +1192,53 @@ function renderSmartDebt(){
   var toggleDiv=document.createElement('div'); toggleDiv.className='strategy-toggle';
   var btnSnow=document.createElement('button'); btnSnow.className='strategy-btn'+(S.strategy==='snowball'?' on':'');
   btnSnow.innerHTML='<span class="st-icon">⛄</span>Snowball<br><span style="font-size:10px;opacity:.7">ก้อนเล็กก่อน</span>';
-  btnSnow.onclick=function(){ S.strategy='snowball'; renderSmartDebt(); };
+  btnSnow.onclick=function(){ S.strategy='snowball'; updateSmartResults(); };
   var btnAva=document.createElement('button'); btnAva.className='strategy-btn'+(S.strategy==='avalanche'?' on':'');
   btnAva.innerHTML='<span class="st-icon">🏔</span>Avalanche<br><span style="font-size:10px;opacity:.7">ดอกแพงก่อน</span>';
-  btnAva.onclick=function(){ S.strategy='avalanche'; renderSmartDebt(); };
+  btnAva.onclick=function(){ S.strategy='avalanche'; updateSmartResults(); };
   toggleDiv.appendChild(btnSnow); toggleDiv.appendChild(btnAva);
   list.appendChild(toggleDiv);
 
-  // Extra cash input
+  // ── Extra cash input (rendered ONCE — never re-created to avoid focus loss) ──
   var extraRow=document.createElement('div'); extraRow.className='extra-cash-row';
-  extraRow.innerHTML='<label>เงินโปะพิเศษ/เดือน</label>';
+  extraRow.style.cssText='flex-direction:column;align-items:stretch;gap:6px';
+  var extraTop=document.createElement('div'); extraTop.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:10px';
+  var extraLbl=document.createElement('label'); extraLbl.style.cssText='font-size:12px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.06em';
+  extraLbl.textContent='เงินโปะพิเศษ/เดือน';
   var extraInp=document.createElement('input'); extraInp.className='extra-cash-inp'; extraInp.type='number';
-  extraInp.placeholder='5000'; extraInp.value=S.extraCash||'';
-  extraInp.oninput=function(){ S.extraCash=parseFloat(this.value)||0; renderSmartDebt(); };
-  extraRow.appendChild(extraInp);
+  extraInp.id='smart-extra-inp';
+  extraInp.placeholder='0'; extraInp.value=S.extraCash!=null?S.extraCash:0;
+  extraInp.oninput=function(){ S.extraCash=parseFloat(this.value)||0; updateSmartResults(); };
+  extraTop.appendChild(extraLbl); extraTop.appendChild(extraInp);
+  var extraHint=document.createElement('div'); extraHint.style.cssText='font-size:11px;color:var(--mut);line-height:1.5;padding:0 2px';
+  extraHint.textContent='💡 การโปะเพิ่มทุกเดือนช่วยลดดอกเบี้ยรวมและทำให้หมดหนี้ไวขึ้น';
+  extraRow.appendChild(extraTop); extraRow.appendChild(extraHint);
   list.appendChild(extraRow);
 
-  // Fixed-payment credits — cannot overpay (Shopee, True Pay Later, This Shop)
+  // ── Results container (updated in-place by updateSmartResults) ──
+  var resultsWrap=document.createElement('div'); resultsWrap.id='smart-results';
+  list.appendChild(resultsWrap);
+
+  // Store debtList on closure for updateSmartResults
+  list._debtList=debtList;
+  updateSmartResults();
+}
+
+function updateSmartResults(){
+  var list=document.getElementById('cr-list'); if(!list) return;
+  var debtList=list._debtList; if(!debtList) return;
+  var resultsWrap=document.getElementById('smart-results'); if(!resultsWrap) return;
+  resultsWrap.innerHTML='';
+
+  // Update strategy button states
+  list.querySelectorAll('.strategy-btn').forEach(function(btn){
+    var isSnow=btn.textContent.indexOf('Snowball')>=0;
+    btn.classList.toggle('on',(isSnow&&S.strategy==='snowball')||(!isSnow&&S.strategy==='avalanche'));
+  });
+
   var FIXED_PAY_IDS = ['shopee','shopeem','true','thisshop'];
   function isFixed(d){ return FIXED_PAY_IDS.indexOf(d.cr.id)>=0; }
 
-  // Sort by strategy — fixed-payment always go to end
   var sortable = debtList.filter(function(d){ return !isFixed(d); });
   var fixedPay = debtList.filter(function(d){ return isFixed(d); });
   sortable.sort(function(a,b){
@@ -1227,32 +1251,67 @@ function renderSmartDebt(){
   var totalMinPay=sorted.reduce(function(s,d){ return s+d.minPay; },0);
   var totalRem=sorted.reduce(function(s,d){ return s+d.remaining; },0);
 
-  // Simulate total months to debt-free (extra only goes to non-fixed)
-  var simDebts=sorted.map(function(d){ return {remaining:d.remaining,minPay:d.minPay,rate:d.rate,fixed:isFixed(d)}; });
-  var simExtra=extra, simMo=0;
-  while(simDebts.some(function(d){ return d.remaining>0; })&&simMo<600){
-    var avail=simExtra;
-    simDebts=simDebts.map(function(d){
-      if(d.remaining<=0) return d;
-      var pay=d.minPay;
-      if(avail>0&&!d.fixed){ var add=Math.min(avail,d.remaining); pay+=add; avail-=add; }
-      return {remaining:Math.max(0,d.remaining*(1+d.rate/100/12)-pay),minPay:d.minPay,rate:d.rate,fixed:d.fixed};
-    });
-    simMo++;
+  // ── Simulate WITH extra ──
+  function simMonths(extraAmt){
+    var sd=sorted.map(function(d){ return {remaining:d.remaining,minPay:d.minPay,rate:d.rate,fixed:isFixed(d)}; });
+    var mo=0, totalInt=0;
+    while(sd.some(function(d){ return d.remaining>0; })&&mo<600){
+      var avail=extraAmt;
+      sd=sd.map(function(d){
+        if(d.remaining<=0) return d;
+        var interest=d.remaining*(d.rate/100/12);
+        totalInt+=interest;
+        var pay=d.minPay;
+        if(avail>0&&!d.fixed){ var add=Math.min(avail,d.remaining); pay+=add; avail-=add; }
+        return {remaining:Math.max(0,d.remaining+interest-pay),minPay:d.minPay,rate:d.rate,fixed:d.fixed};
+      });
+      mo++;
+    }
+    return {months:mo<600?mo:null, interest:Math.round(totalInt)};
+  }
+
+  var withExtra=simMonths(extra);
+  var noExtra=simMonths(0);
+
+  // ── What-If comparison card (only when extra > 0) ──
+  if(extra>0&&withExtra.months!=null&&noExtra.months!=null){
+    var savedMo=noExtra.months-withExtra.months;
+    var savedInt=noExtra.interest-withExtra.interest;
+    var wiCard=document.createElement('div');
+    wiCard.style.cssText='background:linear-gradient(135deg,rgba(34,201,138,.08),rgba(77,158,245,.08));border:1px solid rgba(34,201,138,.25);border-radius:var(--rds);padding:14px;margin-bottom:10px';
+    wiCard.innerHTML=
+      '<div style="font-size:11px;font-weight:700;color:var(--gl);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">⚡ What-If: โปะเพิ่ม ฿'+fmt(extra)+'/เดือน</div>'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">'+
+        '<div style="background:rgba(0,0,0,.15);border-radius:var(--rds);padding:11px;text-align:center">'+
+          '<div style="font-size:10px;color:var(--mut);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em">จ่ายขั้นต่ำปกติ</div>'+
+          '<div style="font-size:20px;font-weight:800;font-family:var(--mono);color:var(--rl)">~'+noExtra.months+'</div>'+
+          '<div style="font-size:10px;color:var(--mut)">เดือน</div>'+
+          '<div style="font-size:11px;color:var(--rl);margin-top:6px;font-family:var(--mono)">ดอก ฿'+fmt(noExtra.interest)+'</div>'+
+        '</div>'+
+        '<div style="background:rgba(34,201,138,.1);border-radius:var(--rds);padding:11px;text-align:center;border:1px solid rgba(34,201,138,.2)">'+
+          '<div style="font-size:10px;color:var(--gl);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em">โปะเพิ่ม ฿'+fmt(extra)+'</div>'+
+          '<div style="font-size:20px;font-weight:800;font-family:var(--mono);color:var(--gl)">~'+withExtra.months+'</div>'+
+          '<div style="font-size:10px;color:var(--mut)">เดือน</div>'+
+          '<div style="font-size:11px;color:var(--gl);margin-top:6px;font-family:var(--mono)">ดอก ฿'+fmt(withExtra.interest)+'</div>'+
+        '</div>'+
+      '</div>'+
+      '<div style="display:flex;gap:8px">'+
+        (savedMo>0?'<div style="flex:1;background:var(--gbg);border-radius:var(--rds);padding:9px;text-align:center"><div style="font-size:10px;color:var(--gl);margin-bottom:3px">⏱ ประหยัดเวลา</div><div style="font-size:17px;font-weight:800;font-family:var(--mono);color:var(--gl)">'+savedMo+' เดือน</div></div>':'')+''+
+        (savedInt>0?'<div style="flex:1;background:var(--gbg);border-radius:var(--rds);padding:9px;text-align:center"><div style="font-size:10px;color:var(--gl);margin-bottom:3px">💰 ประหยัดดอกเบี้ย</div><div style="font-size:17px;font-weight:800;font-family:var(--mono);color:var(--gl)">฿'+fmt(savedInt)+'</div></div>':'')+
+      '</div>';
+    resultsWrap.appendChild(wiCard);
   }
 
   // Summary bar
   var sumDiv=document.createElement('div'); sumDiv.className='plan-summary';
-  sumDiv.innerHTML='<div class="plan-sum-title">'+(S.strategy==='snowball'?'⛄ Snowball — ปิดก้อนเล็กก่อน':'🏔 Avalanche — โปะดอกแพงก่อน')+'</div><div class="plan-sum-grid"><div class="plan-sum-box"><div class="plan-sum-val">฿'+fmt(totalRem)+'</div><div class="plan-sum-lbl">หนี้รวม</div></div><div class="plan-sum-box"><div class="plan-sum-val">฿'+fmt(totalMinPay+extra)+'</div><div class="plan-sum-lbl">จ่าย/เดือน</div></div><div class="plan-sum-box"><div class="plan-sum-val">'+(simMo<600?'~'+simMo+' เดือน':'∞')+'</div><div class="plan-sum-lbl">ปลดหนี้</div></div></div>';
-  list.appendChild(sumDiv);
+  sumDiv.innerHTML='<div class="plan-sum-title">'+(S.strategy==='snowball'?'⛄ Snowball — ปิดก้อนเล็กก่อน':'🏔 Avalanche — โปะดอกแพงก่อน')+'</div><div class="plan-sum-grid"><div class="plan-sum-box"><div class="plan-sum-val">฿'+fmt(totalRem)+'</div><div class="plan-sum-lbl">หนี้รวม</div></div><div class="plan-sum-box"><div class="plan-sum-val">฿'+fmt(totalMinPay+extra)+'</div><div class="plan-sum-lbl">จ่าย/เดือน</div></div><div class="plan-sum-box"><div class="plan-sum-val">'+(withExtra.months!=null?'~'+withExtra.months+' เดือน':'∞')+'</div><div class="plan-sum-lbl">ปลดหนี้</div></div></div>';
+  resultsWrap.appendChild(sumDiv);
 
   // Debt rows
   var remExtra=extra;
   sorted.forEach(function(d,idx){
     var extraForThis=0;
-    // Only give extra to non-fixed-payment credits, starting from top
-    if(!isFixed(d)&&remExtra>0&&extraForThis===0){
-      // Find if this is the first non-fixed
+    if(!isFixed(d)&&remExtra>0){
       var firstNonFixed=sorted.findIndex(function(x){ return !isFixed(x); });
       if(idx===firstNonFixed){ extraForThis=remExtra; remExtra=0; }
     }
@@ -1266,7 +1325,7 @@ function renderSmartDebt(){
     var right=document.createElement('div'); right.className='dp-right';
     right.innerHTML='<div class="dp-rem">฿'+fmt2(d.remaining)+'</div><div class="dp-months">'+(moLeft!=null?'~'+moLeft+' เดือน':'ยังไม่ทราบ')+'</div>';
     row.appendChild(rankDiv); row.appendChild(body); row.appendChild(right);
-    list.appendChild(row);
+    resultsWrap.appendChild(row);
   });
 }
 
