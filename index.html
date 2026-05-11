@@ -513,7 +513,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--tx);min-height:100
 <!-- SETTINGS -->
 <div class="pg" id="pg-set">
   <div class="card">
-    <div class="ctitle">การเชื่อมต่อ Supabase</div>
+    <div class="ctitle">การเชื่อมต่อ Database</div>
     <div class="status-ok">
       <span style="font-size:20px">🟢</span>
       <div>
@@ -521,7 +521,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--tx);min-height:100
         <div id="set-user" style="font-size:11px;color:var(--sub);margin-top:2px">-</div>
       </div>
     </div>
-    <button class="btn-go blue" onclick="syncNow()" style="margin-bottom:8px">🔄 ดึงข้อมูลจาก Supabase</button>
+    <button class="btn-go blue" onclick="syncNow()" style="margin-bottom:8px">🔄 ดึงข้อมูลจาก Database</button>
     <button class="btn-sm danger" onclick="doLogout()">🚪 ออกจากระบบ</button>
   </div>
   <div class="card">
@@ -537,7 +537,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--tx);min-height:100
   <div class="card">
     <div class="ctitle">การจัดการบัญชีส่วนบุคคล (PDPA)</div>
     <div class="trust-badge" style="margin-top:0;margin-bottom:12px">🔒 ข้อมูลของคุณถูกเข้ารหัสและเก็บรักษาอย่างปลอดภัยตามมาตรฐาน</div>
-    <p style="font-size:12px;color:var(--sub);margin-bottom:10px;line-height:1.6">การลบบัญชีจะพยายามลบข้อมูลที่ RLS อนุญาต แล้วเรียก Edge Function/RPC ฝั่ง server เพื่อลบผู้ใช้จาก Auth อย่างปลอดภัย</p>
+    <p style="font-size:12px;color:var(--sub);margin-bottom:10px;line-height:1.6">การลบบัญชีจะพยายามลบข้อมูลที่ฝั่ง server เพื่อลบผู้ใช้จากอย่างปลอดภัย</p>
     <button class="btn-sm danger" onclick="deleteAccountAndData()" style="padding:12px 14px">🗑️ ลบบัญชีและข้อมูลทั้งหมด</button>
   </div>
   <div class="card">
@@ -604,8 +604,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--tx);min-height:100
 // ═══════════════════════════════════════════════════════
 // SUPABASE CONFIG
 // ═══════════════════════════════════════════════════════
-const SUPA_URL  = 'https://kxlknrlsaeyyphcxyvei.supabase.co';
-const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4bGtucmxzYWV5eXBoY3h5dmVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0ODYwODAsImV4cCI6MjA5NDA2MjA4MH0.0OgmIUiSct2Clr3bJVgpKVvgs7y1zXCEus--3z1h2Yw';
+const SUPA_URL  = 'https://ahnbgcnydlquvondssoy.supabase.co';
+const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFobmJnY255ZGxxdXZvbmRzc295Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxODYxNDksImV4cCI6MjA5Mzc2MjE0OX0.G0jZjEFxgLBO_kJAG0IxVzpf5QnsV32Ja8p_ZHlMF-M';
 const sb = supabase.createClient(SUPA_URL, SUPA_ANON);
 
 // ═══════════════════════════════════════════════════════
