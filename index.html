@@ -47,6 +47,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--tx);min-height:100
 .tb-name{font-size:16px;font-weight:700;letter-spacing:-.3px;color:var(--tx)}
 .tb-name span{color:var(--p)}
 .tb-right{display:flex;align-items:center;gap:8px}
+.user-pill{display:flex;flex-direction:column;align-items:flex-end;gap:2px;max-width:150px}
+.user-pill-name{font-size:11px;font-weight:800;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px}
+.user-pill-sub{font-size:9px;color:var(--mut);white-space:nowrap}
 .sync-pill{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.06);border:1px solid var(--bdr);border-radius:20px;padding:5px 11px;font-size:11px;font-weight:600;border:none;color:var(--sub);font-family:var(--font);cursor:pointer}
 .sdot{width:7px;height:7px;border-radius:50%;background:var(--g);flex-shrink:0;animation:blink 2.5s infinite}
 .sdot.spin{background:var(--a);animation:rot 1s linear infinite}
@@ -77,6 +80,17 @@ body{font-family:var(--font);background:var(--bg);color:var(--tx);min-height:100
 .auth-form{text-align:left}
 .auth-err{background:var(--rbg);border:1px solid rgba(240,82,79,.3);border-radius:var(--rds);padding:10px 14px;font-size:13px;color:var(--rl);margin-bottom:12px;display:none}
 .auth-err.show{display:block}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:950;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.on{display:flex}
+.modal-box{width:100%;max-width:420px;background:var(--bg2);border:1px solid var(--bdr);border-radius:20px;padding:22px;box-shadow:var(--sh2)}
+.modal-title{font-size:20px;font-weight:800;margin-bottom:6px;color:var(--tx)}
+.modal-sub{font-size:13px;color:var(--sub);line-height:1.6;margin-bottom:16px}
+.paywall-card{text-align:center}
+.badge{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:4px 9px;font-size:10px;font-weight:800;border:1px solid var(--bdr);background:var(--card2);color:var(--sub)}
+.badge.ok{background:var(--gbg);color:var(--gl);border-color:rgba(34,201,138,.3)}
+.badge.warn{background:var(--abg);color:var(--a);border-color:rgba(245,166,35,.3)}
+.badge.pro{background:var(--pbg);color:var(--pl);border-color:rgba(124,110,245,.3)}
+.locked{opacity:.55;pointer-events:none}
 
 /* ── Cards ── */
 .card{background:var(--card);border-radius:var(--rd);padding:17px;box-shadow:var(--sh);margin-bottom:11px;border:1px solid var(--bdr);animation:up .25s ease both}
@@ -288,7 +302,46 @@ body{font-family:var(--font);background:var(--bg);color:var(--tx);min-height:100
       <div class="fld"><label>อีเมล</label><input type="email" id="auth-email" placeholder="email@example.com" autocomplete="email"></div>
       <div class="fld"><label>รหัสผ่าน</label><input type="password" id="auth-pw" placeholder="••••••••" autocomplete="current-password"></div>
       <button class="btn-go" id="login-btn" onclick="doLogin()" style="margin-top:4px">เข้าสู่ระบบ</button>
+      <button class="btn-sm" id="auth-toggle-btn" onclick="toggleAuthMode()" style="margin-top:8px;text-align:center">สมัครสมาชิกใหม่</button>
+      <button class="btn-sm" onclick="loginWithGoogle()" style="margin-top:8px;text-align:center">เข้าสู่ระบบด้วย Google</button>
     </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="onboard-modal">
+  <div class="modal-box">
+    <div class="modal-title">ตั้งค่าโปรไฟล์</div>
+    <div class="modal-sub">กรอกชื่อที่จะแสดงในครอบครัว ชื่อนี้จะถูกใช้เป็นผู้จ่าย/ผู้รับอัตโนมัติ</div>
+    <div class="fld"><label>ชื่อของคุณ</label><input type="text" id="onboard-name" placeholder="เช่น เจ"></div>
+    <button class="btn-go" onclick="saveOnboarding()">เริ่มใช้งาน</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="paywall">
+  <div class="modal-box paywall-card">
+    <div style="font-size:42px;margin-bottom:8px">🔒</div>
+    <div class="modal-title">กรุณาสมัครสมาชิก 59฿</div>
+    <div class="modal-sub">Trial หมดอายุหรือแพ็กเกจยังไม่เปิดใช้งาน<br>สมัคร Standard 59฿ เพื่อใช้งานต่อ หรือ Pro 109฿ เพื่อเปิด Export CSV</div>
+    <button class="btn-go" onclick="goTab('set',document.querySelector('.tbtn[onclick*=set]'))">ดูสถานะสมาชิก</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="credit-setup-modal">
+  <div class="modal-box">
+    <div class="modal-title">เพิ่มสินเชื่อใบแรก</div>
+    <div class="modal-sub">ครอบครัวนี้ยังไม่มีข้อมูลสินเชื่อ กรุณาเพิ่มอย่างน้อย 1 รายการก่อนใช้งานหน้าสินเชื่อ</div>
+    <div class="fld"><label>ประเภท</label><select id="cs-type"><option value="revolving">Revolving</option><option value="fixed">Secured</option></select></div>
+    <div class="fld"><label>Provider</label><select id="cs-provider"><option>KTC</option><option>AEON</option><option>K-Bank</option><option>Shopee Pay Later</option><option>Shopee Money</option><option>True Pay Later</option><option>K-First</option><option>This Shop</option></select></div>
+    <div class="fld"><label>วงเงิน / ยอดหนี้</label><input type="number" id="cs-limit" placeholder="0"></div>
+    <div class="info-r">
+      <div class="fld"><label>ดอกเบี้ย (%/ปี)</label><input type="number" id="cs-rate" placeholder="0" step="0.01"></div>
+      <div class="fld"><label>จ่ายขั้นต่ำ</label><input type="number" id="cs-min" placeholder="0"></div>
+    </div>
+    <div class="info-r">
+      <div class="fld"><label>วันตัดรอบ</label><input type="text" id="cs-bill" placeholder="เช่น 25"></div>
+      <div class="fld"><label>วันครบกำหนด</label><input type="text" id="cs-due" placeholder="เช่น 15"></div>
+    </div>
+    <button class="btn-go" onclick="saveFirstCredit()">บันทึกสินเชื่อ</button>
   </div>
 </div>
 
@@ -299,6 +352,10 @@ body{font-family:var(--font);background:var(--bg);color:var(--tx);min-height:100
     <div class="tb-name">Bridge<span>X</span></div>
   </div>
   <div class="tb-right">
+    <div class="user-pill">
+      <div class="user-pill-name" id="hdr-name">-</div>
+      <div class="user-pill-sub" id="hdr-sub">trial</div>
+    </div>
     <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" title="เปลี่ยนธีม">🌙</button>
     <button class="sync-pill" onclick="syncNow()">
       <span class="sdot" id="sdot"></span>
@@ -321,12 +378,10 @@ body{font-family:var(--font);background:var(--bg);color:var(--tx);min-height:100
   <div class="card">
     <div class="ctitle">หมวดหมู่</div>
     <div class="chips" id="cat-chips"></div>
-    <button class="add-chip" onclick="addOpt('cat')">+ เพิ่มหมวดหมู่</button>
   </div>
   <div class="card">
     <div class="ctitle">ช่องทางชำระ</div>
     <div class="chips" id="pay-chips"></div>
-    <button class="add-chip" onclick="addOpt('pay')">+ เพิ่มช่องทาง</button>
   </div>
   <div class="card">
     <div class="ctitle">ผู้จ่าย</div>
@@ -340,11 +395,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--tx);min-height:100
 
 <!-- HISTORY -->
 <div class="pg" id="pg-hist">
-  <div class="frow">
+  <div class="frow" id="hist-filters">
     <div class="fchip on" onclick="setHF('all',this)">ทั้งหมด</div>
     <div class="fchip" onclick="setHF('mo',this)">เดือนนี้</div>
-    <div class="fchip" onclick="setHF('เจ',this)">👨 เจ</div>
-    <div class="fchip" onclick="setHF('แฟง',this)">👩 แฟง</div>
   </div>
   <div id="hist-list"></div>
 </div>
@@ -395,11 +448,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--tx);min-height:100
 
 <!-- DASHBOARD -->
 <div class="pg" id="pg-dash">
-  <div class="frow">
+  <div class="frow" id="dash-filters">
     <div class="fchip on" onclick="setDF('mo',this)">เดือนนี้</div>
     <div class="fchip" onclick="setDF('all',this)">ทั้งหมด</div>
-    <div class="fchip" onclick="setDF('เจ',this)">👨 เจ</div>
-    <div class="fchip" onclick="setDF('แฟง',this)">👩 แฟง</div>
   </div>
   <div id="dash"></div>
 </div>
@@ -452,15 +503,25 @@ body{font-family:var(--font);background:var(--bg);color:var(--tx);min-height:100
     <button class="btn-sm danger" onclick="doLogout()">🚪 ออกจากระบบ</button>
   </div>
   <div class="card">
+    <div class="ctitle">Subscription</div>
+    <div id="set-subscription" style="font-size:13px;color:var(--sub);line-height:1.8">-</div>
+  </div>
+  <div class="card">
+    <div class="ctitle">จัดการครอบครัว</div>
+    <div class="fld"><label>ID ครอบครัว</label><input type="text" id="family-id-view" readonly></div>
+    <div class="fld"><label>เข้าร่วมครอบครัวอื่น</label><input type="text" id="join-family-id" placeholder="วาง family_id ที่ต้องการเข้าร่วม"></div>
+    <button class="btn-go blue" onclick="joinFamily()">เข้าร่วมครอบครัวนี้</button>
+  </div>
+  <div class="card">
     <div class="ctitle">สถิติข้อมูล</div>
     <div id="set-stats"></div>
   </div>
   <div class="card">
     <div class="ctitle">Export ข้อมูล</div>
     <div style="display:flex;flex-direction:column;gap:8px">
-      <button class="btn-sm" onclick="exportCSV('expense')">📋 Export รายจ่าย (.csv)</button>
-      <button class="btn-sm" onclick="exportCSV('income')">💵 Export รายรับ (.csv)</button>
-      <button class="btn-sm" onclick="exportCSV('credit')">💳 Export สินเชื่อ (.csv)</button>
+      <button class="btn-sm" id="export-expense" onclick="exportCSV('expense')">📋 Export รายจ่าย (.csv) <span class="badge pro">Pro 109฿</span></button>
+      <button class="btn-sm" id="export-income" onclick="exportCSV('income')">💵 Export รายรับ (.csv) <span class="badge pro">Pro 109฿</span></button>
+      <button class="btn-sm" id="export-credit" onclick="exportCSV('credit')">💳 Export สินเชื่อ (.csv) <span class="badge pro">Pro 109฿</span></button>
     </div>
   </div>
   <div class="card" style="margin-bottom:20px">
@@ -479,7 +540,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--tx);min-height:100
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;text-align:left">
       <div style="background:var(--card2);border-radius:var(--rds);padding:11px;border:1px solid var(--bdr)">
         <div style="font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">เวอร์ชัน</div>
-        <div style="font-size:14px;font-weight:700;color:var(--p);font-family:var(--mono)">3.0.0</div>
+        <div style="font-size:14px;font-weight:700;color:var(--p);font-family:var(--mono)">4.0.0</div>
       </div>
       <div style="background:var(--card2);border-radius:var(--rds);padding:11px;border:1px solid var(--bdr)">
         <div style="font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">Database</div>
@@ -497,7 +558,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--tx);min-height:100
     <div style="font-size:11px;color:var(--mut);line-height:1.7;border-top:1px solid var(--bdr);padding-top:12px">
       แอปบริหารการเงินส่วนตัว ออกแบบสำหรับคู่รัก<br>
       ติดตามรายรับ-รายจ่าย และสินเชื่อแบบ Real-time<br><br>
-      <span style="color:var(--mut);font-size:10px">© 2025 BridgeX.Finance · All rights reserved</span>
+      <span style="color:var(--mut);font-size:10px">Copyright BridgeX · © 2026 BridgeX.Finance · All rights reserved</span>
     </div>
   </div>
 </div>
@@ -515,8 +576,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--tx);min-height:100
 // ═══════════════════════════════════════════════════════
 // SUPABASE CONFIG
 // ═══════════════════════════════════════════════════════
-const SUPA_URL  = 'https://ahnbgcnydlquvondssoy.supabase.co';
-const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFobmJnY255ZGxxdXZvbmRzc295Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxODYxNDksImV4cCI6MjA5Mzc2MjE0OX0.G0jZjEFxgLBO_kJAG0IxVzpf5QnsV32Ja8p_ZHlMF-M';
+const SUPA_URL  = 'https://kxlknrlsaeyyphcxyvei.supabase.co';
+const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4bGtucmxzYWV5eXBoY3h5dmVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0ODYwODAsImV4cCI6MjA5NDA2MjA4MH0.0OgmIUiSct2Clr3bJVgpKVvgs7y1zXCEus--3z1h2Yw';
 const sb = supabase.createClient(SUPA_URL, SUPA_ANON);
 
 // ═══════════════════════════════════════════════════════
@@ -533,11 +594,7 @@ const DEF_CATS = [
   {id:'fam',l:'👨‍👩‍👦 ให้ครอบครัว',c:'#a855f7'},{id:'other',l:'💼 อื่นๆ',c:'#78716c'}
 ];
 const DEF_PAYS = [
-  {id:'cash',l:'💵 เงินสด'},{id:'xfer',l:'📲 โอนเงิน'},
-  {id:'kbank',l:'💚 K-Bank'},{id:'ktc',l:'🔵 KTC'},
-  {id:'aeon',l:'🔴 Aeon'},{id:'kfirst',l:'🟤 K-First'},
-  {id:'shopee',l:'🟠 Shopee Pay Later'},{id:'shopeem',l:'🟠 Shopee Money'},
-  {id:'true',l:'💜 True Pay Later'}
+  {id:'cash',l:'เงินสด'},{id:'xfer',l:'โอนเงิน'}
 ];
 const DEF_INCC = [
   {id:'sal',l:'💼 เงินเดือน',c:'#22c98a'},{id:'bon',l:'🎁 โบนัส',c:'#f5a623'},
@@ -600,13 +657,17 @@ function mergeById(saved, defs){
 }
 var S = {
   user: null,
+  profile: null,
+  hasAccess: false,
+  accessReason: '',
+  familyMembers: [],
   expenses: [],
   incomes: [],
   crInfo: readLS('crInfo',{}),
   crStatus: readLS('crStatus',{}),
   customCr: readLS('customCr',[]),
   cats: mergeById(readLS('cats',null), DEF_CATS),
-  pays: mergeById(readLS('pays',null), DEF_PAYS),
+  pays: DEF_PAYS.slice(),
   incc: mergeById(readLS('incc',null), DEF_INCC),
   inch: mergeById(readLS('inch',null), DEF_INCH),
   fc:{cat:'',pay:'',payer:''},
@@ -615,6 +676,7 @@ var S = {
   strategy:'avalanche', extraCash:5000,
   activeCr:'', activeInfo:''
 };
+var authMode='login';
 
 function sv(){
   localStorage.setItem('crInfo',JSON.stringify(S.crInfo));
@@ -635,6 +697,15 @@ function fmt(n){ return Number(n||0).toLocaleString('th-TH',{maximumFractionDigi
 function fmt2(n){ return Number(n||0).toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function allCR(){ return BASE_CR.concat(S.customCr); }
+function getMyCredits(){
+  return allCR().filter(function(c){ return !!(S.crInfo&&S.crInfo[c.id]); });
+}
+function payIcon(label){
+  if(label==='เงินสด') return '💵';
+  if(label==='โอนเงิน') return '📲';
+  var cr=allCR().find(function(c){ return c.n===label; });
+  return cr?cr.ico||'💳':'💳';
+}
 function thaiMo(mo){
   var TM=['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
   var p=mo.split('-'); return TM[parseInt(p[1])]+' '+p[0];
@@ -692,13 +763,113 @@ function setDot(state,txt){
 function makeRowId(){
   return Date.now()*1000 + Math.floor(Math.random()*1000);
 }
+function makeUUID(){
+  if(window.crypto&&crypto.randomUUID) return crypto.randomUUID();
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,function(c){
+    var r=Math.random()*16|0,v=c==='x'?r:(r&0x3|0x8);
+    return v.toString(16);
+  });
+}
+function daysLeft(dateStr){
+  if(!dateStr) return 0;
+  return Math.max(0,Math.ceil((new Date(dateStr).getTime()-Date.now())/86400000));
+}
+function tierLabel(){
+  if(!S.profile) return 'ไม่พบโปรไฟล์';
+  var tier=S.profile.sub_tier||'trial';
+  if(tier==='trial') return 'Trial · เหลือ '+daysLeft(S.profile.trial_end)+' วัน';
+  if(tier==='standard_59') return 'Standard 59฿';
+  if(tier==='pro_109') return 'Pro 109฿';
+  return tier;
+}
+function updateHeader(){
+  var name=S.profile&&S.profile.full_name?S.profile.full_name:(S.user?S.user.email:'-');
+  var hn=document.getElementById('hdr-name'),hs=document.getElementById('hdr-sub');
+  if(hn) hn.textContent=name||'-';
+  if(hs) hs.textContent=tierLabel();
+}
+async function ensureProfile(){
+  if(!S.user) return null;
+  var res=await sb.from('profiles').select('*').eq('id',S.user.id).maybeSingle();
+  if(res.error && res.error.code!=='PGRST116') throw res.error;
+  if(!res.data){
+    var meta=S.user.user_metadata||{};
+    var trialEnd=new Date(Date.now()+60*86400000).toISOString();
+    var row={id:S.user.id,full_name:meta.full_name||meta.name||'',sub_tier:'trial',trial_end:trialEnd,updated_at:new Date().toISOString()};
+    var ins=await sb.from('profiles').insert([row]).select('*').single();
+    if(ins.error) throw ins.error;
+    S.profile=ins.data;
+  } else {
+    S.profile=res.data;
+  }
+  return S.profile;
+}
+async function ensureFamily(){
+  if(!S.profile) return;
+  if(S.profile.family_id) return;
+  var fid=makeUUID();
+  var res=await sb.from('profiles').update({family_id:fid,updated_at:new Date().toISOString()}).eq('id',S.user.id).select('*').single();
+  if(res.error) throw res.error;
+  S.profile=res.data;
+}
+async function saveOnboarding(){
+  var name=document.getElementById('onboard-name').value.trim();
+  if(!name) return toast('กรอกชื่อก่อนนะ','err');
+  var res=await sb.from('profiles').update({full_name:name,updated_at:new Date().toISOString()}).eq('id',S.user.id).select('*').single();
+  if(res.error) return toast(res.error.message,'err');
+  S.profile=res.data;
+  document.getElementById('onboard-modal').classList.remove('on');
+  applyCurrentProfileToPayers();
+  updateHeader();
+  renderPersonFilters();
+}
+function checkAccess(){
+  var p=S.profile||{},tier=p.sub_tier||'trial',now=Date.now();
+  var pass=false;
+  if(tier==='trial') pass=!!p.trial_end && new Date(p.trial_end).getTime()>now;
+  if(tier==='standard_59'||tier==='pro_109') pass=!p.valid_until || new Date(p.valid_until).getTime()>now;
+  S.hasAccess=pass;
+  S.accessReason=pass?'ok':'blocked';
+  var pw=document.getElementById('paywall');
+  if(pw) pw.classList.toggle('on',!pass);
+  return pass;
+}
+function applyCurrentProfileToPayers(){
+  var nm=S.profile&&S.profile.full_name?S.profile.full_name:'ผู้ใช้';
+  S.fc.payer=nm; S.fi.rcv=nm;
+  var pj=document.getElementById('py-j'),pf=document.getElementById('py-f'),ij=document.getElementById('ip-j'),inf=document.getElementById('ip-f');
+  if(pj){ pj.querySelector('.nm').textContent=nm; pj.querySelector('.rl').textContent='คุณ'; pj.classList.add('on','locked'); }
+  if(pf) pf.style.display='none';
+  if(ij){ ij.querySelector('.nm').textContent=nm; ij.querySelector('.rl').textContent='คุณ'; ij.classList.add('on','locked'); }
+  if(inf) inf.style.display='none';
+}
+async function loadFamilyMembers(){
+  if(!S.profile||!S.profile.family_id) return;
+  var res=await sb.from('profiles').select('id,full_name').eq('family_id',S.profile.family_id);
+  S.familyMembers=res.data||[];
+}
+async function getFamilyMembers(){
+  await loadFamilyMembers();
+  return S.familyMembers;
+}
+function subscriptionBadge(){
+  if(!S.profile) return '';
+  var tier=S.profile.sub_tier||'trial';
+  var cls=tier==='pro_109'?'pro':tier==='trial'?'warn':'ok';
+  return '<span class="badge '+cls+'">'+tierLabel()+'</span>';
+}
 
 // ═══════════════════════════════════════════════════════
 // AUTH
 // ═══════════════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', async function(){
   ['f-dt','i-dt','dr-dt'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=today(); });
-  // Check existing session
+  sb.auth.onAuthStateChange(async function(event,session){
+    if(session&&session.user){
+      S.user=session.user;
+      await onLogin();
+    }
+  });
   var sess = await sb.auth.getSession();
   if(sess.data.session){
     S.user = sess.data.session.user;
@@ -714,15 +885,26 @@ async function doLogin(){
   var pw=document.getElementById('auth-pw').value;
   var btn=document.getElementById('login-btn');
   if(!email||!pw){ showAuthErr('กรุณากรอกอีเมลและรหัสผ่าน'); return; }
-  btn.textContent='⏳ กำลังเข้าสู่ระบบ...'; btn.disabled=true;
-  var res = await sb.auth.signInWithPassword({email:email, password:pw});
+  btn.textContent=authMode==='signup'?'⏳ กำลังสมัคร...':'⏳ กำลังเข้าสู่ระบบ...'; btn.disabled=true;
+  var res = authMode==='signup'
+    ? await sb.auth.signUp({email:email,password:pw})
+    : await sb.auth.signInWithPassword({email:email, password:pw});
   if(res.error){
-    showAuthErr('อีเมลหรือรหัสผ่านไม่ถูกต้อง');
-    btn.textContent='เข้าสู่ระบบ'; btn.disabled=false;
+    showAuthErr(authMode==='signup'?res.error.message:'อีเมลหรือรหัสผ่านไม่ถูกต้อง');
+    btn.textContent=authMode==='signup'?'สมัครสมาชิก':'เข้าสู่ระบบ'; btn.disabled=false;
     return;
   }
   S.user = res.data.user;
   await onLogin();
+}
+function toggleAuthMode(){
+  authMode=authMode==='login'?'signup':'login';
+  document.getElementById('login-btn').textContent=authMode==='signup'?'สมัครสมาชิก':'เข้าสู่ระบบ';
+  document.getElementById('auth-toggle-btn').textContent=authMode==='signup'?'มีบัญชีแล้ว เข้าสู่ระบบ':'สมัครสมาชิกใหม่';
+}
+async function loginWithGoogle(){
+  var res=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.origin+window.location.pathname}});
+  if(res.error) showAuthErr(res.error.message);
 }
 function showAuthErr(msg){
   var e=document.getElementById('auth-err'); e.textContent=msg; e.classList.add('show');
@@ -730,6 +912,22 @@ function showAuthErr(msg){
 }
 async function onLogin(){
   document.getElementById('auth-screen').classList.add('off');
+  try{
+    await ensureProfile();
+    await ensureFamily();
+    checkAccess();
+    if(!S.profile.full_name){
+      document.getElementById('onboard-name').value=(S.user.user_metadata&&S.user.user_metadata.full_name)||'';
+      document.getElementById('onboard-modal').classList.add('on');
+    }
+    await loadFamilyMembers();
+  }catch(e){
+    console.error('profile bootstrap failed:',e);
+    toast('โหลดโปรไฟล์ไม่สำเร็จ: '+(e.message||e),'err');
+  }
+  applyCurrentProfileToPayers();
+  updateHeader();
+  renderPersonFilters();
   renderCats(); renderPays(); renderIncc(); renderInch();
   renderHist(); renderCR(); renderDash(); renderIncSum(); renderSetStats();
   document.getElementById('set-user').textContent=S.user?S.user.email:'';
@@ -749,8 +947,13 @@ async function doLogout(){
 async function loadFromSupabase(){
   setDot('spin','โหลด...');
   try {
+    await ensureProfile();
+    await ensureFamily();
+    if(!checkAccess()){ setDot('off','Paywall'); document.getElementById('loading').classList.add('off'); return; }
+    var fid=S.profile.family_id;
+    S.expenses=[]; S.incomes=[]; S.crStatus={};
     // Load expenses
-    var expRes = await sb.from('expenses').select('*').order('date',{ascending:false});
+    var expRes = await sb.from('expenses').select('*').eq('family_id',fid).order('date',{ascending:false});
     if(expRes.data&&expRes.data.length){
       var exSet={};
       S.expenses.forEach(function(e){ exSet[e.date+'|'+e.amount+'|'+e.detail]=1; });
@@ -766,7 +969,7 @@ async function loadFromSupabase(){
       S.expenses.sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
     }
     // Load incomes
-    var incRes = await sb.from('incomes').select('*').order('date',{ascending:false});
+    var incRes = await sb.from('incomes').select('*').eq('family_id',fid).order('date',{ascending:false});
     if(incRes.data&&incRes.data.length){
       var incSet={};
       S.incomes.forEach(function(i){ incSet[i.date+'|'+i.amount+'|'+i.detail]=1; });
@@ -781,7 +984,7 @@ async function loadFromSupabase(){
       S.incomes.sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
     }
     // Load credit payments
-    var crRes = await sb.from('credits').select('*').order('date',{ascending:false});
+    var crRes = await sb.from('credits').select('*').eq('family_id',fid).order('date',{ascending:false});
     if(crRes.data){
       var mo=thisMo();
       crRes.data.forEach(function(r){
@@ -798,11 +1001,17 @@ async function loadFromSupabase(){
       });
     }
     // Load credit info
-    var ciRes = await sb.from('credit_info').select('*');
+    S.crInfo={};
+    var ciRes = await sb.from('credit_info').select('*').eq('family_id',fid);
     if(ciRes.data){
       ciRes.data.forEach(function(r){
         var found=allCR().find(function(c){ return c.n===(r.credit_name||r.name||''); });
-        if(!found) return;
+        if(!found){
+          found={id:'cr_'+String(r.credit_name||r.name||Date.now()).toLowerCase().replace(/\W+/g,'_'),n:r.credit_name||r.name||'Credit',t:r.type||'revolving',ico:'💳',rate:Number(r.rate||0)};
+          S.customCr.push(found);
+        } else {
+          found.t=r.type||found.t;
+        }
         if(!S.crInfo[found.id]||!S.crInfo[found.id].limit){
           S.crInfo[found.id]={
             limit:Number(r.credit_limit||r.limit||0), rate:Number(r.rate||found.rate||0),
@@ -813,7 +1022,10 @@ async function loadFromSupabase(){
         }
       });
     }
+    loadCreditOptions();
+    if(Object.keys(S.crInfo||{}).length>0) document.getElementById('credit-setup-modal').classList.remove('on');
     recomputeMatchedCreditBalances();
+    renderPersonFilters();
     sv();
     renderHist(); renderCR(); renderDash(); renderIncSum(); renderSetStats();
     setDot('ok','Synced ✅');
@@ -823,6 +1035,7 @@ async function loadFromSupabase(){
   }
   document.getElementById('loading').classList.add('off');
 }
+async function loadFamilyData(){ return loadFromSupabase(); }
 
 async function syncNow(){
   toast('🔄 กำลัง sync...','info');
@@ -831,8 +1044,10 @@ async function syncNow(){
 
 async function saveToSupabase(table, data){
   if(!S.user){ console.warn('saveToSupabase: no user session'); return; }
+  if(!S.profile||!S.profile.family_id){ await ensureProfile(); await ensureFamily(); }
+  if(!checkAccess()) return toast('กรุณาสมัครสมาชิก 59฿','err');
   try {
-    var row = Object.assign({user_id: S.user.id}, data);
+    var row = Object.assign({user_id: S.user.id,family_id:S.profile.family_id}, data);
     if(table!=='credit_info'&&!row.created_at) row.created_at = new Date().toISOString();
     var res;
     if(table==='credit_info'){
@@ -840,7 +1055,7 @@ async function saveToSupabase(table, data){
       delete updateRow.id;
       res = await sb.from(table)
         .update(updateRow)
-        .eq('user_id',S.user.id)
+        .eq('family_id',S.profile.family_id)
         .eq('credit_name',row.credit_name)
         .select('id');
       if(!res.error && (!res.data || !res.data.length)){
@@ -888,11 +1103,19 @@ function mkChips(arr,selId,wrapId,onPick){
   });
 }
 function renderCats(){ mkChips(S.cats,S.fc.cat,'cat-chips',function(id){ S.fc.cat=id; renderCats(); }); }
-function renderPays(){ mkChips(S.pays,S.fc.pay,'pay-chips',function(id){ S.fc.pay=id; renderPays(); }); }
+function renderPays(){
+  var w=document.getElementById('pay-chips'); if(!w) return; w.innerHTML='';
+  S.pays.forEach(function(p){
+    var b=document.createElement('button'); b.className='chip'+(S.fc.pay===p.id?' on':'');
+    b.textContent=payIcon(p.l)+' '+p.l;
+    b.onclick=function(){ S.fc.pay=p.id; renderPays(); };
+    w.appendChild(b);
+  });
+}
 function renderIncc(){ mkChips(S.incc,S.fi.cat,'incc-chips',function(id){ S.fi.cat=id; renderIncc(); }); }
 function renderInch(){ mkChips(S.inch,S.fi.ch,'inch-chips',function(id){ S.fi.ch=id; renderInch(); }); }
-function selP(n){ S.fc.payer=n; document.getElementById('py-j').classList.toggle('on',n==='เจ'); document.getElementById('py-f').classList.toggle('on',n==='แฟง'); }
-function selIP(n){ S.fi.rcv=n; document.getElementById('ip-j').classList.toggle('on',n==='เจ'); document.getElementById('ip-f').classList.toggle('on',n==='แฟง'); }
+function selP(n){ if(S.profile&&S.profile.full_name){ S.fc.payer=S.profile.full_name; return; } S.fc.payer=n; document.getElementById('py-j').classList.toggle('on',n==='เจ'); document.getElementById('py-f').classList.toggle('on',n==='แฟง'); }
+function selIP(n){ if(S.profile&&S.profile.full_name){ S.fi.rcv=S.profile.full_name; return; } S.fi.rcv=n; document.getElementById('ip-j').classList.toggle('on',n==='เจ'); document.getElementById('ip-f').classList.toggle('on',n==='แฟง'); }
 function addOpt(t){
   var labels={'cat':'ชื่อหมวดหมู่ใหม่:','pay':'ชื่อช่องทางใหม่:','inc-cat':'หมวดหมู่รายรับ:','inc-ch':'ช่องทางรับเงิน:'};
   var v=prompt(labels[t]||'ชื่อ:'); if(!v) return;
@@ -903,11 +1126,42 @@ function addOpt(t){
   else if(t==='inc-ch'){ S.inch.push({id:id,l:v}); renderInch(); }
   sv();
 }
+function loadCreditOptions(){
+  var base=DEF_PAYS.slice();
+  Object.keys(S.crInfo||{}).forEach(function(crId){
+    var cr=allCR().find(function(c){ return c.id===crId; });
+    if(!cr||cr.t!=='revolving') return;
+    if(!base.some(function(p){ return p.l===cr.n; })) base.push({id:'crpay_'+cr.id,l:cr.n});
+    PAY2CR[cr.n]=cr.id;
+  });
+  S.pays=base;
+  if(S.fc.pay && !S.pays.some(function(p){ return p.id===S.fc.pay; })) S.fc.pay='';
+  renderPays();
+}
+function renderPersonFilters(){
+  var names={};
+  (S.familyMembers||[]).forEach(function(p){ if(p.full_name) names[p.full_name]=1; });
+  S.expenses.forEach(function(e){ if(e.paidBy) names[e.paidBy]=1; });
+  function fill(wrapId,setter,current){
+    var wrap=document.getElementById(wrapId); if(!wrap) return;
+    Array.from(wrap.querySelectorAll('.person-chip')).forEach(function(el){ el.remove(); });
+    Object.keys(names).sort().forEach(function(n){
+      var b=document.createElement('div'); b.className='fchip person-chip'+(current==='person:'+n?' on':'');
+      b.textContent='👤 '+n;
+      b.onclick=function(){ setter('person:'+n,b); };
+      wrap.appendChild(b);
+    });
+  }
+  fill('hist-filters',setHF,hf);
+  fill('dash-filters',setDF,df);
+}
 
 // ═══════════════════════════════════════════════════════
 // SUBMIT EXPENSE
 // ═══════════════════════════════════════════════════════
 async function submitExp(){
+  if(!checkAccess()) return toast('กรุณาสมัครสมาชิก 59฿','err');
+  if(S.profile&&S.profile.full_name) S.fc.payer=S.profile.full_name;
   var amt=parseFloat(document.getElementById('f-amt').value);
   var det=document.getElementById('f-det').value.trim();
   var dt=document.getElementById('f-dt').value;
@@ -926,9 +1180,12 @@ async function submitExp(){
   document.getElementById('f-det').value='';
   document.getElementById('f-dt').value=today();
   S.fc={cat:'',pay:'',payer:''};
+  if(S.profile&&S.profile.full_name) S.fc.payer=S.profile.full_name;
   renderCats(); renderPays();
-  document.getElementById('py-j').classList.remove('on');
-  document.getElementById('py-f').classList.remove('on');
+  applyCurrentProfileToPayers();
+  renderPersonFilters();
+  renderHist();
+  renderDash();
   toast('✅ บันทึกแล้ว','ok');
   // Save to Supabase
   saveToSupabase('expenses',{date:ex.date,detail:ex.detail,category:ex.category,payment:ex.payment,amount:ex.amount,paid_by:ex.paidBy,created_at:ex.createdAt});
@@ -937,7 +1194,6 @@ async function submitExp(){
 function autoMatch(ex){
   var crId=PAY2CR[ex.payment]||PAY2CR[ex.payment.replace(/^[^\s]+\s/,'')];
   if(!crId) return;
-  if((crId==='shopee'||crId==='shopeem')&&ex.paidBy!=='เจ') return;
   var st=S.crStatus[crId]||{paid:false,amount:0,remaining:0,date:''};
   if(st.baseRemaining==null) st.baseRemaining = st.remaining||0;
   if(!st.baseAt) st.baseAt = new Date().toISOString();
@@ -958,8 +1214,7 @@ function renderHist(){
   var mo=thisMo();
   var items=S.expenses.slice();
   if(hf==='mo') items=items.filter(function(e){ return e.date&&e.date.slice(0,7)===mo; });
-  if(hf==='เจ') items=items.filter(function(e){ return e.paidBy==='เจ'; });
-  if(hf==='แฟง') items=items.filter(function(e){ return e.paidBy==='แฟง'; });
+  if(hf.indexOf('person:')===0){ var pn=hf.slice(7); items=items.filter(function(e){ return e.paidBy===pn; }); }
   if(!items.length){ list.innerHTML='<div class="empty"><div class="ei">📭</div><p>ยังไม่มีรายการ</p></div>'; return; }
   // Group by month
   var monthGrps={};
@@ -991,7 +1246,7 @@ function renderHist(){
         var item=document.createElement('div'); item.className='exi';
         item.style.setProperty('--cat-c',e.catC||'#7c6ef5');
         var ico=(e.category||'').split(' ')[0]||'💸';
-        item.innerHTML='<div class="exico">'+ico+'</div><div class="exbody"><div class="exname">'+esc(e.detail)+'</div><div class="exmeta">'+esc(e.category||'')+' · '+esc(e.payment||'')+'</div></div><div class="exr"><div class="examt">฿'+fmt(e.amount)+'</div><div class="expay">'+(e.paidBy==='เจ'?'👨':'👩')+' '+esc(e.paidBy||'')+'</div></div><button class="delbtn" onclick="delEx(this.dataset.id)" data-id="'+e.id+'">×</button>';
+        item.innerHTML='<div class="exico">'+ico+'</div><div class="exbody"><div class="exname">'+esc(e.detail)+'</div><div class="exmeta">'+esc(e.category||'')+' · '+esc(e.payment||'')+'</div></div><div class="exr"><div class="examt">฿'+fmt(e.amount)+'</div><div class="expay">👤 '+esc(e.paidBy||'')+'</div></div><button class="delbtn" onclick="delEx(this.dataset.id)" data-id="'+e.id+'">×</button>';
         dayBody.appendChild(item);
       });
       // Toggle
@@ -1021,7 +1276,7 @@ async function delEx(idOrEl){
   if(S.user){
     try{
       var numId=Number(id);
-      var res=await sb.from('expenses').delete().eq('id', isNaN(numId)?id:numId).eq('user_id',S.user.id);
+      var res=await sb.from('expenses').delete().eq('id', isNaN(numId)?id:numId).eq('family_id',S.profile.family_id);
       if(res.error){ toast('⚠️ ลบจาก DB ไม่สำเร็จ: '+res.error.message,'err'); }
       else{ toast('🗑 ลบรายการแล้ว','ok'); }
     }catch(e){ toast('⚠️ เกิดข้อผิดพลาด: '+(e.message||e),'err'); }
@@ -1035,6 +1290,10 @@ var crf='overview', activeCrId='', activeInfoId='';
 function setCRF(f,el){ crf=f; document.querySelectorAll('#pg-cr .fchip').forEach(function(c){ c.classList.remove('on'); }); el.classList.add('on'); renderCR(); }
 
 function renderCR(){
+  if(S.profile&&S.profile.family_id&&Object.keys(S.crInfo||{}).length===0){
+    var list0=document.getElementById('cr-list'); if(list0) list0.innerHTML="<div class=\"card\" style=\"text-align:center\"><div class=\"ctitle\" style=\"justify-content:center\">Credit Setup</div><p style=\"font-size:13px;color:var(--sub);line-height:1.7;margin-bottom:12px\">ยังไม่มีสินเชื่อในครอบครัวนี้</p><button class=\"btn-go\" onclick=\"openCreditSetupModal('revolving')\">เพิ่มสินเชื่อใบแรก</button></div>";
+    return;
+  }
   renderDebtOverview();
   renderMatchSummary();
   var list=document.getElementById('cr-list'); list.innerHTML='';
@@ -1045,8 +1304,7 @@ function renderCR(){
   var TLC={revolving:'var(--p)',fixed:'var(--b)'};
   var mo=thisMo();
   types.forEach(function(t){
-    var grp=allCR().filter(function(c){ return c.t===t; });
-    if(!grp.length) return;
+    var grp=getMyCredits().filter(function(c){ return c.t===t; });
     var paidCnt=grp.filter(function(cr){ var st=S.crStatus[cr.id]||{}; return st.paid&&(st.date||'').slice(0,7)===mo; }).length;
     var totAmt=grp.filter(function(cr){ var st=S.crStatus[cr.id]||{}; return st.paid&&(st.date||'').slice(0,7)===mo; }).reduce(function(s,cr){ return s+(S.crStatus[cr.id].amount||0); },0);
     // Collapsible section — same style as dashboard
@@ -1075,14 +1333,51 @@ function renderCR(){
   });
 }
 
-function addCR(t){ var n=prompt('ชื่อสินเชื่อ/รายจ่ายใหม่:'); if(!n) return; var ico=prompt('Emoji:','💳')||'💳'; var id='cr'+Date.now(); S.customCr.push({id:id,n:n,t:t,ico:ico,rate:0}); sv(); renderCR(); }
+function openCreditSetupModal(type){
+  var t=(type==='fixed'||type==='secured')?'fixed':'revolving';
+  document.getElementById('cs-type').value=t;
+  document.getElementById('cs-provider').value='KTC';
+  document.getElementById('cs-limit').value='';
+  document.getElementById('cs-rate').value='';
+  document.getElementById('cs-min').value='';
+  document.getElementById('cs-bill').value='';
+  document.getElementById('cs-due').value='';
+  document.getElementById('credit-setup-modal').classList.add('on');
+}
+function addCR(t){ openCreditSetupModal(t); }
+async function saveFirstCredit(){
+  var provider=document.getElementById('cs-provider').value;
+  var type=document.getElementById('cs-type').value;
+  var cr=allCR().find(function(c){ return c.n===provider; });
+  if(!cr){
+    cr={id:'cr_'+provider.toLowerCase().replace(/\W+/g,'_'),n:provider,t:type,ico:'💳',rate:0};
+    S.customCr.push(cr);
+  }
+  cr.t=type;
+  var info={
+    limit:parseFloat(document.getElementById('cs-limit').value)||0,
+    rate:parseFloat(document.getElementById('cs-rate').value)||0,
+    minPay:parseFloat(document.getElementById('cs-min').value)||0,
+    billCycle:document.getElementById('cs-bill').value,
+    dueDate:document.getElementById('cs-due').value
+  };
+  if(!info.limit) return toast('กรอกวงเงิน/ยอดหนี้ก่อน','err');
+  S.crInfo[cr.id]=info;
+  sv();
+  await saveToSupabase('credit_info',{credit_name:cr.n,type:cr.t,credit_limit:info.limit,rate:info.rate,min_pay:info.minPay,bill_cycle:info.billCycle,due_date:info.dueDate});
+  document.getElementById('credit-setup-modal').classList.remove('on');
+  loadCreditOptions();
+  renderCR();
+  renderDash();
+  renderSetStats();
+}
 
 // ── Debt Overview card ─────────────────────────────────
 function renderDebtOverview(){
   var w=document.getElementById('debt-overview-card'); if(!w) return;
   if(crf!=='overview'&&crf!=='plan'){ w.innerHTML=''; return; }
   var mo=thisMo(),totLimit=0,totUsed=0,totPaid=0,totUnpaid=0,paidCount=0,crCount=0;
-  allCR().filter(function(c){ return c.t==='revolving'; }).forEach(function(cr){
+  getMyCredits().filter(function(c){ return c.t==='revolving'; }).forEach(function(cr){
     var st=S.crStatus[cr.id]||{},info=S.crInfo[cr.id]||{};
     var isPaid=st.paid&&(st.date||'').slice(0,7)===mo;
     if(info.limit){ totLimit+=info.limit; totUsed+=(info.limit-(st.remaining!=null?st.remaining:info.limit)); }
@@ -1105,7 +1400,7 @@ function renderMatchSummary(){
     var crId=PAY2CR[payLabel];
     if(seen[crId]) return; seen[crId]=1;
     var cr=allCR().find(function(c){ return c.id===crId; });
-    if(!cr||cr.t!=='revolving') return;
+    if(!cr||!S.crInfo[cr.id]||cr.t!=='revolving') return;
     var st=S.crStatus[crId]||{};
     var info=S.crInfo[crId]||{};
     var usedInExp=creditExpenseUsage(crId,mo,st.baseAt);
@@ -1172,7 +1467,7 @@ function renderSmartDebt(){
   var list=document.getElementById('cr-list'); list.innerHTML='';
   var mo=thisMo();
   // Get credits with data — exclude 'expense' type
-  var debtList=allCR().filter(function(cr){
+  var debtList=getMyCredits().filter(function(cr){
     if(cr.t==='expense') return false;
     var info=S.crInfo[cr.id]||{};
     var st=S.crStatus[cr.id]||{};
@@ -1333,6 +1628,8 @@ function updateSmartResults(){
 // INCOME
 // ═══════════════════════════════════════════════════════
 async function submitInc(){
+  if(!checkAccess()) return toast('กรุณาสมัครสมาชิก 59฿','err');
+  if(S.profile&&S.profile.full_name) S.fi.rcv=S.profile.full_name;
   var amt=parseFloat(document.getElementById('i-amt').value);
   var det=document.getElementById('i-det').value.trim();
   var dt=document.getElementById('i-dt').value;
@@ -1346,7 +1643,8 @@ async function submitInc(){
   S.incomes.unshift(inc);
   document.getElementById('i-amt').value=''; document.getElementById('i-det').value=''; document.getElementById('i-dt').value=today();
   S.fi={cat:'',ch:'',rcv:''}; renderIncc(); renderInch();
-  document.getElementById('ip-j').classList.remove('on'); document.getElementById('ip-f').classList.remove('on');
+  if(S.profile&&S.profile.full_name) S.fi.rcv=S.profile.full_name;
+  applyCurrentProfileToPayers();
   toast('✅ บันทึกรายรับแล้ว','ok'); renderIncSum();
   saveToSupabase('incomes',{date:inc.date,detail:inc.detail,category:inc.category,channel:inc.channel,amount:inc.amount,receiver:inc.receiver});
 }
@@ -1388,11 +1686,14 @@ function renderDash(){
   var now=new Date(), mo=thisMo();
   var items=S.expenses.slice();
   if(df==='mo') items=items.filter(function(e){ return e.date&&e.date.slice(0,7)===mo; });
-  if(df==='เจ') items=items.filter(function(e){ return e.paidBy==='เจ'; });
-  if(df==='แฟง') items=items.filter(function(e){ return e.paidBy==='แฟง'; });
+  if(df.indexOf('person:')===0){
+    var filterName=df.slice(7);
+    items=items.filter(function(e){ return e.paidBy===filterName; });
+  }
   var tot=items.reduce(function(s,e){ return s+e.amount; },0);
-  var totJ=items.filter(function(e){ return e.paidBy==='เจ'; }).reduce(function(s,e){ return s+e.amount; },0);
-  var totF=items.filter(function(e){ return e.paidBy==='แฟง'; }).reduce(function(s,e){ return s+e.amount; },0);
+  var personTotals={};
+  items.forEach(function(e){ if(e.paidBy) personTotals[e.paidBy]=(personTotals[e.paidBy]||0)+e.amount; });
+  var topPeople=Object.keys(personTotals).sort(function(a,b){ return personTotals[b]-personTotals[a]; }).slice(0,2);
   var incMo=S.incomes.filter(function(i){ return i.date&&i.date.slice(0,7)===mo; }).reduce(function(s,i){ return s+i.amount; },0);
   var net=incMo-tot;
   var avg=tot/Math.max(df==='mo'?now.getDate():30,1);
@@ -1405,13 +1706,15 @@ function renderDash(){
   var pays=Object.keys(payM).map(function(k){ return [k,payM[k]]; }).sort(function(a,b){ return b[1]-a[1]; });
   var maxP=pays.length?pays[0][1]:1;
   var totPaid=0,totUnpaid=0;
-  allCR().forEach(function(cr){ var st=S.crStatus[cr.id]||{},info=S.crInfo[cr.id]||{},isPaid=st.paid&&(st.date||'').slice(0,7)===mo; if(isPaid) totPaid+=st.amount||0; else if(info.minPay) totUnpaid+=info.minPay; });
+  getMyCredits().forEach(function(cr){ var st=S.crStatus[cr.id]||{},info=S.crInfo[cr.id]||{},isPaid=st.paid&&(st.date||'').slice(0,7)===mo; if(isPaid) totPaid+=st.amount||0; else if(info.minPay) totUnpaid+=info.minPay; });
 
   function mkK(lbl,val,vc,sub,full,bc){ var c=document.createElement('div'); c.className='kcard'+(full?' full':''); if(bc) c.style.borderLeft='3px solid '+bc; c.innerHTML='<div class="kl">'+lbl+'</div><div class="kv" style="color:'+vc+'">'+val+'</div>'+(sub?'<div class="ks">'+sub+'</div>':''); return c; }
   var g=document.createElement('div'); g.className='kgrid';
   g.appendChild(mkK('💸 รายจ่ายรวม','฿'+fmt(tot),'var(--p)',items.length+' รายการ · เฉลี่ย ฿'+fmt(avg)+'/วัน',true,'var(--p)'));
-  g.appendChild(mkK('👨 เจ','฿'+fmt(totJ),'var(--p)',Math.round(tot?totJ/tot*100:0)+'%',false,''));
-  g.appendChild(mkK('👩 แฟง','฿'+fmt(totF),'var(--gl)',Math.round(tot?totF/tot*100:0)+'%',false,''));
+  topPeople.forEach(function(name,idx){
+    var color=idx===0?'var(--p)':'var(--gl)';
+    g.appendChild(mkK('👤 '+name,'฿'+fmt(personTotals[name]),color,Math.round(tot?personTotals[name]/tot*100:0)+'%',false,''));
+  });
   if(incMo) g.appendChild(mkK(net>=0?'✅ เหลือสุทธิ':'⚠️ ขาดทุน','฿'+fmt(Math.abs(net)),net>=0?'var(--gl)':'var(--rl)','รายรับ ฿'+fmt(incMo),true,net>=0?'var(--gl)':'var(--rl)'));
   w.appendChild(g);
 
@@ -1420,12 +1723,7 @@ function renderDash(){
     var calMo = mo; // always show current month calendar
     var calItems = S.expenses.filter(function(e){ return e.date&&e.date.slice(0,7)===calMo; });
     // Determine number of people for threshold
-    var people=1;
-    if(df==='mo'){
-      var hasJ=calItems.some(function(e){ return e.paidBy==='เจ'; });
-      var hasF=calItems.some(function(e){ return e.paidBy==='แฟง'; });
-      people=(hasJ&&hasF)?2:1;
-    }
+    var people=Math.max(1,Object.keys(calItems.reduce(function(m,e){ if(e.paidBy) m[e.paidBy]=1; return m; },{})).length);
     // Build day totals
     var dayTotals={};
     calItems.forEach(function(e){ var d=e.date||''; if(!dayTotals[d]) dayTotals[d]=0; dayTotals[d]+=e.amount; });
@@ -1534,7 +1832,7 @@ function renderDash(){
             dr.style.cssText='display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--bdr);font-size:12.5px';
             var left=document.createElement('div');
             var dStr=e.date?new Date(e.date).toLocaleDateString('th-TH',{day:'numeric',month:'short'}):'';
-            left.innerHTML='<div style="font-weight:600;color:var(--tx)">'+esc(e.detail)+'</div><div style="font-size:11px;color:var(--mut)">'+dStr+' · '+(e.paidBy==='เจ'?'👨':'👩')+' '+esc(e.paidBy||'')+'</div>';
+            left.innerHTML='<div style="font-weight:600;color:var(--tx)">'+esc(e.detail)+'</div><div style="font-size:11px;color:var(--mut)">'+dStr+' · 👤 '+esc(e.paidBy||'')+'</div>';
             var right=document.createElement('div'); right.style.cssText='font-weight:700;font-family:var(--mono);color:var(--tx)'; right.textContent='฿'+fmt(e.amount);
             dr.appendChild(left); dr.appendChild(right); drill.appendChild(dr);
           });
@@ -1571,7 +1869,7 @@ function renderDash(){
             dr.style.cssText='display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--bdr);font-size:12.5px';
             var left=document.createElement('div');
             var dStr=e.date?new Date(e.date).toLocaleDateString('th-TH',{day:'numeric',month:'short'}):'';
-            left.innerHTML='<div style="font-weight:600;color:var(--tx)">'+esc(e.detail)+'</div><div style="font-size:11px;color:var(--mut)">'+dStr+' · '+esc(e.category||'')+' · '+(e.paidBy==='เจ'?'👨':'👩')+' '+esc(e.paidBy||'')+'</div>';
+            left.innerHTML='<div style="font-weight:600;color:var(--tx)">'+esc(e.detail)+'</div><div style="font-size:11px;color:var(--mut)">'+dStr+' · '+esc(e.category||'')+' · 👤 '+esc(e.paidBy||'')+'</div>';
             var right=document.createElement('div'); right.style.cssText='font-weight:700;font-family:var(--mono);color:var(--tx)'; right.textContent='฿'+fmt(e.amount);
             dr.appendChild(left); dr.appendChild(right); drill.appendChild(dr);
           });
@@ -1598,7 +1896,15 @@ function renderDash(){
   kg.appendChild(mkKs('⏳ ค้างชำระ','฿'+fmt(totUnpaid),'var(--rl)','var(--rl)'));
   inner.appendChild(kg);
   // Each credit row
-  allCR().forEach(function(cr){
+  var myCredits=getMyCredits();
+  if(!myCredits.length){
+    var emptyCr=document.createElement('div');
+    emptyCr.className='empty';
+    emptyCr.style.padding='22px 12px';
+    emptyCr.innerHTML='<div class="ei">💳</div><p>ยังไม่มีสินเชื่อที่ตั้งค่าไว้</p><button class="btn-go" onclick="openCreditSetupModal(\'revolving\')" style="margin-top:12px">เพิ่มสินเชื่อใบแรก</button>';
+    inner.appendChild(emptyCr);
+  }
+  myCredits.forEach(function(cr){
     var st=S.crStatus[cr.id]||{},info=S.crInfo[cr.id]||{};
     var isPaid=st.paid&&(st.date||'').slice(0,7)===mo;
     var moLeft=calcMoLeft(st.remaining,info.minPay,info.rate||cr.rate||0);
@@ -1615,11 +1921,12 @@ function renderDash(){
 // SETTINGS
 // ═══════════════════════════════════════════════════════
 function renderSetStats(){
+  renderV4Settings();
   var w=document.getElementById('set-stats'); if(!w) return;
   var mo=thisMo();
   var expMo=S.expenses.filter(function(e){ return e.date&&e.date.slice(0,7)===mo; });
   var incMo=S.incomes.filter(function(i){ return i.date&&i.date.slice(0,7)===mo; });
-  var crPaid=allCR().filter(function(cr){ var st=S.crStatus[cr.id]||{}; return st.paid&&(st.date||'').slice(0,7)===mo; }).reduce(function(s,cr){ return s+(S.crStatus[cr.id].amount||0); },0);
+  var crPaid=getMyCredits().filter(function(cr){ var st=S.crStatus[cr.id]||{}; return st.paid&&(st.date||'').slice(0,7)===mo; }).reduce(function(s,cr){ return s+(S.crStatus[cr.id].amount||0); },0);
   w.innerHTML='';
   var g=document.createElement('div'); g.className='stat-grid';
   function sb(n,nc,lbl){ var b=document.createElement('div'); b.className='stat-box'; b.innerHTML='<div class="stat-n '+(nc||'')+'">'+n+'</div><div class="stat-lbl">'+lbl+'</div>'; return b; }
@@ -1632,11 +1939,33 @@ function renderSetStats(){
   cBox.innerHTML='<div style="font-size:13px;font-weight:700;color:var(--a)">ชำระสินเชื่อเดือนนี้ ฿'+fmt(crPaid)+'</div>';
   w.appendChild(cBox);
 }
+function renderV4Settings(){
+  updateHeader();
+  var sub=document.getElementById('set-subscription');
+  if(sub) sub.innerHTML='<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'+subscriptionBadge()+'</div><div>สถานะ: '+(S.hasAccess?'ใช้งานได้':'ถูกล็อก')+'</div><div>Trial หมดอายุ: '+(S.profile&&S.profile.trial_end?new Date(S.profile.trial_end).toLocaleDateString('th-TH'):'-')+'</div>';
+  var fam=document.getElementById('family-id-view');
+  if(fam) fam.value=(S.profile&&S.profile.family_id)||'';
+  var isPro=S.profile&&S.profile.sub_tier==='pro_109'&&S.hasAccess;
+  ['export-expense','export-income','export-credit'].forEach(function(id){
+    var b=document.getElementById(id);
+    if(b) b.classList.toggle('locked',!isPro);
+  });
+}
+async function joinFamily(){
+  var fid=document.getElementById('join-family-id').value.trim();
+  if(!fid) return toast('กรอก family_id ก่อน','err');
+  var res=await sb.from('profiles').update({family_id:fid,updated_at:new Date().toISOString()}).eq('id',S.user.id).select('*').single();
+  if(res.error) return toast(res.error.message,'err');
+  S.profile=res.data;
+  await loadFromSupabase();
+  toast('เข้าร่วมครอบครัวแล้ว','ok');
+}
 function exportCSV(type){
+  if(!(S.profile&&S.profile.sub_tier==='pro_109'&&S.hasAccess)) return toast('Export CSV ใช้ได้เฉพาะ Pro 109฿','err');
   var rows=[],hdr=[],name='';
   if(type==='expense'){ hdr=['วันที่','รายละเอียด','หมวดหมู่','ช่องทาง','จำนวน','ผู้จ่าย']; rows=S.expenses.map(function(e){ return [e.date,e.detail,e.category,e.payment,e.amount,e.paidBy]; }); name='รายจ่าย'; }
   else if(type==='income'){ hdr=['วันที่','รายละเอียด','หมวดหมู่','ช่องทางรับ','จำนวน','ผู้รับ']; rows=S.incomes.map(function(i){ return [i.date,i.detail,i.category,i.channel,i.amount,i.receiver]; }); name='รายรับ'; }
-  else if(type==='credit'){ hdr=['สินเชื่อ','สถานะ','จำนวนที่จ่าย','คงเหลือ','วันที่จ่าย']; var mo=thisMo(); rows=allCR().map(function(cr){ var st=S.crStatus[cr.id]||{},paid=st.paid&&(st.date||'').slice(0,7)===mo; return [cr.n,paid?'จ่ายแล้ว':'ยังไม่จ่าย',paid?st.amount:0,st.remaining||0,st.date||'']; }); name='สินเชื่อ'; }
+  else if(type==='credit'){ hdr=['สินเชื่อ','สถานะ','จำนวนที่จ่าย','คงเหลือ','วันที่จ่าย']; var mo=thisMo(); rows=getMyCredits().map(function(cr){ var st=S.crStatus[cr.id]||{},paid=st.paid&&(st.date||'').slice(0,7)===mo; return [cr.n,paid?'จ่ายแล้ว':'ยังไม่จ่าย',paid?st.amount:0,st.remaining||0,st.date||'']; }); name='สินเชื่อ'; }
   var lines=[hdr].concat(rows).map(function(r){ return r.map(function(v){ return '"'+String(v).replace(/"/g,'""')+'"'; }).join(','); });
   var a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(['\uFEFF'+lines.join('\r\n')],{type:'text/csv;charset=utf-8;'})); a.download=name+'.csv'; a.click();
   toast('Export '+name+' แล้ว','ok');
