@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#0a0a0f">
+<meta name="theme-color" content="#f4f4f8">
 <title>BridgeX.Finance</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <!-- Supabase SDK -->
@@ -80,9 +80,16 @@ body{font-family:var(--font);background:var(--bg);color:var(--tx);min-height:100
 .auth-form{text-align:left}
 .auth-err{background:var(--rbg);border:1px solid rgba(240,82,79,.3);border-radius:var(--rds);padding:10px 14px;font-size:13px;color:var(--rl);margin-bottom:12px;display:none}
 .auth-err.show{display:block}
+.pdpa-consent{display:flex;align-items:flex-start;gap:8px;margin:10px 0 8px;font-size:11.5px;color:var(--sub);line-height:1.55}
+.pdpa-consent input{width:16px;height:16px;margin-top:2px;accent-color:var(--p);flex-shrink:0}
+.pdpa-consent a{color:var(--p);font-weight:700;text-decoration:none;cursor:pointer}
+.trust-badge{font-size:11px;color:var(--sub);line-height:1.55;background:var(--card2);border:1px solid var(--bdr);border-radius:var(--rds);padding:10px 12px;margin-top:12px;text-align:center}
+.google-btn{display:flex;align-items:center;justify-content:center;gap:9px;background:var(--card);border-color:var(--bdr);color:var(--tx)}
+.google-btn .gmark{width:20px;height:20px;border-radius:50%;background:#fff;color:#4285f4;display:inline-flex;align-items:center;justify-content:center;font-weight:900;font-family:Arial,sans-serif;border:1px solid #e5e7eb}
+.google-btn:disabled,.btn-go:disabled{opacity:.55;cursor:not-allowed}
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:950;display:none;align-items:center;justify-content:center;padding:20px}
 .modal-overlay.on{display:flex}
-.modal-box{width:100%;max-width:420px;background:var(--bg2);border:1px solid var(--bdr);border-radius:20px;padding:22px;box-shadow:var(--sh2)}
+.modal-box{width:100%;max-width:420px;background:var(--bg2);border:1px solid var(--bdr);border-radius:20px;padding:22px;box-shadow:var(--sh2);position:relative}
 .modal-title{font-size:20px;font-weight:800;margin-bottom:6px;color:var(--tx)}
 .modal-sub{font-size:13px;color:var(--sub);line-height:1.6;margin-bottom:16px}
 .paywall-card{text-align:center}
@@ -281,7 +288,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--tx);min-height:100
 .loading p{font-size:13px;font-weight:600;color:var(--sub)}
 </style>
 </head>
-<body>
+<body class="light">
 
 <!-- Loading -->
 <div class="loading" id="loading">
@@ -301,10 +308,24 @@ body{font-family:var(--font);background:var(--bg);color:var(--tx);min-height:100
       <div class="auth-err" id="auth-err">อีเมลหรือรหัสผ่านไม่ถูกต้อง</div>
       <div class="fld"><label>อีเมล</label><input type="email" id="auth-email" placeholder="email@example.com" autocomplete="email"></div>
       <div class="fld"><label>รหัสผ่าน</label><input type="password" id="auth-pw" placeholder="••••••••" autocomplete="current-password"></div>
+      <label class="pdpa-consent">
+        <input type="checkbox" id="pdpa-consent" onchange="updateAuthButtons()">
+        <span>ฉันยอมรับ <a onclick="openLegalModal('terms')">ข้อตกลงการใช้งาน</a> และ <a onclick="openLegalModal('privacy')">นโยบายความเป็นส่วนตัว</a></span>
+      </label>
       <button class="btn-go" id="login-btn" onclick="doLogin()" style="margin-top:4px">เข้าสู่ระบบ</button>
       <button class="btn-sm" id="auth-toggle-btn" onclick="toggleAuthMode()" style="margin-top:8px;text-align:center">สมัครสมาชิกใหม่</button>
-      <button class="btn-sm" onclick="loginWithGoogle()" style="margin-top:8px;text-align:center">เข้าสู่ระบบด้วย Google</button>
+      <button class="btn-sm google-btn" id="google-btn" onclick="loginWithGoogle()" style="margin-top:8px;text-align:center"><span class="gmark">G</span><span>เข้าสู่ระบบด้วย Google</span></button>
+      <div class="trust-badge">🔒 ข้อมูลของคุณถูกเข้ารหัสและเก็บรักษาอย่างปลอดภัยตามมาตรฐาน</div>
     </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="legal-modal" onclick="closeModalBg(event,'legal-modal')">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <button class="dclose" onclick="closeD('legal-modal')">✕</button>
+    <div class="modal-title" id="legal-title">ข้อตกลงการใช้งาน</div>
+    <div class="modal-sub" id="legal-body">กำลังจัดทำเนื้อหา</div>
+    <button class="btn-go blue" onclick="closeD('legal-modal')">รับทราบ</button>
   </div>
 </div>
 
@@ -326,8 +347,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--tx);min-height:100
   </div>
 </div>
 
-<div class="modal-overlay" id="credit-setup-modal">
-  <div class="modal-box">
+<div class="modal-overlay" id="credit-setup-modal" onclick="closeModalBg(event,'credit-setup-modal')">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <button class="dclose" onclick="closeD('credit-setup-modal')">✕</button>
     <div class="modal-title">เพิ่มสินเชื่อใบแรก</div>
     <div class="modal-sub">ครอบครัวนี้ยังไม่มีข้อมูลสินเชื่อ กรุณาเพิ่มอย่างน้อย 1 รายการก่อนใช้งานหน้าสินเชื่อ</div>
     <div class="fld"><label>ประเภท</label><select id="cs-type"><option value="revolving">Revolving</option><option value="fixed">Secured</option></select></div>
@@ -513,6 +535,12 @@ body{font-family:var(--font);background:var(--bg);color:var(--tx);min-height:100
     <button class="btn-go blue" onclick="joinFamily()">เข้าร่วมครอบครัวนี้</button>
   </div>
   <div class="card">
+    <div class="ctitle">การจัดการบัญชีส่วนบุคคล (PDPA)</div>
+    <div class="trust-badge" style="margin-top:0;margin-bottom:12px">🔒 ข้อมูลของคุณถูกเข้ารหัสและเก็บรักษาอย่างปลอดภัยตามมาตรฐาน</div>
+    <p style="font-size:12px;color:var(--sub);margin-bottom:10px;line-height:1.6">การลบบัญชีจะพยายามลบข้อมูลที่ RLS อนุญาต แล้วเรียก Edge Function/RPC ฝั่ง server เพื่อลบผู้ใช้จาก Auth อย่างปลอดภัย</p>
+    <button class="btn-sm danger" onclick="deleteAccountAndData()" style="padding:12px 14px">🗑️ ลบบัญชีและข้อมูลทั้งหมด</button>
+  </div>
+  <div class="card">
     <div class="ctitle">สถิติข้อมูล</div>
     <div id="set-stats"></div>
   </div>
@@ -540,7 +568,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--tx);min-height:100
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;text-align:left">
       <div style="background:var(--card2);border-radius:var(--rds);padding:11px;border:1px solid var(--bdr)">
         <div style="font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">เวอร์ชัน</div>
-        <div style="font-size:14px;font-weight:700;color:var(--p);font-family:var(--mono)">4.0.0</div>
+        <div style="font-size:14px;font-weight:700;color:var(--p);font-family:var(--mono)">4.1.1</div>
       </div>
       <div style="background:var(--card2);border-radius:var(--rds);padding:11px;border:1px solid var(--bdr)">
         <div style="font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">Database</div>
@@ -552,7 +580,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--tx);min-height:100
       </div>
       <div style="background:var(--card2);border-radius:var(--rds);padding:11px;border:1px solid var(--bdr)">
         <div style="font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">อัปเดตล่าสุด</div>
-        <div style="font-size:14px;font-weight:700;color:var(--a);font-family:var(--mono)">2025</div>
+        <div style="font-size:14px;font-weight:700;color:var(--a);font-family:var(--mono)">2026</div>
       </div>
     </div>
     <div style="font-size:11px;color:var(--mut);line-height:1.7;border-top:1px solid var(--bdr);padding-top:12px">
@@ -863,20 +891,33 @@ function subscriptionBadge(){
 // AUTH
 // ═══════════════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', async function(){
-  ['f-dt','i-dt','dr-dt'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=today(); });
-  sb.auth.onAuthStateChange(async function(event,session){
-    if(session&&session.user){
-      S.user=session.user;
+  try{
+    ['f-dt','i-dt','dr-dt'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=today(); });
+    updateAuthButtons();
+    sb.auth.onAuthStateChange(async function(event,session){
+      try{
+        if(session&&session.user){
+          S.user=session.user;
+          await onLogin();
+        }
+      }catch(e){
+        console.error('auth state load failed:',e);
+        toast('โหลด session ไม่สำเร็จ: '+(e.message||e),'err');
+      }finally{
+        document.getElementById('loading')?.classList.add('off');
+      }
+    });
+    var sess = await sb.auth.getSession();
+    if(sess.data.session){
+      S.user = sess.data.session.user;
       await onLogin();
     }
-  });
-  var sess = await sb.auth.getSession();
-  if(sess.data.session){
-    S.user = sess.data.session.user;
-    await onLogin();
-  } else {
-    document.getElementById('loading').classList.add('off');
-    // no auto-login — show auth screen
+  }catch(e){
+    console.error('init failed:',e);
+    showAuthErr('โหลดแอปไม่สำเร็จ ลองรีเฟรชอีกครั้ง');
+    alert('โหลดแอปไม่สำเร็จ: '+(e.message||e));
+  }finally{
+    document.getElementById('loading')?.classList.add('off');
   }
 });
 
@@ -885,26 +926,59 @@ async function doLogin(){
   var pw=document.getElementById('auth-pw').value;
   var btn=document.getElementById('login-btn');
   if(!email||!pw){ showAuthErr('กรุณากรอกอีเมลและรหัสผ่าน'); return; }
+  if(authMode==='signup'&&!hasPdpaConsent()){ showAuthErr('กรุณายอมรับข้อตกลงและนโยบายความเป็นส่วนตัวก่อนสมัคร'); return; }
   btn.textContent=authMode==='signup'?'⏳ กำลังสมัคร...':'⏳ กำลังเข้าสู่ระบบ...'; btn.disabled=true;
-  var res = authMode==='signup'
-    ? await sb.auth.signUp({email:email,password:pw})
-    : await sb.auth.signInWithPassword({email:email, password:pw});
-  if(res.error){
-    showAuthErr(authMode==='signup'?res.error.message:'อีเมลหรือรหัสผ่านไม่ถูกต้อง');
+  try{
+    var res = authMode==='signup'
+      ? await sb.auth.signUp({email:email,password:pw})
+      : await sb.auth.signInWithPassword({email:email, password:pw});
+    if(res.error){
+      showAuthErr(authMode==='signup'?res.error.message:'อีเมลหรือรหัสผ่านไม่ถูกต้อง');
+      btn.textContent=authMode==='signup'?'สมัครสมาชิก':'เข้าสู่ระบบ'; btn.disabled=false;
+      return;
+    }
+    S.user = res.data.user;
+    await onLogin();
+  }catch(e){
+    console.error('email auth failed:',e);
+    showAuthErr(e.message||'เข้าสู่ระบบไม่สำเร็จ');
+  }finally{
     btn.textContent=authMode==='signup'?'สมัครสมาชิก':'เข้าสู่ระบบ'; btn.disabled=false;
-    return;
   }
-  S.user = res.data.user;
-  await onLogin();
 }
 function toggleAuthMode(){
   authMode=authMode==='login'?'signup':'login';
   document.getElementById('login-btn').textContent=authMode==='signup'?'สมัครสมาชิก':'เข้าสู่ระบบ';
   document.getElementById('auth-toggle-btn').textContent=authMode==='signup'?'มีบัญชีแล้ว เข้าสู่ระบบ':'สมัครสมาชิกใหม่';
+  updateAuthButtons();
 }
 async function loginWithGoogle(){
-  var res=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.origin+window.location.pathname}});
-  if(res.error) showAuthErr(res.error.message);
+  if(!hasPdpaConsent()){ showAuthErr('กรุณายอมรับข้อตกลงและนโยบายความเป็นส่วนตัวก่อนใช้ Google'); return; }
+  try{
+    var res=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.origin+window.location.pathname}});
+    if(res.error) showAuthErr(res.error.message);
+  }catch(e){
+    console.error('google auth failed:',e);
+    showAuthErr(e.message||'เข้าสู่ระบบด้วย Google ไม่สำเร็จ');
+  }
+}
+function hasPdpaConsent(){ var c=document.getElementById('pdpa-consent'); return !!(c&&c.checked); }
+function updateAuthButtons(){
+  var signup=document.getElementById('login-btn'), google=document.getElementById('google-btn');
+  var ok=hasPdpaConsent();
+  if(signup) signup.disabled=(authMode==='signup'&&!ok);
+  if(google) google.disabled=!ok;
+}
+function openLegalModal(type){
+  var title=document.getElementById('legal-title'), body=document.getElementById('legal-body');
+  if(type==='privacy'){
+    title.textContent='นโยบายความเป็นส่วนตัว';
+    body.textContent='Placeholder: จะเพิ่มรายละเอียดการเก็บ ใช้ และดูแลข้อมูลส่วนบุคคลตาม PDPA ในขั้นตอนถัดไป';
+  }else{
+    title.textContent='ข้อตกลงการใช้งาน';
+    body.textContent='Placeholder: จะเพิ่มเงื่อนไขการใช้งาน บริการสมาชิก และข้อจำกัดความรับผิดชอบในขั้นตอนถัดไป';
+  }
+  document.getElementById('legal-modal').classList.add('on');
 }
 function showAuthErr(msg){
   var e=document.getElementById('auth-err'); e.textContent=msg; e.classList.add('show');
@@ -931,7 +1005,14 @@ async function onLogin(){
   renderCats(); renderPays(); renderIncc(); renderInch();
   renderHist(); renderCR(); renderDash(); renderIncSum(); renderSetStats();
   document.getElementById('set-user').textContent=S.user?S.user.email:'';
-  await loadFromSupabase();
+  try{
+    await loadFromSupabase();
+  }catch(e){
+    console.error('onLogin load failed:',e);
+    toast('โหลดข้อมูลไม่สำเร็จ: '+(e.message||e),'err');
+  }finally{
+    document.getElementById('loading')?.classList.add('off');
+  }
 }
 async function doLogout(){
   if(!confirm('ออกจากระบบ?')) return;
@@ -949,7 +1030,7 @@ async function loadFromSupabase(){
   try {
     await ensureProfile();
     await ensureFamily();
-    if(!checkAccess()){ setDot('off','Paywall'); document.getElementById('loading').classList.add('off'); return; }
+    if(!checkAccess()){ setDot('off','Paywall'); return; }
     var fid=S.profile.family_id;
     S.expenses=[]; S.incomes=[]; S.crStatus={};
     // Load expenses
@@ -1030,10 +1111,12 @@ async function loadFromSupabase(){
     renderHist(); renderCR(); renderDash(); renderIncSum(); renderSetStats();
     setDot('ok','Synced ✅');
   } catch(e){
-    console.warn('Supabase load error:', e&&e.message?e.message:String(e));
+    console.error('Supabase load error:', e);
     setDot('off','ออฟไลน์');
+    toast('โหลดข้อมูลจาก Supabase ไม่สำเร็จ ใช้ข้อมูลในเครื่องไปก่อน','err');
+  } finally {
+    document.getElementById('loading')?.classList.add('off');
   }
-  document.getElementById('loading').classList.add('off');
 }
 async function loadFamilyData(){ return loadFromSupabase(); }
 
@@ -1335,41 +1418,53 @@ function renderCR(){
 
 function openCreditSetupModal(type){
   var t=(type==='fixed'||type==='secured')?'fixed':'revolving';
-  document.getElementById('cs-type').value=t;
-  document.getElementById('cs-provider').value='KTC';
-  document.getElementById('cs-limit').value='';
-  document.getElementById('cs-rate').value='';
-  document.getElementById('cs-min').value='';
-  document.getElementById('cs-bill').value='';
-  document.getElementById('cs-due').value='';
-  document.getElementById('credit-setup-modal').classList.add('on');
+  var modal=document.getElementById('credit-setup-modal');
+  var typeEl=document.getElementById('cs-type'), providerEl=document.getElementById('cs-provider');
+  var limitEl=document.getElementById('cs-limit'), rateEl=document.getElementById('cs-rate'), minEl=document.getElementById('cs-min');
+  var billEl=document.getElementById('cs-bill'), dueEl=document.getElementById('cs-due');
+  if(!modal||!typeEl||!providerEl||!limitEl||!rateEl||!minEl||!billEl||!dueEl){
+    console.error('credit setup modal is missing required fields');
+    return toast('ฟอร์มเพิ่มสินเชื่อโหลดไม่ครบ ลองรีเฟรชหน้าอีกครั้ง','err');
+  }
+  typeEl.value=t;
+  providerEl.value=providerEl.value||'KTC';
+  limitEl.value=''; rateEl.value=''; minEl.value=''; billEl.value=''; dueEl.value='';
+  var title=modal.querySelector('.modal-title');
+  if(title) title.textContent=t==='revolving'?'เพิ่มสินเชื่อหมุนเวียน':'เพิ่มสินเชื่อแบบผ่อน/มีหลักประกัน';
+  modal.classList.add('on');
 }
 function addCR(t){ openCreditSetupModal(t); }
 async function saveFirstCredit(){
-  var provider=document.getElementById('cs-provider').value;
-  var type=document.getElementById('cs-type').value;
-  var cr=allCR().find(function(c){ return c.n===provider; });
-  if(!cr){
-    cr={id:'cr_'+provider.toLowerCase().replace(/\W+/g,'_'),n:provider,t:type,ico:'💳',rate:0};
-    S.customCr.push(cr);
+  try{
+    var provider=document.getElementById('cs-provider').value;
+    var type=document.getElementById('cs-type').value;
+    if(!provider) return toast('เลือก Provider ก่อน','err');
+    var cr=allCR().find(function(c){ return c.n===provider; });
+    if(!cr){
+      cr={id:'cr_'+provider.toLowerCase().replace(/\W+/g,'_'),n:provider,t:type,ico:'💳',rate:0};
+      S.customCr.push(cr);
+    }
+    cr.t=type;
+    var info={
+      limit:parseFloat(document.getElementById('cs-limit').value)||0,
+      rate:parseFloat(document.getElementById('cs-rate').value)||0,
+      minPay:parseFloat(document.getElementById('cs-min').value)||0,
+      billCycle:document.getElementById('cs-bill').value,
+      dueDate:document.getElementById('cs-due').value
+    };
+    if(!info.limit) return toast('กรอกวงเงิน/ยอดหนี้ก่อน','err');
+    S.crInfo[cr.id]=info;
+    sv();
+    await saveToSupabase('credit_info',{credit_name:cr.n,type:cr.t,credit_limit:info.limit,rate:info.rate,min_pay:info.minPay,bill_cycle:info.billCycle,due_date:info.dueDate});
+    closeD('credit-setup-modal');
+    loadCreditOptions();
+    renderCR();
+    renderDash();
+    renderSetStats();
+  }catch(e){
+    console.error('save credit setup failed:',e);
+    toast('บันทึกสินเชื่อไม่สำเร็จ: '+(e.message||e),'err');
   }
-  cr.t=type;
-  var info={
-    limit:parseFloat(document.getElementById('cs-limit').value)||0,
-    rate:parseFloat(document.getElementById('cs-rate').value)||0,
-    minPay:parseFloat(document.getElementById('cs-min').value)||0,
-    billCycle:document.getElementById('cs-bill').value,
-    dueDate:document.getElementById('cs-due').value
-  };
-  if(!info.limit) return toast('กรอกวงเงิน/ยอดหนี้ก่อน','err');
-  S.crInfo[cr.id]=info;
-  sv();
-  await saveToSupabase('credit_info',{credit_name:cr.n,type:cr.t,credit_limit:info.limit,rate:info.rate,min_pay:info.minPay,bill_cycle:info.billCycle,due_date:info.dueDate});
-  document.getElementById('credit-setup-modal').classList.remove('on');
-  loadCreditOptions();
-  renderCR();
-  renderDash();
-  renderSetStats();
 }
 
 // ── Debt Overview card ─────────────────────────────────
@@ -1459,6 +1554,7 @@ async function saveInfo(){
 }
 function closeD(id){ document.getElementById(id).classList.remove('on'); }
 function closeDrBg(e,id){ if(e.target===document.getElementById(id)) closeD(id); }
+function closeModalBg(e,id){ if(e.target===document.getElementById(id)) closeD(id); }
 
 // ═══════════════════════════════════════════════════════
 // SMART DEBT PLANNER (Q2: Snowball + Avalanche)
@@ -1653,10 +1749,15 @@ function renderIncSum(){
   var mo=thisMo();
   var moItems=S.incomes.filter(function(i){ return i.date&&i.date.slice(0,7)===mo; });
   if(!moItems.length){ w.innerHTML='<div class="empty" style="padding:20px"><div class="ei">💵</div><p style="font-size:13px">ยังไม่มีรายรับเดือนนี้</p></div>'; return; }
-  var totJ=moItems.filter(function(i){ return i.receiver==='เจ'; }).reduce(function(s,i){ return s+i.amount; },0);
-  var totF=moItems.filter(function(i){ return i.receiver==='แฟง'; }).reduce(function(s,i){ return s+i.amount; },0);
+  var receiverTotals={};
+  moItems.forEach(function(i){
+    var name=i.receiver||'ไม่ระบุผู้รับ';
+    receiverTotals[name]=(receiverTotals[name]||0)+i.amount;
+  });
+  var receiverRows=Object.keys(receiverTotals).sort(function(a,b){ return receiverTotals[b]-receiverTotals[a]; });
+  var incTotal=moItems.reduce(function(s,i){ return s+i.amount; },0);
   var exMo=S.expenses.filter(function(e){ return e.date&&e.date.slice(0,7)===mo; }).reduce(function(s,e){ return s+e.amount; },0);
-  var net=(totJ+totF)-exMo;
+  var net=incTotal-exMo;
   var catM={};
   moItems.forEach(function(i){ if(!catM[i.category]) catM[i.category]=0; catM[i.category]+=i.amount; });
   var cats=Object.keys(catM).map(function(k){ return [k,catM[k]]; }).sort(function(a,b){ return b[1]-a[1]; });
@@ -1664,9 +1765,11 @@ function renderIncSum(){
   w.innerHTML='';
   var g=document.createElement('div'); g.className='kgrid';
   function mkK(lbl,val,vc,sub,full,bc){ var c=document.createElement('div'); c.className='kcard'+(full?' full':''); if(bc) c.style.borderLeft='3px solid '+bc; c.innerHTML='<div class="kl">'+lbl+'</div><div class="kv" style="color:'+vc+'">'+val+'</div>'+(sub?'<div class="ks">'+sub+'</div>':''); return c; }
-  g.appendChild(mkK('รายรับรวมเดือนนี้','฿'+fmt(totJ+totF),'var(--gl)',moItems.length+' รายการ',true,'var(--gl)'));
-  g.appendChild(mkK('👨 เจ','฿'+fmt(totJ),'var(--p)','',false,''));
-  g.appendChild(mkK('👩 แฟง','฿'+fmt(totF),'var(--gl)','',false,''));
+  g.appendChild(mkK('รายรับรวมเดือนนี้','฿'+fmt(incTotal),'var(--gl)',moItems.length+' รายการ',true,'var(--gl)'));
+  receiverRows.forEach(function(name,idx){
+    var color=idx%2===0?'var(--p)':'var(--gl)';
+    g.appendChild(mkK('👤 '+name,'฿'+fmt(receiverTotals[name]),color,'',false,''));
+  });
   g.appendChild(mkK(net>=0?'✅ เหลือสุทธิ':'⚠️ รายจ่ายเกิน','฿'+fmt(Math.abs(net)),net>=0?'var(--gl)':'var(--rl)','',true,net>=0?'var(--gl)':'var(--rl)'));
   w.appendChild(g);
   if(cats.length){
@@ -1970,6 +2073,50 @@ function exportCSV(type){
   var a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(['\uFEFF'+lines.join('\r\n')],{type:'text/csv;charset=utf-8;'})); a.download=name+'.csv'; a.click();
   toast('Export '+name+' แล้ว','ok');
 }
+async function deleteAccountAndData(){
+  if(!S.user||!S.profile) return toast('ไม่พบ session ผู้ใช้','err');
+  var confirmText=prompt('พิมพ์ DELETE เพื่อยืนยันการลบบัญชีและข้อมูลทั้งหมด');
+  if(confirmText!=='DELETE') return toast('ยกเลิกการลบบัญชี');
+  var fid=S.profile.family_id;
+  try{
+    toast('กำลังลบบัญชี...','info');
+    var tables=['expenses','incomes','credits','credit_info'];
+    for(var i=0;i<tables.length;i++){
+      var q=sb.from(tables[i]).delete();
+      if(fid) q=q.eq('family_id',fid);
+      var res=await q;
+      if(res.error) console.warn('delete table failed ['+tables[i]+']:',res.error.message);
+    }
+    var prof=await sb.from('profiles').delete().eq('id',S.user.id);
+    if(prof.error) console.warn('delete profile failed:',prof.error.message);
+    var serverErr=null;
+    try{
+      var fn=await sb.functions.invoke('delete-user',{body:{user_id:S.user.id}});
+      if(fn.error) serverErr=fn.error;
+    }catch(e1){
+      serverErr=e1;
+      try{
+        var rpc=await sb.rpc('delete_current_user');
+        if(rpc.error) serverErr=rpc.error; else serverErr=null;
+      }catch(e2){ serverErr=e2; }
+    }
+    await sb.auth.signOut();
+    S.expenses=[]; S.incomes=[]; S.crStatus={}; S.crInfo={};
+    localStorage.removeItem('crStatus');
+    localStorage.removeItem('crInfo');
+    S.user=null; S.profile=null;
+    document.getElementById('auth-screen').classList.remove('off');
+    if(serverErr){
+      console.warn('server-side auth delete not completed:',serverErr);
+      toast('ลบข้อมูลแล้ว แต่ต้องตั้ง Edge Function/RPC เพื่อลบ Auth user ให้สมบูรณ์','err');
+    }else{
+      toast('ลบบัญชีเรียบร้อย','ok');
+    }
+  }catch(e){
+    console.error('delete account failed:',e);
+    toast('ลบบัญชีไม่สำเร็จ: '+(e.message||e),'err');
+  }
+}
 function clearLocal(type){
   if(!confirm('ล้าง cache '+(type==='all'?'ทั้งหมด':'รายจ่าย')+'?\n(Supabase ยังเก็บข้อมูลไว้)')) return;
   if(type==='expense'||type==='all') S.expenses=[];
@@ -1984,10 +2131,11 @@ function toggleTheme(){
   var isLight=document.body.classList.contains('light');
   document.body.classList.toggle('light',!isLight);
   localStorage.setItem('theme',!isLight?'light':'dark');
+  localStorage.setItem('themeManual','1');
   document.getElementById('theme-btn').textContent=!isLight?'☀️':'🌙';
 }
 function initTheme(){
-  var saved=localStorage.getItem('theme')||'dark';
+  var saved=localStorage.getItem('themeManual')==='1'?(localStorage.getItem('theme')||'light'):'light';
   var isLight=saved==='light';
   document.body.classList.toggle('light',isLight);
   var btn=document.getElementById('theme-btn');
