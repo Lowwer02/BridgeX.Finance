@@ -797,10 +797,21 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
 <div class="toast" id="toast"></div>
 <script>
 // ═══════════════════════════════════════════════════════
-// SUPABASE CONFIG
+// SUPABASE CONFIG  ← BUG FIX v4.1.2
+// ─────────────────────────────────────────────────────
+// ROOT CAUSE: Previous SUPA_ANON key was generated for
+// project ref "kxlknrlsaeyyphcxyvei" but SUPA_URL pointed
+// to project "ahnbgcnydlquvondssoy" → 401 Invalid API key.
+//
+// HOW TO FIX: Replace SUPA_ANON below with the anon key
+// from your Supabase Dashboard:
+//   Project Settings → API → "anon / public" key
+//
+// The ref inside the JWT MUST match your project URL:
+//   https://<YOUR_PROJECT_REF>.supabase.co
 // ═══════════════════════════════════════════════════════
-const SUPA_URL  = 'https://ahnbgcnydlquvondssoy.supabase.co';
-const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4bGtucmxzYWV5eXBoY3h5dmVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0ODYwODAsImV4cCI6MjA5NDA2MjA4MH0.0OgmIUiSct2Clr3bJVgpKVvgs7y1zXCEus--3z1h2Yw';
+const SUPA_URL  = 'https://ahnbgcnydlquvondssoy.supabase.co/rest/v1/';
+const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFobmJnY255ZGxxdXZvbmRzc295Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxODYxNDksImV4cCI6MjA5Mzc2MjE0OX0.G0jZjEFxgLBO_kJAG0IxVzpf5QnsV32Ja8p_ZHlMF-M';
 const sb = supabase.createClient(SUPA_URL, SUPA_ANON);
 
 // ═══════════════════════════════════════════════════════
