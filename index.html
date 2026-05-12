@@ -262,27 +262,37 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
   .tb-name{font-size:28px}
   .top-search,.theme-btn,.sync-pill,.user-pill{display:none}
   .icon-btn:not(.notify){display:none}
-  #pg-add{padding:32px 20px 48px;margin-left:0;min-height:calc(100vh - 74px)}
-  .pg{margin-left:0}
-  .add-shell{display:flex;flex-direction:column}
-  .add-main{gap:20px}
-  .add-grid{grid-template-columns:1fr;gap:20px}
-  .add-summary{display:block;position:static;margin-top:20px;order:2}
-  .add-main{order:1}
+  /* ── PATCH v4.1.2 — mobile layout ── */
+  html,body{width:100%;overflow-x:hidden}
+  #pg-add{padding:20px 16px 48px;margin-left:0;min-height:calc(100vh - 74px);box-sizing:border-box}
+  .pg{margin-left:0;padding:16px;box-sizing:border-box}
+  .add-shell{display:flex;flex-direction:column;width:100%}
+  .add-main{gap:20px;order:1;width:100%}
+  .add-grid{grid-template-columns:1fr;gap:16px;width:100%}
+  /* All main cards equal width */
+  .add-glass,.add-amount-card,.add-panel,.add-summary,.card{
+    width:100%;max-width:100%;min-width:0;
+    margin-left:0;margin-right:0;box-sizing:border-box
+  }
+  .add-summary{display:block;position:static;margin-top:0;order:2;width:100%;max-width:100%;min-width:0}
   .add-meta-row{align-items:flex-start;flex-direction:column}
   .add-date-wrap{width:100%;justify-content:center}
   .add-mode-toggle{width:max-content}
   #pg-add #cat-chips{grid-template-columns:repeat(3,1fr)}
+  /* Action buttons — full width, equal split */
+  .add-actions{display:flex;width:100%;gap:16px}
+  .add-actions .btn-sm,.add-actions .btn-go{flex:1;min-width:0;width:auto;padding:13px 10px;margin:0}
 }
 @media (max-width:430px){
-  #pg-add{padding:32px 18px 48px}
-  .tb{padding:0 18px}
+  #pg-add{padding:20px 16px 48px;box-sizing:border-box}
+  .tb{padding:0 16px}
   .tb-name{font-size:27px}
-  .add-amount-card{padding:36px 22px 24px}
-  #pg-add .amt-inp{font-size:56px;width:220px}
+  .add-amount-card{padding:36px 18px 24px}
+  #pg-add .amt-inp{font-size:52px;width:200px}
   #pg-add #cat-chips .chip{min-height:86px}
-  .add-actions{display:grid;grid-template-columns:1fr 1.7fr}
-  .add-actions .btn-sm,.add-actions .btn-go{width:100%;min-width:0;padding:13px 14px}
+  /* Keep action buttons as flex (override the 430 grid from original) */
+  .add-actions{display:flex;width:100%;gap:12px}
+  .add-actions .btn-sm,.add-actions .btn-go{flex:1;min-width:0;width:auto;padding:13px 10px;margin:0}
 }
 
 /* ── Buttons ── */
@@ -771,7 +781,7 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;text-align:left">
       <div style="background:var(--card2);border-radius:var(--rds);padding:11px;border:1px solid var(--bdr)">
         <div style="font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">เวอร์ชัน</div>
-        <div style="font-size:14px;font-weight:700;color:var(--p);font-family:var(--mono)">4.1.1</div>
+        <div style="font-size:14px;font-weight:700;color:var(--p);font-family:var(--mono)">4.1.2</div>
       </div>
       <div style="background:var(--card2);border-radius:var(--rds);padding:11px;border:1px solid var(--bdr)">
         <div style="font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">Database</div>
@@ -797,18 +807,7 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
 <div class="toast" id="toast"></div>
 <script>
 // ═══════════════════════════════════════════════════════
-// SUPABASE CONFIG  ← BUG FIX v4.1.2
-// ─────────────────────────────────────────────────────
-// ROOT CAUSE: Previous SUPA_ANON key was generated for
-// project ref "kxlknrlsaeyyphcxyvei" but SUPA_URL pointed
-// to project "ahnbgcnydlquvondssoy" → 401 Invalid API key.
-//
-// HOW TO FIX: Replace SUPA_ANON below with the anon key
-// from your Supabase Dashboard:
-//   Project Settings → API → "anon / public" key
-//
-// The ref inside the JWT MUST match your project URL:
-//   https://<YOUR_PROJECT_REF>.supabase.co
+// SUPABASE CONFIG
 // ═══════════════════════════════════════════════════════
 const SUPA_URL  = 'https://ahnbgcnydlquvondssoy.supabase.co';
 const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFobmJnY255ZGxxdXZvbmRzc295Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxODYxNDksImV4cCI6MjA5Mzc2MjE0OX0.G0jZjEFxgLBO_kJAG0IxVzpf5QnsV32Ja8p_ZHlMF-M';
@@ -1145,13 +1144,23 @@ function throwSb(label,res){
 // ═══════════════════════════════════════════════════════
 // AUTH
 // ═══════════════════════════════════════════════════════
+
+// ── PATCH v4.1.2: boot guards ────────────────────────
+var _isBootstrapping = false;   // prevents onLogin() concurrency
+var _lastSessionUid  = null;    // prevents re-trigger for same user
+// ─────────────────────────────────────────────────────
+
 window.addEventListener('DOMContentLoaded', async function(){
   try{
     ['f-dt','i-dt','dr-dt'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=today(); });
     updateAuthButtons();
     sb.auth.onAuthStateChange(async function(event,session){
       try{
-        if(session&&session.user&&!S._loginBusy){
+        if(session&&session.user){
+          var uid=session.user.id;
+          // Skip if same user already bootstrapping or bootstrapped
+          if(_isBootstrapping){ console.log('[BX Auth] onAuthStateChange skipped — already bootstrapping'); return; }
+          if(uid===_lastSessionUid){ console.log('[BX Auth] onAuthStateChange skipped — same user already loaded'); return; }
           S.user=session.user;
           await onLogin();
         }
@@ -1185,6 +1194,7 @@ async function doLogin(){
   if(authMode==='signup'&&!hasPdpaConsent()){ showAuthErr('กรุณายอมรับข้อตกลงและนโยบายความเป็นส่วนตัวก่อนสมัคร'); return; }
   btn.textContent=authMode==='signup'?'⏳ กำลังสมัคร...':'⏳ กำลังเข้าสู่ระบบ...'; btn.disabled=true;
   S._loginBusy=true;
+  _lastSessionUid=null; // PATCH v4.1.2: allow fresh onLogin for explicit sign-in
   if(loading) loading.classList.remove('off');
   try{
     var authPromise = authMode==='signup'
@@ -1246,9 +1256,17 @@ function showAuthErr(msg){
   setTimeout(function(){ e.classList.remove('show'); },3000);
 }
 async function onLogin(){
+  // ── PATCH v4.1.2: prevent duplicate concurrent calls ──
+  if(_isBootstrapping){
+    console.log('[BX Auth] onLogin() skipped — already running');
+    return;
+  }
+  _isBootstrapping = true;
+  // ────────────────────────────────────────────────────
   document.getElementById('auth-screen').classList.add('off');
   try{
     logStep('onLogin start');
+    // Fetch profile ONCE here; pass it forward so loadFromSupabase doesn't re-fetch
     await ensureProfile();
     await ensureFamily();
     logStep('onLogin checkAccess');
@@ -1259,7 +1277,10 @@ async function onLogin(){
     }
     await loadFamilyMembers();
     logStep('onLogin family members loaded');
+    // Mark this user as fully bootstrapped — onAuthStateChange will skip future triggers
+    _lastSessionUid = S.user.id;
   }catch(e){
+    var isTimeout = e&&e.message&&e.message.indexOf('ใช้เวลานานเกินไป')>=0;
     console.error('profile bootstrap failed raw:',{
       message:e&&e.message,
       details:e&&e.details,
@@ -1267,7 +1288,15 @@ async function onLogin(){
       code:e&&e.code,
       raw:e
     });
-    toast('โหลดโปรไฟล์ไม่สำเร็จ: '+(e.message||e),'err');
+    if(isTimeout){
+      toast('เชื่อมต่อช้า — ลองรีเฟรชหน้าใหม่อีกครั้ง','err');
+    } else {
+      toast('โหลดโปรไฟล์ไม่สำเร็จ: '+(e.message||e),'err');
+    }
+  }finally{
+    // Always release loading — never hang on profile error
+    document.getElementById('loading')?.classList.add('off');
+    _isBootstrapping = false;
   }
   applyCurrentProfileToPayers();
   updateHeader();
@@ -1275,8 +1304,9 @@ async function onLogin(){
   renderCats(); renderPays(); renderIncc(); renderInch();
   renderHist(); renderCR(); renderDash(); renderIncSum(); renderSetStats(); renderAddSummary();
   document.getElementById('set-user').textContent=S.user?S.user.email:'';
+  // Pass the already-fetched profile so loadFromSupabase skips re-fetching it
   try{
-    await loadFromSupabase();
+    await loadFromSupabase(S.profile);
   }catch(e){
     console.error('onLogin load failed raw:',{
       message:e&&e.message,
@@ -1294,6 +1324,9 @@ async function doLogout(){
   if(!confirm('ออกจากระบบ?')) return;
   await sb.auth.signOut();
   S.user=null;
+  // PATCH v4.1.2: reset boot guards so next login runs cleanly
+  _isBootstrapping=false;
+  _lastSessionUid=null;
   document.getElementById('auth-screen').classList.remove('off');
   toast('ออกจากระบบแล้ว');
 }
@@ -1301,12 +1334,19 @@ async function doLogout(){
 // ═══════════════════════════════════════════════════════
 // SUPABASE DATA
 // ═══════════════════════════════════════════════════════
-async function loadFromSupabase(){
+async function loadFromSupabase(preloadedProfile){
   setDot('spin','โหลด...');
   try {
     logStep('8. loadFromSupabase start');
-    await ensureProfile();
-    await ensureFamily();
+    // ── PATCH v4.1.2: use pre-fetched profile when available ──
+    if(preloadedProfile && preloadedProfile.family_id){
+      logStep('8. Using pre-fetched profile — skipping ensureProfile/ensureFamily');
+      S.profile = preloadedProfile;
+    } else {
+      await ensureProfile();
+      await ensureFamily();
+    }
+    // ─────────────────────────────────────────────────────────
     if(!checkAccess()){ setDot('off','Paywall'); return; }
     var fid=S.profile.family_id;
     logStep('9. Family ID for data load',fid);
