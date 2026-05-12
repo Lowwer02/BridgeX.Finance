@@ -800,7 +800,7 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
 // SUPABASE CONFIG
 // ═══════════════════════════════════════════════════════
 const SUPA_URL  = 'https://ahnbgcnydlquvondssoy.supabase.co';
-const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFobmJnY255ZGxxdXZvbmRzc295Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxODYxNDksImV4cCI6MjA5Mzc2MjE0OX0.G0jZjEFxgLBO_kJAG0IxVzpf5QnsV32Ja8p_ZHlMF-M';
+const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4bGtucmxzYWV5eXBoY3h5dmVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0ODYwODAsImV4cCI6MjA5NDA2MjA4MH0.0OgmIUiSct2Clr3bJVgpKVvgs7y1zXCEus--3z1h2Yw';
 const sb = supabase.createClient(SUPA_URL, SUPA_ANON);
 
 // ═══════════════════════════════════════════════════════
@@ -1013,27 +1013,49 @@ function updateHeader(){
 }
 async function ensureProfile(){
   if(!S.user) return null;
-  var res=await sb.from('profiles').select('*').eq('id',S.user.id).maybeSingle();
-  if(res.error && res.error.code!=='PGRST116') throw res.error;
+  logStep('1. Fetching Profile...',S.user.id);
+  var res=await withTimeout(sb.from('profiles').select('*').eq('id',S.user.id).maybeSingle(),30000,'อ่านโปรไฟล์');
+  logStep('1. Profile fetch response',{hasData:!!res.data,status:res.status,error:res.error});
+  if(res.error && res.error.code!=='PGRST116'){
+    logSbError('profiles select',res);
+    throw res.error;
+  }
   if(!res.data){
+    logStep('2. Profile missing, inserting...');
     var meta=S.user.user_metadata||{};
     var trialEnd=new Date(Date.now()+60*86400000).toISOString();
     var row={id:S.user.id,full_name:meta.full_name||meta.name||'',sub_tier:'trial',trial_end:trialEnd,updated_at:new Date().toISOString()};
-    var ins=await sb.from('profiles').insert([row]).select('*').single();
-    if(ins.error) throw ins.error;
-    S.profile=ins.data;
+    var ins=await withTimeout(sb.from('profiles').insert([row]).select('*').single(),30000,'สร้างโปรไฟล์');
+    logStep('2. Profile insert response',{hasData:!!ins.data,status:ins.status,error:ins.error});
+    if(ins.error){
+      logSbError('profiles insert',ins);
+      var duplicate=ins.status===409||ins.error.code==='23505'||String(ins.error.message||'').indexOf('duplicate key')>=0;
+      if(!duplicate) throw ins.error;
+      console.warn('profile already exists, selecting existing profile');
+      var again=await withTimeout(sb.from('profiles').select('*').eq('id',S.user.id).single(),30000,'อ่านโปรไฟล์หลังชน 409');
+      logStep('2b. Profile select after duplicate response',{hasData:!!again.data,status:again.status,error:again.error});
+      throwSb('profiles select after duplicate',again);
+      S.profile=again.data;
+    }else{
+      S.profile=ins.data;
+    }
   } else {
     S.profile=res.data;
   }
+  logStep('3. Profile Success',S.profile);
   return S.profile;
 }
 async function ensureFamily(){
   if(!S.profile) return;
-  if(S.profile.family_id) return;
+  logStep('4. Checking Family...',S.profile.family_id||'(missing)');
+  if(S.profile.family_id){ logStep('4. Family exists',S.profile.family_id); return; }
   var fid=makeUUID();
-  var res=await sb.from('profiles').update({family_id:fid,updated_at:new Date().toISOString()}).eq('id',S.user.id).select('*').single();
-  if(res.error) throw res.error;
+  logStep('5. Updating Family ID...',fid);
+  var res=await withTimeout(sb.from('profiles').update({family_id:fid,updated_at:new Date().toISOString()}).eq('id',S.user.id).select('*').single(),30000,'บันทึก family_id');
+  logStep('5. Family update response',{hasData:!!res.data,status:res.status,error:res.error});
+  throwSb('profiles update family_id',res);
   S.profile=res.data;
+  logStep('6. Family Success',S.profile.family_id);
 }
 async function saveOnboarding(){
   var name=document.getElementById('onboard-name').value.trim();
@@ -1068,7 +1090,10 @@ function applyCurrentProfileToPayers(){
 }
 async function loadFamilyMembers(){
   if(!S.profile||!S.profile.family_id) return;
-  var res=await sb.from('profiles').select('id,full_name').eq('family_id',S.profile.family_id);
+  logStep('7. Fetching Family Members...',S.profile.family_id);
+  var res=await withTimeout(sb.from('profiles').select('id,full_name').eq('family_id',S.profile.family_id),30000,'โหลดสมาชิกครอบครัว');
+  logStep('7. Family members response',{count:res.data&&res.data.length,status:res.status,error:res.error});
+  throwSb('profiles family members select',res);
   S.familyMembers=res.data||[];
 }
 async function getFamilyMembers(){
@@ -1087,6 +1112,23 @@ function withTimeout(promise, ms, label){
     timer=setTimeout(function(){ reject(new Error((label||'งานนี้')+' ใช้เวลานานเกินไป')); },ms);
   });
   return Promise.race([promise,timeout]).finally(function(){ clearTimeout(timer); });
+}
+function logStep(label,data){ console.log('[BX Debug]',label,data||''); }
+function logSbError(label,res){
+  if(res&&res.error){
+    console.error('[BX Supabase Error] '+label,{
+      message:res.error.message,
+      details:res.error.details,
+      hint:res.error.hint,
+      code:res.error.code,
+      status:res.status,
+      raw:res.error
+    });
+  }
+}
+function throwSb(label,res){
+  logSbError(label,res);
+  if(res&&res.error) throw res.error;
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1195,16 +1237,25 @@ function showAuthErr(msg){
 async function onLogin(){
   document.getElementById('auth-screen').classList.add('off');
   try{
-    await withTimeout(ensureProfile(),15000,'โหลด/สร้างโปรไฟล์');
-    await withTimeout(ensureFamily(),15000,'โหลด/สร้างครอบครัว');
+    logStep('onLogin start');
+    await ensureProfile();
+    await ensureFamily();
+    logStep('onLogin checkAccess');
     checkAccess();
     if(!S.profile.full_name){
       document.getElementById('onboard-name').value=(S.user.user_metadata&&S.user.user_metadata.full_name)||'';
       document.getElementById('onboard-modal').classList.add('on');
     }
-    await withTimeout(loadFamilyMembers(),15000,'โหลดสมาชิกครอบครัว');
+    await loadFamilyMembers();
+    logStep('onLogin family members loaded');
   }catch(e){
-    console.error('profile bootstrap failed:',e);
+    console.error('profile bootstrap failed raw:',{
+      message:e&&e.message,
+      details:e&&e.details,
+      hint:e&&e.hint,
+      code:e&&e.code,
+      raw:e
+    });
     toast('โหลดโปรไฟล์ไม่สำเร็จ: '+(e.message||e),'err');
   }
   applyCurrentProfileToPayers();
@@ -1214,9 +1265,15 @@ async function onLogin(){
   renderHist(); renderCR(); renderDash(); renderIncSum(); renderSetStats(); renderAddSummary();
   document.getElementById('set-user').textContent=S.user?S.user.email:'';
   try{
-    await withTimeout(loadFromSupabase(),20000,'โหลดข้อมูล Supabase');
+    await loadFromSupabase();
   }catch(e){
-    console.error('onLogin load failed:',e);
+    console.error('onLogin load failed raw:',{
+      message:e&&e.message,
+      details:e&&e.details,
+      hint:e&&e.hint,
+      code:e&&e.code,
+      raw:e
+    });
     toast('โหลดข้อมูลไม่สำเร็จ: '+(e.message||e),'err');
   }finally{
     document.getElementById('loading')?.classList.add('off');
@@ -1236,13 +1293,18 @@ async function doLogout(){
 async function loadFromSupabase(){
   setDot('spin','โหลด...');
   try {
+    logStep('8. loadFromSupabase start');
     await ensureProfile();
     await ensureFamily();
     if(!checkAccess()){ setDot('off','Paywall'); return; }
     var fid=S.profile.family_id;
+    logStep('9. Family ID for data load',fid);
     S.expenses=[]; S.incomes=[]; S.crStatus={};
     // Load expenses
-    var expRes = await sb.from('expenses').select('*').eq('family_id',fid).order('date',{ascending:false});
+    logStep('10. Fetching expenses...');
+    var expRes = await withTimeout(sb.from('expenses').select('*').eq('family_id',fid).order('date',{ascending:false}),30000,'โหลด expenses');
+    logStep('10. Expenses response',{count:expRes.data&&expRes.data.length,status:expRes.status,error:expRes.error});
+    throwSb('expenses select',expRes);
     if(expRes.data&&expRes.data.length){
       var exSet={};
       S.expenses.forEach(function(e){ exSet[e.date+'|'+e.amount+'|'+e.detail]=1; });
@@ -1258,7 +1320,10 @@ async function loadFromSupabase(){
       S.expenses.sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
     }
     // Load incomes
-    var incRes = await sb.from('incomes').select('*').eq('family_id',fid).order('date',{ascending:false});
+    logStep('11. Fetching incomes...');
+    var incRes = await withTimeout(sb.from('incomes').select('*').eq('family_id',fid).order('date',{ascending:false}),30000,'โหลด incomes');
+    logStep('11. Incomes response',{count:incRes.data&&incRes.data.length,status:incRes.status,error:incRes.error});
+    throwSb('incomes select',incRes);
     if(incRes.data&&incRes.data.length){
       var incSet={};
       S.incomes.forEach(function(i){ incSet[i.date+'|'+i.amount+'|'+i.detail]=1; });
@@ -1273,7 +1338,10 @@ async function loadFromSupabase(){
       S.incomes.sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
     }
     // Load credit payments
-    var crRes = await sb.from('credits').select('*').eq('family_id',fid).order('date',{ascending:false});
+    logStep('12. Fetching credits...');
+    var crRes = await withTimeout(sb.from('credits').select('*').eq('family_id',fid).order('date',{ascending:false}),30000,'โหลด credits');
+    logStep('12. Credits response',{count:crRes.data&&crRes.data.length,status:crRes.status,error:crRes.error});
+    throwSb('credits select',crRes);
     if(crRes.data){
       var mo=thisMo();
       crRes.data.forEach(function(r){
@@ -1291,7 +1359,10 @@ async function loadFromSupabase(){
     }
     // Load credit info
     S.crInfo={};
-    var ciRes = await sb.from('credit_info').select('*').eq('family_id',fid);
+    logStep('13. Fetching credit_info...');
+    var ciRes = await withTimeout(sb.from('credit_info').select('*').eq('family_id',fid),30000,'โหลด credit_info');
+    logStep('13. Credit info response',{count:ciRes.data&&ciRes.data.length,status:ciRes.status,error:ciRes.error});
+    throwSb('credit_info select',ciRes);
     if(ciRes.data){
       ciRes.data.forEach(function(r){
         var found=allCR().find(function(c){ return c.n===(r.credit_name||r.name||''); });
@@ -1319,7 +1390,13 @@ async function loadFromSupabase(){
     renderHist(); renderCR(); renderDash(); renderIncSum(); renderSetStats(); renderAddSummary();
     setDot('ok','Synced ✅');
   } catch(e){
-    console.error('Supabase load error:', e);
+    console.error('Supabase load error raw:',{
+      message:e&&e.message,
+      details:e&&e.details,
+      hint:e&&e.hint,
+      code:e&&e.code,
+      raw:e
+    });
     setDot('off','ออฟไลน์');
     toast('โหลดข้อมูลจาก Supabase ไม่สำเร็จ ใช้ข้อมูลในเครื่องไปก่อน','err');
   } finally {
