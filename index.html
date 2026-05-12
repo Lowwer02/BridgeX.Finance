@@ -262,37 +262,34 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
   .tb-name{font-size:28px}
   .top-search,.theme-btn,.sync-pill,.user-pill{display:none}
   .icon-btn:not(.notify){display:none}
-  /* ── PATCH v4.1.2 — mobile layout ── */
-  html,body{width:100%;overflow-x:hidden}
-  #pg-add{padding:20px 16px 48px;margin-left:0;min-height:calc(100vh - 74px);box-sizing:border-box}
-  .pg{margin-left:0;padding:16px;box-sizing:border-box}
-  .add-shell{display:flex;flex-direction:column;width:100%}
-  .add-main{gap:20px;order:1;width:100%}
-  .add-grid{grid-template-columns:1fr;gap:16px;width:100%}
-  /* All main cards equal width */
-  .add-glass,.add-amount-card,.add-panel,.add-summary,.card{
-    width:100%;max-width:100%;min-width:0;
-    margin-left:0;margin-right:0;box-sizing:border-box
-  }
-  .add-summary{display:block;position:static;margin-top:0;order:2;width:100%;max-width:100%;min-width:0}
+  #pg-add{padding:32px 20px 48px;margin-left:0;min-height:calc(100vh - 74px)}
+  .pg{margin-left:0}
+  .add-shell{display:flex;flex-direction:column}
+  .add-main{gap:20px}
+  .add-grid{grid-template-columns:1fr;gap:20px}
+  .add-summary{display:block;position:static;margin-top:20px;order:2}
+  .add-main{order:1}
   .add-meta-row{align-items:flex-start;flex-direction:column}
   .add-date-wrap{width:100%;justify-content:center}
   .add-mode-toggle{width:max-content}
   #pg-add #cat-chips{grid-template-columns:repeat(3,1fr)}
-  /* Action buttons — full width, equal split */
-  .add-actions{display:flex;width:100%;gap:16px}
-  .add-actions .btn-sm,.add-actions .btn-go{flex:1;min-width:0;width:auto;padding:13px 10px;margin:0}
 }
 @media (max-width:430px){
-  #pg-add{padding:20px 16px 48px;box-sizing:border-box}
-  .tb{padding:0 16px}
+  #pg-add{padding:32px 18px 48px}
+  .tb{padding:0 18px}
   .tb-name{font-size:27px}
-  .add-amount-card{padding:36px 18px 24px}
-  #pg-add .amt-inp{font-size:52px;width:200px}
+  .add-amount-card{padding:36px 22px 24px}
+  #pg-add .amt-inp{font-size:56px;width:220px}
   #pg-add #cat-chips .chip{min-height:86px}
-  /* Keep action buttons as flex (override the 430 grid from original) */
-  .add-actions{display:flex;width:100%;gap:12px}
-  .add-actions .btn-sm,.add-actions .btn-go{flex:1;min-width:0;width:auto;padding:13px 10px;margin:0}
+  .add-actions{display:grid;grid-template-columns:1fr 1.7fr}
+  .add-actions .btn-sm,.add-actions .btn-go{width:100%;min-width:0;padding:13px 14px}
+}
+
+/* ── Income v4.1.3 mobile responsive ── */
+@media (max-width:900px){
+  .inc-layout{grid-template-columns:1fr!important;padding:16px 16px 48px!important}
+  .inc-layout > div:last-child{position:static!important}
+  #pg-inc > div:first-child{padding:20px 16px 0!important}
 }
 
 /* ── Buttons ── */
@@ -690,37 +687,104 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
   <div id="dash"></div>
 </div>
 
-<!-- INCOME -->
-<div class="pg" id="pg-inc">
-  <div class="amt-card green">
-    <div class="amt-lbl">จำนวนเงินที่รับ (บาท)</div>
-    <div class="amt-row"><span class="amt-cur">฿</span><input class="amt-inp" id="i-amt" type="number" placeholder="0" inputmode="decimal"></div>
+<!-- INCOME v4.1.3 — Premium Tailwind UI -->
+<div class="pg" id="pg-inc" style="padding:0;background:var(--bg)">
+  <!-- Page Header -->
+  <div style="padding:28px 28px 0">
+    <div style="font-family:var(--font-headline);font-size:26px;font-weight:700;color:var(--tx);letter-spacing:-.4px">Record Income</div>
+    <div style="font-size:13px;color:var(--mut);margin-top:4px">Log incoming funds to update your total net worth and goals.</div>
   </div>
-  <div class="card">
-    <div class="ctitle">รายละเอียด</div>
-    <div class="fld"><label>รายละเอียด</label><input type="text" id="i-det" placeholder="เช่น เงินเดือน, โบนัส..."></div>
-    <div class="fld"><label>วันที่</label><input type="date" id="i-dt"></div>
-  </div>
-  <div class="card">
-    <div class="ctitle">หมวดหมู่รายรับ</div>
-    <div class="chips" id="incc-chips"></div>
-    <button class="add-chip" onclick="addOpt('inc-cat')">+ เพิ่มหมวดหมู่</button>
-  </div>
-  <div class="card">
-    <div class="ctitle">ช่องทางรับเงิน</div>
-    <div class="chips" id="inch-chips"></div>
-    <button class="add-chip" onclick="addOpt('inc-ch')">+ เพิ่มช่องทาง</button>
-  </div>
-  <div class="card">
-    <div class="ctitle">ผู้รับ</div>
-    <div class="payers">
-      <div class="payer" id="ip-j" onclick="selIP('เจ')"><div class="av">👨</div><div class="nm">เจ</div><div class="rl">คุณ</div></div>
-      <div class="payer" id="ip-f" onclick="selIP('แฟง')"><div class="av">👩</div><div class="nm">แฟง</div><div class="rl">แฟน</div></div>
+
+  <!-- Main Grid -->
+  <div class="inc-layout" style="display:grid;grid-template-columns:1fr 300px;gap:20px;padding:20px 28px 48px;align-items:start">
+
+    <!-- LEFT COLUMN -->
+    <div style="display:flex;flex-direction:column;gap:16px">
+
+      <!-- Row 1: Amount + Date -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <!-- Amount Card -->
+        <div class="inc-card" style="background:linear-gradient(140deg,#0a2e1c,#0d5c3a 55%,#16a066);border:1px solid rgba(22,160,102,.25);border-radius:12px;padding:24px 22px;position:relative;overflow:hidden">
+          <div style="position:absolute;right:-40px;top:-40px;width:160px;height:160px;background:radial-gradient(circle,rgba(34,201,138,.22),transparent 70%);pointer-events:none"></div>
+          <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.5);letter-spacing:.12em;text-transform:uppercase;margin-bottom:14px">Amount Received</div>
+          <div style="display:flex;align-items:center;gap:6px;position:relative;z-index:1">
+            <span style="font-family:var(--font-headline);font-size:30px;font-weight:700;color:rgba(255,255,255,.65)">฿</span>
+            <input id="i-amt" type="number" placeholder="0.00" inputmode="decimal"
+              style="border:none;background:transparent;font-family:var(--mono);font-size:42px;font-weight:700;color:#fff;width:100%;outline:none;-moz-appearance:textfield;letter-spacing:-1px"
+              oninput="renderAddIncSummaryInline()">
+          </div>
+          <!-- Quick add buttons -->
+          <div style="display:flex;gap:8px;margin-top:18px;flex-wrap:wrap">
+            <button onclick="incAddAmt(1000)" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;color:#fff;cursor:pointer">+ ฿1,000</button>
+            <button onclick="incAddAmt(5000)" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;color:#fff;cursor:pointer">+ ฿5,000</button>
+            <button onclick="incAddAmt(10000)" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;color:#fff;cursor:pointer">+ ฿10,000</button>
+          </div>
+        </div>
+        <!-- Date Card -->
+        <div class="inc-card" style="background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:24px 22px;display:flex;flex-direction:column;justify-content:space-between">
+          <div style="font-size:10px;font-weight:700;color:var(--mut);letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px">Date</div>
+          <div style="display:flex;align-items:center;gap:10px;background:var(--card2);border:1px solid var(--bdr);border-radius:8px;padding:11px 14px;margin-bottom:12px">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--mut);flex-shrink:0"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <input id="i-dt" type="date" style="border:none;background:transparent;color:var(--tx);font-family:var(--font);font-size:14px;outline:none;width:100%">
+          </div>
+          <!-- Deposit To -->
+          <div style="font-size:10px;font-weight:700;color:var(--mut);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px">Deposit To</div>
+          <div id="inch-chips" style="display:flex;flex-direction:column;gap:6px"></div>
+          <button onclick="addOpt('inc-ch')" style="margin-top:8px;background:transparent;border:1px dashed var(--bdr);border-radius:8px;padding:7px 12px;font-size:11px;color:var(--mut);cursor:pointer;text-align:left">+ Add channel</button>
+        </div>
+      </div>
+
+      <!-- Row 2: Income Source -->
+      <div class="inc-card" style="background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:20px 22px">
+        <div style="font-size:10px;font-weight:700;color:var(--mut);letter-spacing:.12em;text-transform:uppercase;margin-bottom:14px">Income Source</div>
+        <div id="incc-chips" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px"></div>
+        <button onclick="addOpt('inc-cat')" style="margin-top:12px;background:transparent;border:1px dashed var(--bdr);border-radius:8px;padding:7px 12px;font-size:11px;color:var(--mut);cursor:pointer">+ Add source</button>
+      </div>
+
+      <!-- Row 3: From (Payer) + Notes -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <!-- From / Payer chips -->
+        <div class="inc-card" style="background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:20px 22px">
+          <div style="font-size:10px;font-weight:700;color:var(--mut);letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px">From (Payer)</div>
+          <div id="py-chips" style="display:flex;flex-direction:column;gap:8px"></div>
+        </div>
+        <!-- Notes -->
+        <div class="inc-card" style="background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:20px 22px">
+          <div style="font-size:10px;font-weight:700;color:var(--mut);letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px">Notes (Optional)</div>
+          <textarea id="i-det" placeholder="Add a description..." style="width:100%;height:110px;border:1px solid var(--bdr);border-radius:8px;padding:11px 13px;font-family:var(--font);font-size:13px;color:var(--tx);background:var(--card2);resize:none;outline:none;line-height:1.5"></textarea>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div style="display:flex;gap:12px;justify-content:flex-end;padding-top:4px">
+        <button onclick="resetIncomeForm()" style="padding:13px 28px;border:1px solid var(--bdr);border-radius:8px;background:var(--card2);color:var(--sub);font-family:var(--font-label);font-size:14px;font-weight:700;cursor:pointer">Cancel</button>
+        <button onclick="submitInc()" style="padding:13px 32px;background:#16a066;border:none;border-radius:8px;color:#fff;font-family:var(--font-label);font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 18px rgba(22,160,102,.32)">✓ Save Income</button>
+      </div>
     </div>
-  </div>
-  <button class="btn-go green" onclick="submitInc()">✅ บันทึกรายรับ</button>
-  <div class="sec-lbl" style="margin-top:14px">สรุปรายรับ</div>
-  <div id="inc-sum"></div>
+
+    <!-- RIGHT COLUMN: Recent Inflows + Goal -->
+    <div style="display:flex;flex-direction:column;gap:16px;position:sticky;top:82px">
+      <!-- Monthly Goal Card -->
+      <div id="inc-goal-card" style="background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:18px 20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div style="font-size:10px;font-weight:700;color:var(--mut);letter-spacing:.12em;text-transform:uppercase">Monthly Income Goal</div>
+          <span style="font-size:16px">🏁</span>
+        </div>
+        <div id="inc-goal-bar-wrap">
+          <div style="font-size:11px;color:var(--mut)">บันทึกรายรับเพื่อดูสรุป</div>
+        </div>
+      </div>
+      <!-- Recent Inflows -->
+      <div style="background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:18px 20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <div style="font-size:10px;font-weight:700;color:var(--mut);letter-spacing:.12em;text-transform:uppercase">Recent Inflows</div>
+          <button style="font-size:11px;font-weight:700;color:var(--gl);background:transparent;border:none;cursor:pointer" onclick="setTab('inc')">View All</button>
+        </div>
+        <div id="inc-sum" style="display:flex;flex-direction:column;gap:10px"></div>
+      </div>
+    </div>
+
+  </div><!-- /inc-layout -->
 </div>
 
 <!-- SETTINGS -->
@@ -781,7 +845,7 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;text-align:left">
       <div style="background:var(--card2);border-radius:var(--rds);padding:11px;border:1px solid var(--bdr)">
         <div style="font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">เวอร์ชัน</div>
-        <div style="font-size:14px;font-weight:700;color:var(--p);font-family:var(--mono)">4.1.2</div>
+        <div style="font-size:14px;font-weight:700;color:var(--p);font-family:var(--mono)">4.1.3</div>
       </div>
       <div style="background:var(--card2);border-radius:var(--rds);padding:11px;border:1px solid var(--bdr)">
         <div style="font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">Database</div>
@@ -1092,11 +1156,12 @@ function checkAccess(){
 function applyCurrentProfileToPayers(){
   var nm=S.profile&&S.profile.full_name?S.profile.full_name:'ผู้ใช้';
   S.fc.payer=nm; S.fi.rcv=nm;
-  var pj=document.getElementById('py-j'),pf=document.getElementById('py-f'),ij=document.getElementById('ip-j'),inf=document.getElementById('ip-f');
-  if(pj){ pj.querySelector('.nm').textContent=nm; pj.querySelector('.rl').textContent='คุณ'; pj.classList.add('on','locked'); }
+  // Legacy expense payer (expense page still uses py-j/py-f)
+  var pj=document.getElementById('py-j'),pf=document.getElementById('py-f');
+  if(pj){ var nmEl=pj.querySelector('.nm'),rlEl=pj.querySelector('.rl'); if(nmEl) nmEl.textContent=nm; if(rlEl) rlEl.textContent='คุณ'; pj.classList.add('on','locked'); }
   if(pf) pf.style.display='none';
-  if(ij){ ij.querySelector('.nm').textContent=nm; ij.querySelector('.rl').textContent='คุณ'; ij.classList.add('on','locked'); }
-  if(inf) inf.style.display='none';
+  // Income payer chips (new v4.1.3 container)
+  renderPayerChips();
 }
 async function loadFamilyMembers(){
   if(!S.profile||!S.profile.family_id) return;
@@ -1144,23 +1209,13 @@ function throwSb(label,res){
 // ═══════════════════════════════════════════════════════
 // AUTH
 // ═══════════════════════════════════════════════════════
-
-// ── PATCH v4.1.2: boot guards ────────────────────────
-var _isBootstrapping = false;   // prevents onLogin() concurrency
-var _lastSessionUid  = null;    // prevents re-trigger for same user
-// ─────────────────────────────────────────────────────
-
 window.addEventListener('DOMContentLoaded', async function(){
   try{
     ['f-dt','i-dt','dr-dt'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=today(); });
     updateAuthButtons();
     sb.auth.onAuthStateChange(async function(event,session){
       try{
-        if(session&&session.user){
-          var uid=session.user.id;
-          // Skip if same user already bootstrapping or bootstrapped
-          if(_isBootstrapping){ console.log('[BX Auth] onAuthStateChange skipped — already bootstrapping'); return; }
-          if(uid===_lastSessionUid){ console.log('[BX Auth] onAuthStateChange skipped — same user already loaded'); return; }
+        if(session&&session.user&&!S._loginBusy){
           S.user=session.user;
           await onLogin();
         }
@@ -1194,7 +1249,6 @@ async function doLogin(){
   if(authMode==='signup'&&!hasPdpaConsent()){ showAuthErr('กรุณายอมรับข้อตกลงและนโยบายความเป็นส่วนตัวก่อนสมัคร'); return; }
   btn.textContent=authMode==='signup'?'⏳ กำลังสมัคร...':'⏳ กำลังเข้าสู่ระบบ...'; btn.disabled=true;
   S._loginBusy=true;
-  _lastSessionUid=null; // PATCH v4.1.2: allow fresh onLogin for explicit sign-in
   if(loading) loading.classList.remove('off');
   try{
     var authPromise = authMode==='signup'
@@ -1256,17 +1310,9 @@ function showAuthErr(msg){
   setTimeout(function(){ e.classList.remove('show'); },3000);
 }
 async function onLogin(){
-  // ── PATCH v4.1.2: prevent duplicate concurrent calls ──
-  if(_isBootstrapping){
-    console.log('[BX Auth] onLogin() skipped — already running');
-    return;
-  }
-  _isBootstrapping = true;
-  // ────────────────────────────────────────────────────
   document.getElementById('auth-screen').classList.add('off');
   try{
     logStep('onLogin start');
-    // Fetch profile ONCE here; pass it forward so loadFromSupabase doesn't re-fetch
     await ensureProfile();
     await ensureFamily();
     logStep('onLogin checkAccess');
@@ -1277,10 +1323,7 @@ async function onLogin(){
     }
     await loadFamilyMembers();
     logStep('onLogin family members loaded');
-    // Mark this user as fully bootstrapped — onAuthStateChange will skip future triggers
-    _lastSessionUid = S.user.id;
   }catch(e){
-    var isTimeout = e&&e.message&&e.message.indexOf('ใช้เวลานานเกินไป')>=0;
     console.error('profile bootstrap failed raw:',{
       message:e&&e.message,
       details:e&&e.details,
@@ -1288,25 +1331,16 @@ async function onLogin(){
       code:e&&e.code,
       raw:e
     });
-    if(isTimeout){
-      toast('เชื่อมต่อช้า — ลองรีเฟรชหน้าใหม่อีกครั้ง','err');
-    } else {
-      toast('โหลดโปรไฟล์ไม่สำเร็จ: '+(e.message||e),'err');
-    }
-  }finally{
-    // Always release loading — never hang on profile error
-    document.getElementById('loading')?.classList.add('off');
-    _isBootstrapping = false;
+    toast('โหลดโปรไฟล์ไม่สำเร็จ: '+(e.message||e),'err');
   }
   applyCurrentProfileToPayers();
   updateHeader();
   renderPersonFilters();
-  renderCats(); renderPays(); renderIncc(); renderInch();
+  renderCats(); renderPays(); renderIncc(); renderInch(); renderPayerChips();
   renderHist(); renderCR(); renderDash(); renderIncSum(); renderSetStats(); renderAddSummary();
   document.getElementById('set-user').textContent=S.user?S.user.email:'';
-  // Pass the already-fetched profile so loadFromSupabase skips re-fetching it
   try{
-    await loadFromSupabase(S.profile);
+    await loadFromSupabase();
   }catch(e){
     console.error('onLogin load failed raw:',{
       message:e&&e.message,
@@ -1324,9 +1358,6 @@ async function doLogout(){
   if(!confirm('ออกจากระบบ?')) return;
   await sb.auth.signOut();
   S.user=null;
-  // PATCH v4.1.2: reset boot guards so next login runs cleanly
-  _isBootstrapping=false;
-  _lastSessionUid=null;
   document.getElementById('auth-screen').classList.remove('off');
   toast('ออกจากระบบแล้ว');
 }
@@ -1334,19 +1365,12 @@ async function doLogout(){
 // ═══════════════════════════════════════════════════════
 // SUPABASE DATA
 // ═══════════════════════════════════════════════════════
-async function loadFromSupabase(preloadedProfile){
+async function loadFromSupabase(){
   setDot('spin','โหลด...');
   try {
     logStep('8. loadFromSupabase start');
-    // ── PATCH v4.1.2: use pre-fetched profile when available ──
-    if(preloadedProfile && preloadedProfile.family_id){
-      logStep('8. Using pre-fetched profile — skipping ensureProfile/ensureFamily');
-      S.profile = preloadedProfile;
-    } else {
-      await ensureProfile();
-      await ensureFamily();
-    }
-    // ─────────────────────────────────────────────────────────
+    await ensureProfile();
+    await ensureFamily();
     if(!checkAccess()){ setDot('off','Paywall'); return; }
     var fid=S.profile.family_id;
     logStep('9. Family ID for data load',fid);
@@ -1551,10 +1575,87 @@ function renderPays(){
     w.appendChild(b);
   });
 }
-function renderIncc(){ mkChips(S.incc,S.fi.cat,'incc-chips',function(id){ S.fi.cat=id; renderIncc(); }); }
-function renderInch(){ mkChips(S.inch,S.fi.ch,'inch-chips',function(id){ S.fi.ch=id; renderInch(); }); }
+function renderIncc(){
+  var w=document.getElementById('incc-chips'); if(!w) return; w.innerHTML='';
+  var iconMap={sal:'💼',bon:'🎁',free:'💻',inv:'📈',oth:'💰'};
+  S.incc.forEach(function(c){
+    var isSel=S.fi.cat===c.id;
+    var b=document.createElement('button');
+    b.style.cssText='display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:16px 10px;border-radius:10px;border:1px solid '+(isSel?'rgba(22,160,102,.55)':'var(--bdr)')+';background:'+(isSel?'rgba(22,160,102,.14)':'var(--card2)')+';cursor:pointer;transition:all .15s;text-align:center';
+    var icon=iconMap[c.id]||'💰';
+    var iconEl=document.createElement('div');
+    iconEl.style.cssText='font-size:24px;line-height:1';
+    iconEl.textContent=icon;
+    var lbl=document.createElement('div');
+    lbl.style.cssText='font-family:var(--font-label);font-size:11px;font-weight:700;color:'+(isSel?'var(--gl)':'var(--sub)');
+    lbl.textContent=String(c.l||'').replace(/^[^\wก-๙]+/,'').trim()||c.l;
+    b.appendChild(iconEl); b.appendChild(lbl);
+    b.onclick=function(){ S.fi.cat=c.id; renderIncc(); };
+    w.appendChild(b);
+  });
+}
+function renderInch(){
+  var w=document.getElementById('inch-chips'); if(!w) return; w.innerHTML='';
+  var iconMap={bank:'🏦',cash:'💵',prompt:'📱'};
+  S.inch.forEach(function(c){
+    var isSel=S.fi.ch===c.id;
+    var b=document.createElement('button');
+    b.style.cssText='display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:8px;border:1px solid '+(isSel?'rgba(22,160,102,.55)':'var(--bdr)')+';background:'+(isSel?'rgba(22,160,102,.12)':'var(--card2)')+';cursor:pointer;transition:all .15s;text-align:left';
+    var icon=iconMap[c.id]||'🏦';
+    var iconEl=document.createElement('span');
+    iconEl.style.cssText='font-size:16px;flex-shrink:0';
+    iconEl.textContent=icon;
+    var lbl=document.createElement('span');
+    lbl.style.cssText='font-family:var(--font-label);font-size:13px;font-weight:700;color:'+(isSel?'var(--gl)':'var(--tx)');
+    lbl.textContent=String(c.l||'').replace(/^[^\wก-๙🏦💵📱]+/,'').trim()||c.l;
+    var check=document.createElement('span');
+    check.style.cssText='margin-left:auto;font-size:14px;opacity:'+(isSel?'1':'0');
+    check.textContent='✓';
+    check.style.color='var(--gl)';
+    b.appendChild(iconEl); b.appendChild(lbl); b.appendChild(check);
+    b.onclick=function(){ S.fi.ch=c.id; renderInch(); };
+    w.appendChild(b);
+  });
+}
 function selP(n){ if(S.profile&&S.profile.full_name){ S.fc.payer=S.profile.full_name; return; } S.fc.payer=n; document.getElementById('py-j').classList.toggle('on',n==='เจ'); document.getElementById('py-f').classList.toggle('on',n==='แฟง'); }
-function selIP(n){ if(S.profile&&S.profile.full_name){ S.fi.rcv=S.profile.full_name; return; } S.fi.rcv=n; document.getElementById('ip-j').classList.toggle('on',n==='เจ'); document.getElementById('ip-f').classList.toggle('on',n==='แฟง'); }
+function renderPayerChips(){
+  var w=document.getElementById('py-chips'); if(!w) return; w.innerHTML='';
+  // Build member list from familyMembers or fallback
+  var members=[];
+  if(S.familyMembers&&S.familyMembers.length){
+    S.familyMembers.forEach(function(m){ if(m.full_name) members.push({name:m.full_name,me:S.profile&&S.profile.full_name===m.full_name}); });
+  } else {
+    var nm=S.profile&&S.profile.full_name?S.profile.full_name:'คุณ';
+    members=[{name:nm,me:true}];
+  }
+  // Payer text input (type from payer name)
+  var input=document.createElement('input');
+  input.type='text'; input.placeholder='e.g. Acme Corp';
+  input.style.cssText='width:100%;border:1px solid var(--bdr);border-radius:8px;padding:10px 13px;font-family:var(--font);font-size:13px;color:var(--tx);background:var(--card2);outline:none;margin-bottom:10px';
+  w.appendChild(input);
+  // Member chips
+  var row=document.createElement('div');
+  row.style.cssText='display:flex;flex-wrap:wrap;gap:8px';
+  members.forEach(function(m){
+    var isSel=S.fi.rcv===m.name;
+    var chip=document.createElement('button');
+    chip.style.cssText='display:flex;align-items:center;gap:7px;padding:8px 14px;border-radius:20px;border:1px solid '+(isSel?'rgba(22,160,102,.55)':'var(--bdr)')+';background:'+(isSel?'rgba(22,160,102,.12)':'var(--card2)')+';cursor:pointer;transition:all .15s';
+    var av=document.createElement('span'); av.textContent=m.me?'👤':'👥'; av.style.fontSize='14px';
+    var nm2=document.createElement('span'); nm2.textContent=m.name; nm2.style.cssText='font-size:12px;font-weight:700;color:'+(isSel?'var(--gl)':'var(--sub)');
+    chip.appendChild(av); chip.appendChild(nm2);
+    chip.onclick=function(){ S.fi.rcv=m.name; renderPayerChips(); };
+    row.appendChild(chip);
+  });
+  w.appendChild(row);
+}
+function selIP(n){
+  if(S.profile&&S.profile.full_name){ S.fi.rcv=S.profile.full_name; renderPayerChips(); return; }
+  S.fi.rcv=n; renderPayerChips();
+  // legacy fallback for ip-j / ip-f if they exist
+  var ij=document.getElementById('ip-j'),inf=document.getElementById('ip-f');
+  if(ij) ij.classList.toggle('on',n==='เจ');
+  if(inf) inf.classList.toggle('on',n==='แฟง');
+}
 function addOpt(t){
   var labels={'cat':'ชื่อหมวดหมู่ใหม่:','pay':'ชื่อช่องทางใหม่:','inc-cat':'หมวดหมู่รายรับ:','inc-ch':'ช่องทางรับเงิน:'};
   var v=prompt(labels[t]||'ชื่อ:'); if(!v) return;
@@ -2127,50 +2228,95 @@ async function submitInc(){
   var inc={id:Date.now(),date:dt,detail:det||'-',category:cat.l,channel:ch.l,amount:amt,receiver:S.fi.rcv};
   S.incomes.unshift(inc);
   document.getElementById('i-amt').value=''; document.getElementById('i-det').value=''; document.getElementById('i-dt').value=today();
-  S.fi={cat:'',ch:'',rcv:''}; renderIncc(); renderInch();
+  S.fi={cat:'',ch:'',rcv:''}; renderIncc(); renderInch(); renderPayerChips();
   if(S.profile&&S.profile.full_name) S.fi.rcv=S.profile.full_name;
   applyCurrentProfileToPayers();
   toast('✅ บันทึกรายรับแล้ว','ok'); renderIncSum();
   saveToSupabase('incomes',{date:inc.date,detail:inc.detail,category:inc.category,channel:inc.channel,amount:inc.amount,receiver:inc.receiver});
 }
 function renderIncSum(){
-  var w=document.getElementById('inc-sum'); if(!w) return;
+  var w=document.getElementById('inc-sum'); if(!w) return; w.innerHTML='';
+  var goalCard=document.getElementById('inc-goal-bar-wrap');
   var mo=thisMo();
   var moItems=S.incomes.filter(function(i){ return i.date&&i.date.slice(0,7)===mo; });
-  if(!moItems.length){ w.innerHTML='<div class="empty" style="padding:20px"><div class="ei">💵</div><p style="font-size:13px">ยังไม่มีรายรับเดือนนี้</p></div>'; return; }
-  var receiverTotals={};
-  moItems.forEach(function(i){
-    var name=i.receiver||'ไม่ระบุผู้รับ';
-    receiverTotals[name]=(receiverTotals[name]||0)+i.amount;
-  });
-  var receiverRows=Object.keys(receiverTotals).sort(function(a,b){ return receiverTotals[b]-receiverTotals[a]; });
   var incTotal=moItems.reduce(function(s,i){ return s+i.amount; },0);
-  var exMo=S.expenses.filter(function(e){ return e.date&&e.date.slice(0,7)===mo; }).reduce(function(s,e){ return s+e.amount; },0);
-  var net=incTotal-exMo;
-  var catM={};
-  moItems.forEach(function(i){ if(!catM[i.category]) catM[i.category]=0; catM[i.category]+=i.amount; });
-  var cats=Object.keys(catM).map(function(k){ return [k,catM[k]]; }).sort(function(a,b){ return b[1]-a[1]; });
-  var maxC=cats.length?cats[0][1]:1;
-  w.innerHTML='';
-  var g=document.createElement('div'); g.className='kgrid';
-  function mkK(lbl,val,vc,sub,full,bc){ var c=document.createElement('div'); c.className='kcard'+(full?' full':''); if(bc) c.style.borderLeft='3px solid '+bc; c.innerHTML='<div class="kl">'+lbl+'</div><div class="kv" style="color:'+vc+'">'+val+'</div>'+(sub?'<div class="ks">'+sub+'</div>':''); return c; }
-  g.appendChild(mkK('รายรับรวมเดือนนี้','฿'+fmt(incTotal),'var(--gl)',moItems.length+' รายการ',true,'var(--gl)'));
-  receiverRows.forEach(function(name,idx){
-    var color=idx%2===0?'var(--p)':'var(--gl)';
-    g.appendChild(mkK('👤 '+name,'฿'+fmt(receiverTotals[name]),color,'',false,''));
-  });
-  g.appendChild(mkK(net>=0?'✅ เหลือสุทธิ':'⚠️ รายจ่ายเกิน','฿'+fmt(Math.abs(net)),net>=0?'var(--gl)':'var(--rl)','',true,net>=0?'var(--gl)':'var(--rl)'));
-  w.appendChild(g);
-  if(cats.length){
-    var card=document.createElement('div'); card.className='card'; card.innerHTML='<div class="ctitle">แยกหมวดหมู่</div>';
-    cats.forEach(function(p){ var row=document.createElement('div'); row.className='brow'; row.innerHTML='<div class="bnm">'+esc(p[0])+'</div><div class="btr"><div class="bfi" style="width:'+Math.round(p[1]/maxC*100)+'%;background:var(--gl)"></div></div><div class="bam">฿'+fmt(p[1])+'</div>'; card.appendChild(row); });
-    w.appendChild(card);
+
+  // ── Goal card update ──
+  if(goalCard){
+    if(moItems.length){
+      var exMo=S.expenses.filter(function(e){ return e.date&&e.date.slice(0,7)===mo; }).reduce(function(s,e){ return s+e.amount; },0);
+      var net=incTotal-exMo;
+      var netColor=net>=0?'var(--gl)':'var(--rl)';
+      goalCard.innerHTML=
+        '<div style="display:flex;align-items:baseline;gap:6px;margin-bottom:8px">'+
+          '<span style="font-family:var(--mono);font-size:26px;font-weight:800;color:var(--gl)">฿'+fmt(incTotal)+'</span>'+
+          '<span style="font-size:12px;color:var(--mut)">เดือนนี้</span>'+
+        '</div>'+
+        '<div style="background:var(--card2);border-radius:999px;height:6px;margin-bottom:6px;overflow:hidden">'+
+          '<div style="height:6px;border-radius:999px;background:var(--gl);width:'+Math.min(100,Math.round(incTotal/Math.max(incTotal+exMo,1)*100))+'%;transition:width .5s"></div>'+
+        '</div>'+
+        '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--mut)">'+
+          '<span>'+moItems.length+' รายการ</span>'+
+          '<span style="color:'+netColor+'">สุทธิ ฿'+fmt(Math.abs(net))+(net>=0?' 💚':' ⚠️')+'</span>'+
+        '</div>';
+    } else {
+      goalCard.innerHTML='<div style="font-size:11px;color:var(--mut)">บันทึกรายรับเพื่อดูสรุป</div>';
+    }
   }
+
+  // ── Recent inflows list ──
+  var catIconMap={'เงินเดือน':'💼','โบนัส':'🎁','ฟรีแลนซ์':'💻','ลงทุน':'📈','อื่นๆ':'💰','Salary':'💼','Bonus':'🎁','Investment':'📈','Freelance':'💻'};
+  function catIcon(cat){ for(var k in catIconMap){ if(cat&&cat.indexOf(k)>=0) return catIconMap[k]; } return '💰'; }
+  function fmtDateTh(dateStr){
+    if(!dateStr) return '-';
+    var d=new Date(dateStr); var TM=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+    return d.getDate()+' '+TM[d.getMonth()];
+  }
+
+  var recent=S.incomes.slice().sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); }).slice(0,8);
+  if(!recent.length){
+    w.innerHTML='<div style="text-align:center;padding:16px 0"><div style="font-size:28px;margin-bottom:6px">💵</div><div style="font-size:12px;color:var(--mut)">ยังไม่มีรายรับ</div></div>';
+    return;
+  }
+  recent.forEach(function(inc){
+    var row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;gap:12px';
+    var ico=document.createElement('div');
+    ico.style.cssText='width:38px;height:38px;border-radius:50%;background:rgba(22,160,102,.14);border:1px solid rgba(22,160,102,.25);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0';
+    ico.textContent=catIcon(inc.category||'');
+    var body=document.createElement('div');
+    body.style.cssText='flex:1;min-width:0';
+    var title=document.createElement('div');
+    title.style.cssText='font-size:13px;font-weight:700;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
+    title.textContent=inc.receiver||inc.detail||'-';
+    var meta=document.createElement('div');
+    meta.style.cssText='font-size:11px;color:var(--mut);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
+    meta.textContent=fmtDateTh(inc.date)+(inc.category?' • '+inc.category:'');
+    body.appendChild(title); body.appendChild(meta);
+    var amt=document.createElement('div');
+    amt.style.cssText='font-family:var(--mono);font-size:13px;font-weight:800;color:var(--gl);flex-shrink:0;white-space:nowrap';
+    amt.textContent='+฿'+fmt(inc.amount);
+    row.appendChild(ico); row.appendChild(body); row.appendChild(amt);
+    w.appendChild(row);
+  });
 }
 
-// ═══════════════════════════════════════════════════════
-// DASHBOARD
-// ═══════════════════════════════════════════════════════
+// ── Income v4.1.3 helpers ──────────────────────────────
+function incAddAmt(n){
+  var el=document.getElementById('i-amt');
+  if(!el) return;
+  el.value=(parseFloat(el.value||0)+n)||n;
+}
+function resetIncomeForm(){
+  var el=document.getElementById('i-amt'); if(el) el.value='';
+  var det=document.getElementById('i-det'); if(det) det.value='';
+  var dt=document.getElementById('i-dt'); if(dt) dt.value=today();
+  S.fi={cat:'',ch:'',rcv:''};
+  if(S.profile&&S.profile.full_name) S.fi.rcv=S.profile.full_name;
+  renderIncc(); renderInch(); renderPayerChips();
+}
+function renderAddIncSummaryInline(){ /* future: live preview */ }
+// ──────────────────────────────────────────────────────
 var df='mo';
 function setDF(f,el){ df=f; document.querySelectorAll('#pg-dash .fchip').forEach(function(c){ c.classList.remove('on'); }); el.classList.add('on'); renderDash(); }
 function renderDash(){
