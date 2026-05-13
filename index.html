@@ -198,11 +198,29 @@
 
 <!-- HISTORY -->
 <div class="pg" id="pg-hist">
-  <div class="frow" id="hist-filters">
-    <div class="fchip on" onclick="setHF('all',this)">ทั้งหมด</div>
-    <div class="fchip" onclick="setHF('mo',this)">เดือนนี้</div>
+  <div class="hist-shell">
+    <section class="hist-kpis" id="hist-kpis"></section>
+    <div class="hist-layout">
+      <aside class="hist-filter-card">
+        <div class="hist-filter-head">
+          <h3><span class="material-symbols-outlined">tune</span> ตัวกรอง</h3>
+          <button type="button" onclick="setHF('all',document.querySelector('#hist-filters .fchip'))">ล้างทั้งหมด</button>
+        </div>
+        <div class="hist-filter-label">ช่วงเวลา / ผู้จ่าย</div>
+        <div class="frow hist-filter-row" id="hist-filters">
+          <div class="fchip on" onclick="setHF('all',this)">ทั้งหมด</div>
+          <div class="fchip" onclick="setHF('mo',this)">เดือนนี้</div>
+        </div>
+      </aside>
+      <section class="hist-table-card">
+        <div class="hist-table-head">
+          <h2>รายการล่าสุด</h2>
+          <button type="button" onclick="exportCSV('expense')"><span class="material-symbols-outlined">download</span> Export CSV</button>
+        </div>
+        <div id="hist-list"></div>
+      </section>
+    </div>
   </div>
-  <div id="hist-list"></div>
 </div>
 
 <!-- CREDIT + SMART DEBT -->

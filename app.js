@@ -937,20 +937,51 @@ function setHF(f,el){ hf=f; document.querySelectorAll('#pg-hist .fchip').forEach
 // Track which day-groups are open (default open)
 var openDays = {};
 function renderHist(){
-  var list=document.getElementById('hist-list'); list.innerHTML='';
+  var list=document.getElementById('hist-list'),kpis=document.getElementById('hist-kpis'); if(!list) return; list.innerHTML='';
   var mo=thisMo();
   var items=S.expenses.slice();
   if(hf==='mo') items=items.filter(function(e){ return e.date&&e.date.slice(0,7)===mo; });
   if(hf.indexOf('person:')===0){ var pn=hf.slice(7); items=items.filter(function(e){ return e.paidBy===pn; }); }
-  if(!items.length){ list.innerHTML='<div class="empty"><div class="ei">📭</div><p>ยังไม่มีรายการ</p></div>'; return; }
+  var now=new Date(), weekAgo=new Date(now.getTime()-6*86400000);
+  var weekItems=items.filter(function(e){ return e.date&&new Date(e.date+'T00:00:00')>=weekAgo; });
+  var weekTot=weekItems.reduce(function(s,e){ return s+Number(e.amount||0); },0);
+  var catTotals={};
+  items.forEach(function(e){ var c=e.category||'ไม่ระบุ'; catTotals[c]=(catTotals[c]||0)+Number(e.amount||0); });
+  var topCat=Object.keys(catTotals).sort(function(a,b){ return catTotals[b]-catTotals[a]; })[0]||'-';
+  if(kpis){
+    kpis.innerHTML='<div class="hist-kpi g"><div class="hist-kpi-top"><span>ใช้จ่ายสัปดาห์นี้</span><span class="material-symbols-outlined">trending_down</span></div><div class="hist-kpi-val">฿'+fmt(weekTot)+'</div><div class="hist-kpi-sub">'+weekItems.length+' รายการใน 7 วันล่าสุด</div></div>'+
+      '<div class="hist-kpi"><div class="hist-kpi-top"><span>รายการสูงสุด</span><span class="material-symbols-outlined">category</span></div><div class="hist-kpi-val">฿'+fmt(catTotals[topCat]||0)+'</div><div class="hist-kpi-sub">'+esc(topCat)+'</div></div>'+
+      '<div class="hist-kpi a"><div class="hist-kpi-top"><span>จำนวนธุรกรรม</span><span class="material-symbols-outlined">receipt_long</span></div><div class="hist-kpi-val">'+items.length+'</div><div class="hist-kpi-sub">รายการตามตัวกรองปัจจุบัน</div></div>';
+  }
+  if(!items.length){ list.innerHTML='<div class="hist-empty"><div class="ei">📭</div><p>ยังไม่มีรายการ</p></div>'; return; }
+  var catIconMap={'อาหาร':'restaurant','เครื่องดื่ม':'local_cafe','ขนม':'bakery_dining','สัตว์เลี้ยง':'pets','ช้อปปิ้ง':'shopping_bag','กิจกรรม':'sports_esports','การเดินทาง':'directions_car','เดินทาง':'directions_car','สถานที่':'home','ลงทุน':'trending_up','สุขภาพ':'medical_services','บิล':'receipt_long','การศึกษา':'school','บริจาค':'volunteer_activism','ท่องเที่ยว':'flight','ครอบครัว':'family_restroom','อื่น':'more_horiz'};
+  function catIcon(cat){
+    cat=String(cat||'');
+    var k=Object.keys(catIconMap).find(function(x){ return cat.indexOf(x)>-1; });
+    return k?catIconMap[k]:'receipt_long';
+  }
+  function payMatIcon(pay){
+    pay=String(pay||'');
+    if(pay.indexOf('เงินสด')>-1) return 'payments';
+    if(pay.indexOf('โอน')>-1||pay.indexOf('บัญชี')>-1) return 'account_balance';
+    if(pay.indexOf('พร้อม')>-1) return 'qr_code_2';
+    if(pay.indexOf('Credit')>-1||pay.indexOf('KTC')>-1||pay.indexOf('AEON')>-1||pay.indexOf('Bank')>-1) return 'credit_card';
+    return 'account_balance_wallet';
+  }
+  function personInitial(name){ name=String(name||'?').trim(); return (name.charAt(0)||'?').toUpperCase(); }
+  function dateLabel(d){
+    if(!d) return '-';
+    try{ return new Date(d+'T00:00:00').toLocaleDateString('th-TH',{day:'2-digit',month:'short',year:'numeric'}); }
+    catch(e){ return d; }
+  }
   // Group by month
   var monthGrps={};
   items.forEach(function(e){ var k=(e.date||'').slice(0,7); if(!monthGrps[k]) monthGrps[k]=[]; monthGrps[k].push(e); });
   Object.keys(monthGrps).sort(function(a,b){ return b.localeCompare(a); }).forEach(function(moKey){
     var moItems=monthGrps[moKey];
     var moTot=moItems.reduce(function(s,e){ return s+e.amount; },0);
-    var moDiv=document.createElement('div'); moDiv.style.marginBottom='16px';
-    var moHdr=document.createElement('div'); moHdr.className='mhdr';
+    var moDiv=document.createElement('div'); moDiv.className='hist-month';
+    var moHdr=document.createElement('div'); moHdr.className='hist-month-title';
     moHdr.textContent=thaiMo(moKey)+' · ฿'+fmt(moTot)+' ('+moItems.length+' รายการ)';
     moDiv.appendChild(moHdr);
     // Group by day inside month
@@ -963,19 +994,30 @@ function renderHist(){
       var dFull=dayKey&&dayKey!=='unknown'?new Date(dayKey).toLocaleDateString('th-TH',{weekday:'short',day:'numeric',month:'short'}):'ไม่ระบุวัน';
       // Day header
       var dayHdr=document.createElement('div');
-      dayHdr.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:var(--card2);border-radius:var(--rds);margin-bottom:6px;cursor:pointer;border:1px solid var(--bdr)';
-      dayHdr.innerHTML='<div style="display:flex;align-items:center;gap:8px"><span style="font-size:12.5px;font-weight:700;color:var(--tx)">'+dFull+'</span><span style="font-size:11px;color:var(--mut)">'+dayItems.length+' รายการ</span></div><div style="display:flex;align-items:center;gap:8px"><span style="font-size:13px;font-weight:700;font-family:var(--mono);color:var(--p)">฿'+fmt(dayTot)+'</span><span class="day-chev" style="font-size:12px;color:var(--mut);transition:transform .25s;display:inline-block;transform:'+(isOpen?'rotate(180deg)':'rotate(0deg)')+'">▾</span></div>';
+      dayHdr.className='hist-day-head';
+      dayHdr.innerHTML='<div class="hist-day-left"><span class="hist-day-name">'+esc(dFull)+'</span><span class="hist-day-count">'+dayItems.length+' รายการ</span></div><div class="hist-day-right"><span class="hist-day-total">฿'+fmt(dayTot)+'</span><span class="day-chev" style="transition:transform .25s;display:inline-block;transform:'+(isOpen?'rotate(180deg)':'rotate(0deg)')+'">▾</span></div>';
       // Day body
       var dayBody=document.createElement('div');
-      dayBody.style.cssText='overflow:hidden;max-height:'+(isOpen?'9999px':'0');
-      dayBody.style.transition='max-height .3s ease';
+      dayBody.className='hist-table-wrap';
+      dayBody.style.maxHeight=isOpen?'9999px':'0';
+      var scroll=document.createElement('div'); scroll.className='hist-table-scroll';
+      var table=document.createElement('table'); table.className='hist-table';
+      table.innerHTML='<thead><tr><th>วันที่</th><th>รายละเอียด</th><th>หมวดหมู่</th><th>ช่องทางชำระ</th><th style="text-align:right">จำนวนเงิน</th><th style="text-align:center">ผู้จ่าย</th><th></th></tr></thead><tbody></tbody>';
+      var tbody=table.querySelector('tbody');
       dayItems.forEach(function(e){
-        var item=document.createElement('div'); item.className='exi';
-        item.style.setProperty('--cat-c',e.catC||'#7c6ef5');
-        var ico=(e.category||'').split(' ')[0]||'💸';
-        item.innerHTML='<div class="exico">'+ico+'</div><div class="exbody"><div class="exname">'+esc(e.detail)+'</div><div class="exmeta">'+esc(e.category||'')+' · '+esc(e.payment||'')+'</div></div><div class="exr"><div class="examt">฿'+fmt(e.amount)+'</div><div class="expay">👤 '+esc(e.paidBy||'')+'</div></div><button class="delbtn" onclick="delEx(this.dataset.id)" data-id="'+e.id+'">×</button>';
-        dayBody.appendChild(item);
+        var row=document.createElement('tr');
+        row.style.setProperty('--hist-cat-color',e.catC||'#c7bfff');
+        row.innerHTML='<td><div class="hist-date">'+esc(dateLabel(e.date))+'</div></td>'+
+          '<td><div class="hist-detail-name">'+esc(e.detail||'-')+'</div><div class="hist-detail-sub">'+esc(e.payment||'')+'</div></td>'+
+          '<td><div class="hist-cat"><span class="material-symbols-outlined">'+catIcon(e.category)+'</span><span>'+esc(e.category||'-')+'</span></div></td>'+
+          '<td><div class="hist-pay"><span class="material-symbols-outlined">'+payMatIcon(e.payment)+'</span><span>'+esc(e.payment||'-')+'</span></div></td>'+
+          '<td class="hist-amount">฿'+fmt(e.amount)+'</td>'+
+          '<td style="text-align:center"><span class="hist-person">'+esc(personInitial(e.paidBy))+'</span></td>'+
+          '<td style="text-align:right"><button class="hist-del" onclick="delEx(this.dataset.id)" data-id="'+e.id+'">×</button></td>';
+        tbody.appendChild(row);
       });
+      scroll.appendChild(table);
+      dayBody.appendChild(scroll);
       // Toggle
       (function(dk,hdr,body){
         hdr.onclick=function(){
