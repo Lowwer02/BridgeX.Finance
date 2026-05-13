@@ -218,14 +218,19 @@ async function ensureProfile(){
   if(S.profile&&S.profile.id===S.user.id) return S.profile;
   logStep('1. Fetching Profile...',S.user.id);
   async function fetchProfile(label){
-    return withTimeout(sb.from('profiles').select('*').eq('id',S.user.id).maybeSingle(),45000,label);
+    return withTimeout(sb.from('profiles').select('*').eq('id',S.user.id).maybeSingle(),6000,label);
   }
   var res;
   try{
     res=await fetchProfile('อ่านโปรไฟล์');
   }catch(e){
     console.warn('[BX Warn] profile fetch retry after failure:',e);
-    res=await fetchProfile('อ่านโปรไฟล์อีกครั้ง');
+    try{
+      res=await fetchProfile('อ่านโปรไฟล์อีกครั้ง');
+    }catch(e2){
+      console.warn('[BX Warn] profile fetch retry failed:',e2);
+      throw new Error('โหลดโปรไฟล์ไม่สำเร็จ กรุณาลองอีกครั้ง');
+    }
   }
   logStep('1. Profile fetch response',{hasData:!!res.data,status:res.status,error:res.error});
   if(res.error && res.error.code!=='PGRST116'){
@@ -237,14 +242,14 @@ async function ensureProfile(){
     var meta=S.user.user_metadata||{};
     var trialEnd=new Date(Date.now()+60*86400000).toISOString();
     var row={id:S.user.id,full_name:meta.full_name||meta.name||'',sub_tier:'trial',trial_end:trialEnd,updated_at:new Date().toISOString()};
-    var ins=await withTimeout(sb.from('profiles').insert([row]).select('*').single(),30000,'สร้างโปรไฟล์');
+    var ins=await withTimeout(sb.from('profiles').insert([row]).select('*').single(),8000,'สร้างโปรไฟล์');
     logStep('2. Profile insert response',{hasData:!!ins.data,status:ins.status,error:ins.error});
     if(ins.error){
       logSbError('profiles insert',ins);
       var duplicate=ins.status===409||ins.error.code==='23505'||String(ins.error.message||'').indexOf('duplicate key')>=0;
       if(!duplicate) throw ins.error;
       console.warn('profile already exists, selecting existing profile');
-      var again=await withTimeout(sb.from('profiles').select('*').eq('id',S.user.id).single(),30000,'อ่านโปรไฟล์หลังชน 409');
+      var again=await withTimeout(sb.from('profiles').select('*').eq('id',S.user.id).single(),8000,'อ่านโปรไฟล์หลังชน 409');
       logStep('2b. Profile select after duplicate response',{hasData:!!again.data,status:again.status,error:again.error});
       throwSb('profiles select after duplicate',again);
       S.profile=again.data;
@@ -263,7 +268,7 @@ async function ensureFamily(){
   if(S.profile.family_id){ logStep('4. Family exists',S.profile.family_id); return; }
   var fid=makeUUID();
   logStep('5. Updating Family ID...',fid);
-  var res=await withTimeout(sb.from('profiles').update({family_id:fid,updated_at:new Date().toISOString()}).eq('id',S.user.id).select('*').single(),30000,'บันทึก family_id');
+  var res=await withTimeout(sb.from('profiles').update({family_id:fid,updated_at:new Date().toISOString()}).eq('id',S.user.id).select('*').single(),8000,'บันทึก family_id');
   logStep('5. Family update response',{hasData:!!res.data,status:res.status,error:res.error});
   throwSb('profiles update family_id',res);
   S.profile=res.data;
@@ -584,11 +589,11 @@ async function loadFromSupabase(preloadedProfile){
     S.expenses=[]; S.incomes=[]; S.crStatus={}; S.crInfo={};
     logStep('10. Fetching family data in parallel...');
     var loads=await Promise.allSettled([
-      withTimeout(sb.from('expenses').select('*').eq('family_id',fid).order('date',{ascending:false}),20000,'โหลด expenses'),
-      withTimeout(sb.from('incomes').select('*').eq('family_id',fid).order('date',{ascending:false}),20000,'โหลด incomes'),
-      withTimeout(sb.from('credits').select('*').eq('family_id',fid).order('date',{ascending:false}),20000,'โหลด credits'),
-      withTimeout(sb.from('credit_info').select('*').eq('family_id',fid),20000,'โหลด credit_info'),
-      withTimeout(sb.from('profiles').select('id,full_name').eq('family_id',fid),20000,'โหลดสมาชิกครอบครัว')
+      withTimeout(sb.from('expenses').select('*').eq('family_id',fid).order('date',{ascending:false}),6000,'โหลด expenses'),
+      withTimeout(sb.from('incomes').select('*').eq('family_id',fid).order('date',{ascending:false}),6000,'โหลด incomes'),
+      withTimeout(sb.from('credits').select('*').eq('family_id',fid).order('date',{ascending:false}),6000,'โหลด credits'),
+      withTimeout(sb.from('credit_info').select('*').eq('family_id',fid),6000,'โหลด credit_info'),
+      withTimeout(sb.from('profiles').select('id,full_name').eq('family_id',fid),6000,'โหลดสมาชิกครอบครัว')
     ]);
     function tableData(idx,label){
       var r=loads[idx];
@@ -723,10 +728,13 @@ async function saveToSupabase(table, data){
 // TABS
 // ═══════════════════════════════════════════════════════
 function goTab(id,btn){
+  var titles={add:'Add Transaction',inc:'Income',hist:'History',dash:'Dashboard',cr:'Credits',set:'Settings'};
+  var titleEl=document.getElementById('topbar-title');
+  if(titleEl) titleEl.textContent=titles[id]||'BridgeX.Finance';
   document.querySelectorAll('.pg').forEach(function(p){ p.classList.remove('on'); });
   document.querySelectorAll('.tbtn').forEach(function(b){ b.classList.remove('on'); });
   document.getElementById('pg-'+id).classList.add('on');
-  btn.classList.add('on');
+  if(btn) btn.classList.add('on');
   toggleSidebar(false);
   if(id==='hist') renderHist();
   if(id==='dash') renderDash();
@@ -902,8 +910,11 @@ function renderAddSummary(){
     return;
   }
   list.innerHTML=recent.map(function(e){
-    var ico=(e.category||'💸').split(' ')[0]||'💸';
-    return '<div class="recent-item"><div class="recent-left"><div class="recent-ico">'+esc(ico)+'</div><div style="min-width:0"><div class="recent-name">'+esc(e.detail||'-')+'</div><div class="recent-meta">'+esc(e.category||'')+' • '+esc(e.payment||'')+'</div></div></div><div class="recent-amt">-฿'+fmt(e.amount)+'</div></div>';
+    var cat=String(e.category||'');
+    var iconMap={'อาหาร':'restaurant','เครื่องดื่ม':'local_cafe','ขนม':'bakery_dining','สัตว์เลี้ยง':'pets','ช้อปปิ้ง':'shopping_bag','กิจกรรม':'sports_esports','การเดินทาง':'directions_car','สถานที่':'home','ลงทุน':'trending_up','สุขภาพ':'medical_services','บิล':'receipt_long','การศึกษา':'school','บริจาค':'volunteer_activism','ท่องเที่ยว':'flight','ครอบครัว':'family_restroom','อื่น':'more_horiz'};
+    var key=Object.keys(iconMap).find(function(k){ return cat.indexOf(k)>-1; });
+    var ico=key?iconMap[key]:'receipt_long';
+    return '<div class="recent-item"><div class="recent-left"><div class="recent-ico" data-icon="'+ico+'"></div><div style="min-width:0"><div class="recent-name">'+esc(e.detail||'-')+'</div><div class="recent-meta">'+esc(e.category||'')+' • '+esc(e.payment||'')+'</div></div></div><div class="recent-amt">-฿'+fmt(e.amount)+'</div></div>';
   }).join('');
 }
 

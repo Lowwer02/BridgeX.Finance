@@ -135,7 +135,7 @@
 <div class="tb">
   <div class="tb-brand">
     <button class="hamb" type="button" onclick="toggleSidebar()">☰</button>
-    <div class="tb-name">Add Transaction</div>
+    <div class="tb-name" id="topbar-title">Add Transaction</div>
   </div>
   <div class="tb-right">
     <div class="top-search"><span>⌕</span><input type="text" placeholder="Search..."></div>
@@ -157,7 +157,7 @@
         <div class="amt-lbl">Amount</div>
         <div class="amt-row"><span class="amt-cur">฿</span><input class="amt-inp" id="f-amt" type="number" placeholder="0.00" inputmode="decimal"></div>
         <div class="add-meta-row">
-          <div class="add-date-wrap"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2"></rect><path d="M8 3v4M16 3v4M4 10h16"></path></svg><input type="date" id="f-dt"></div>
+          <div class="fld inc-field add-date-field"><label>Date</label><input type="date" id="f-dt"></div>
           <div class="add-mode-toggle"><span class="on">Joint</span><span>Personal</span></div>
         </div>
       </div>
@@ -169,7 +169,7 @@
         <div class="add-glass add-panel">
           <div class="add-panel-title">Payment Method</div>
           <div class="chips" id="pay-chips"></div>
-          <div class="fld"><label>Merchant / Note</label><textarea id="f-det" placeholder="เช่น ข้าวมันไก่, ค่า Grab"></textarea></div>
+          <div class="fld add-note-field"><label>Note</label><textarea id="f-det" placeholder="เช่น ข้าวมันไก่, ค่า Grab"></textarea></div>
         </div>
       </div>
       <div class="card" style="display:none">
@@ -260,10 +260,6 @@
 
 <!-- INCOME -->
 <div class="pg" id="pg-inc">
-  <div class="inc-page-head">
-    <h1>Record Income</h1>
-    <p>Log incoming funds to update your total net worth and goals.</p>
-  </div>
   <div class="inc-shell">
     <div class="inc-main">
       <div class="inc-entry-card inc-glass">
@@ -286,7 +282,6 @@
           <div class="inc-field">
             <label>Deposit To</label>
             <div class="inc-select-list" id="inch-chips"></div>
-            <button class="add-chip" onclick="addOpt('inc-ch')">+ เพิ่มช่องทาง</button>
           </div>
         </div>
       </div>
@@ -294,19 +289,15 @@
         <div class="inc-glass inc-panel">
           <div class="inc-card-title">Income Source</div>
           <div class="inc-category-grid" id="incc-chips"></div>
-          <button class="add-chip" onclick="addOpt('inc-cat')">+ เพิ่มหมวดหมู่</button>
         </div>
         <div class="inc-glass inc-panel">
           <div class="fld inc-field">
-            <label>From (Payer)</label>
-            <input type="text" id="i-det" placeholder="เช่น เงินเดือน, โบนัส...">
+            <label>Note</label>
+            <textarea id="i-det" placeholder="เช่น เงินเดือน, โบนัส..."></textarea>
           </div>
-          <div class="inc-field">
-            <label>Receiver</label>
-            <div class="payers inc-payers" id="py-chips">
-              <div class="payer" id="ip-j" onclick="selIP('เจ')"><div class="av">👨</div><div class="nm">เจ</div><div class="rl">คุณ</div></div>
-              <div class="payer" id="ip-f" onclick="selIP('แฟง')"><div class="av">👩</div><div class="nm">แฟง</div><div class="rl">แฟน</div></div>
-            </div>
+          <div class="payers inc-payers inc-receiver-field" id="py-chips">
+            <div class="payer" id="ip-j" onclick="selIP('เจ')"><div class="av">👨</div><div class="nm">เจ</div><div class="rl">คุณ</div></div>
+            <div class="payer" id="ip-f" onclick="selIP('แฟง')"><div class="av">👩</div><div class="nm">แฟง</div><div class="rl">แฟน</div></div>
           </div>
         </div>
       </div>

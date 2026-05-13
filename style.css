@@ -198,9 +198,7 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
 #pg-add .amt-inp{font-family:var(--font-headline);font-size:58px;color:#c7bfff;max-width:320px}
 #pg-add .amt-inp::placeholder{color:rgba(199,191,255,.34)}
 .add-meta-row{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:34px;padding-top:24px;border-top:1px solid rgba(255,255,255,.07)}
-.add-date-wrap{display:flex;align-items:center;gap:12px;color:#c9c4d7}
-.add-date-wrap svg{width:24px;height:24px;stroke:#c9c4d7;stroke-width:2;fill:none;flex-shrink:0}
-.add-date-wrap input{width:auto;min-width:180px;background:#2a2932;border:1px solid rgba(255,255,255,.12);border-radius:8px;color:#e5e0ed;font-family:var(--font-body);font-size:15px;padding:10px 12px}
+.add-date-field{min-width:300px;margin-bottom:0}
 .add-mode-toggle{display:flex;align-items:center;background:#35343d;border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:4px;gap:4px}
 .add-mode-toggle span{font-family:var(--font-label);font-size:12px;font-weight:700;padding:8px 18px;border-radius:6px;color:#c9c4d7}
 .add-mode-toggle .on{background:#c7bfff;color:#2b009e}
@@ -218,7 +216,8 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
 #pg-add #pay-chips .chip.on::before{color:#c7bfff}
 #pg-add #pay-chips .chip.on{border-color:#c7bfff;background:rgba(76,53,196,.22);color:#c7bfff}
 #pg-add .add-panel .fld{margin-bottom:0}
-#pg-add .add-panel .fld label{font-size:15px;text-transform:none;letter-spacing:0;color:#c9c4d7;margin-bottom:10px}
+#pg-add .add-panel .fld label{font-family:var(--font-label);font-size:15px;font-weight:800;text-transform:none;letter-spacing:0;color:#c9c4d7;margin-bottom:10px}
+#pg-add .add-panel .add-note-field label{font-size:15px;text-transform:none;letter-spacing:0}
 #pg-add .add-panel textarea{height:96px;background:#2a2932;border-color:rgba(255,255,255,.10);color:#e5e0ed;font-family:var(--font-label);font-size:15px;font-weight:700}
 .add-actions{display:flex;justify-content:flex-end;gap:16px;padding-top:6px}
 .add-actions .btn-sm,.add-actions .btn-go{width:auto;min-width:112px;margin:0;justify-content:center;text-align:center;padding:13px 28px}
@@ -234,7 +233,8 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
 .recent-list{display:flex;flex-direction:column;gap:16px}
 .recent-item{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .recent-left{display:flex;align-items:center;gap:12px;min-width:0}
-.recent-ico{width:42px;height:42px;border-radius:var(--radius-full);background:#35343d;border:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.recent-ico{width:42px;height:42px;border-radius:var(--radius-full);background:rgba(76,53,196,.18);border:1px solid rgba(199,191,255,.22);color:#c7bfff;display:flex;align-items:center;justify-content:center;font-size:0;flex-shrink:0}
+.recent-ico::before{content:attr(data-icon);font-family:'Material Symbols Outlined';font-size:24px;line-height:1;font-variation-settings:'FILL' 0,'wght' 600,'GRAD' 0,'opsz' 24}
 .recent-name{font-family:var(--font-label);font-size:14px;font-weight:800;color:#e5e0ed;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .recent-meta{font-size:11px;color:#c9c4d7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .recent-amt{font-family:var(--font-label);font-size:14px;font-weight:800;color:#e5e0ed;white-space:nowrap}
@@ -260,8 +260,9 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
 .inc-quick-row button:hover{background:#2a2932}
 .inc-meta-zone{display:flex;flex-direction:column;gap:24px}
 #pg-inc .inc-field{margin-bottom:0}
-#pg-inc .inc-field input{height:58px;background:rgba(19,18,27,.58);border-color:#474554;color:#e5e0ed;font-size:16px;font-weight:700}
-#pg-inc .inc-field input:focus{border-color:#4edea3;box-shadow:0 0 0 3px rgba(16,185,129,.14)}
+#pg-inc .inc-field input,#pg-inc .inc-field textarea,#pg-add .add-date-field input{height:58px;background:rgba(19,18,27,.58);border-color:#474554;color:#e5e0ed;font-size:16px;font-weight:700}
+#pg-inc .inc-field textarea{height:110px;resize:none;line-height:1.5}
+#pg-inc .inc-field input:focus,#pg-inc .inc-field textarea:focus,#pg-add .add-date-field input:focus{border-color:#4edea3;box-shadow:0 0 0 3px rgba(16,185,129,.14)}
 .inc-select-list{display:flex;flex-direction:column;gap:8px}
 #pg-inc #inch-chips .chip{width:100%;min-height:58px;border-radius:8px;background:rgba(19,18,27,.58);border-color:#474554;color:#e5e0ed;display:flex;align-items:center;gap:10px;text-align:left;padding:14px 16px;font-family:var(--font-label);font-size:15px;font-weight:800}
 #pg-inc #inch-chips .chip::before{content:attr(data-icon);font-family:'Material Symbols Outlined';font-size:22px;line-height:1;color:#c9c4d7;font-variation-settings:'FILL' 0,'wght' 600,'GRAD' 0,'opsz' 24}
@@ -279,6 +280,7 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
 #pg-inc .inc-payers .payer{min-height:82px;background:rgba(19,18,27,.48);border-color:#474554}
 #pg-inc .inc-payers .payer.on{border-color:#4edea3;background:rgba(16,185,129,.12)}
 #pg-inc .inc-payers .payer.on .nm{color:#4edea3}
+.inc-receiver-field{display:none}
 .inc-actions{display:flex;justify-content:flex-end;gap:16px}
 .inc-actions .btn-sm,.inc-actions .btn-go{width:auto;min-width:112px;margin:0;justify-content:center;text-align:center;padding:14px 28px;border-radius:8px}
 .inc-actions .btn-go.green{background:#4edea3;color:#00311f;box-shadow:0 0 18px rgba(78,222,163,.26)}
@@ -335,8 +337,8 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
   }
   .add-summary{display:block;position:static;margin-top:0;order:2;width:100%;max-width:100%;min-width:0}
   .add-meta-row{align-items:flex-start;flex-direction:column}
-  .add-date-wrap{width:100%;justify-content:center}
-  .add-mode-toggle{width:max-content}
+  .add-date-field{width:100%;min-width:0}
+  .add-mode-toggle{width:max-content;margin-left:auto;margin-right:auto}
   #pg-add #cat-chips{grid-template-columns:repeat(3,1fr)}
   /* Action buttons — full width, equal split */
   .add-actions{display:flex;width:100%;gap:16px}
