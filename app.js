@@ -215,8 +215,18 @@ function updateHeader(){
 }
 async function ensureProfile(){
   if(!S.user) return null;
+  if(S.profile&&S.profile.id===S.user.id) return S.profile;
   logStep('1. Fetching Profile...',S.user.id);
-  var res=await withTimeout(sb.from('profiles').select('*').eq('id',S.user.id).maybeSingle(),30000,'อ่านโปรไฟล์');
+  async function fetchProfile(label){
+    return withTimeout(sb.from('profiles').select('*').eq('id',S.user.id).maybeSingle(),45000,label);
+  }
+  var res;
+  try{
+    res=await fetchProfile('อ่านโปรไฟล์');
+  }catch(e){
+    console.warn('[BX Warn] profile fetch retry after failure:',e);
+    res=await fetchProfile('อ่านโปรไฟล์อีกครั้ง');
+  }
   logStep('1. Profile fetch response',{hasData:!!res.data,status:res.status,error:res.error});
   if(res.error && res.error.code!=='PGRST116'){
     logSbError('profiles select',res);
@@ -315,6 +325,36 @@ function withTimeout(promise, ms, label){
   });
   return Promise.race([promise,timeout]).finally(function(){ clearTimeout(timer); });
 }
+function stopLoading(){ document.getElementById('loading')?.classList.add('off'); }
+function showBootstrapRetryError(msg){
+  var auth=document.getElementById('auth-screen');
+  if(auth) auth.classList.remove('off');
+  var e=document.getElementById('auth-err');
+  if(e){
+    e.innerHTML=esc(msg||'โหลดข้อมูลไม่สำเร็จ')+' <button type="button" onclick="retryBootstrap()" style="margin-left:8px;border:1px solid currentColor;background:transparent;color:inherit;border-radius:8px;padding:4px 8px;font:inherit;cursor:pointer">ลองอีกครั้ง</button>';
+    e.classList.add('show');
+  }else{
+    toast(msg||'โหลดข้อมูลไม่สำเร็จ','err');
+  }
+}
+async function retryBootstrap(){
+  var loading=document.getElementById('loading');
+  if(loading) loading.classList.remove('off');
+  try{
+    var sess=await sb.auth.getSession();
+    if(sess.data.session){
+      S.user=sess.data.session.user;
+      S.profile=null;
+      bootstrappedUserId=null;
+      await onLogin();
+    }
+  }catch(e){
+    console.error('retry bootstrap failed:',e);
+    showBootstrapRetryError('ยังโหลดข้อมูลไม่สำเร็จ: '+(e.message||e));
+  }finally{
+    stopLoading();
+  }
+}
 function logStep(label,data){ console.log('[BX Debug]',label,data||''); }
 function logSbError(label,res){
   if(res&&res.error){
@@ -337,9 +377,12 @@ function throwSb(label,res){
 // AUTH
 // ═══════════════════════════════════════════════════════
 
-// ── PATCH v4.1.2: boot guards ────────────────────────
-var _isBootstrapping = false;   // prevents onLogin() concurrency
-var _lastSessionUid  = null;    // prevents re-trigger for same user
+// ── Bootstrap guards ─────────────────────────────────
+var isBootstrapping = false;
+var bootstrappedUserId = null;
+var bootstrapPromise = null;
+var _isBootstrapping = false;   // legacy alias
+var _lastSessionUid  = null;    // legacy alias
 // ─────────────────────────────────────────────────────
 
 window.addEventListener('DOMContentLoaded', async function(){
@@ -350,9 +393,19 @@ window.addEventListener('DOMContentLoaded', async function(){
       try{
         if(session&&session.user){
           var uid=session.user.id;
-          // Skip if same user already bootstrapping or bootstrapped
-          if(_isBootstrapping){ console.log('[BX Auth] onAuthStateChange skipped — already bootstrapping'); return; }
-          if(uid===_lastSessionUid){ console.log('[BX Auth] onAuthStateChange skipped — same user already loaded'); return; }
+          if(event==='TOKEN_REFRESHED'&&uid===bootstrappedUserId&&S.profile){
+            console.log('[BX Auth] TOKEN_REFRESHED ignored — current user already loaded');
+            return;
+          }
+          if(bootstrapPromise){
+            console.log('[BX Auth] onAuthStateChange reused running bootstrap');
+            await bootstrapPromise;
+            return;
+          }
+          if(uid===bootstrappedUserId&&S.profile){
+            console.log('[BX Auth] onAuthStateChange skipped — same user already loaded');
+            return;
+          }
           S.user=session.user;
           await onLogin();
         }
@@ -360,7 +413,7 @@ window.addEventListener('DOMContentLoaded', async function(){
         console.error('auth state load failed:',e);
         toast('โหลด session ไม่สำเร็จ: '+(e.message||e),'err');
       }finally{
-        document.getElementById('loading')?.classList.add('off');
+        stopLoading();
       }
     });
     var sess = await sb.auth.getSession();
@@ -373,7 +426,7 @@ window.addEventListener('DOMContentLoaded', async function(){
     showAuthErr('โหลดแอปไม่สำเร็จ ลองรีเฟรชอีกครั้ง');
     alert('โหลดแอปไม่สำเร็จ: '+(e.message||e));
   }finally{
-    document.getElementById('loading')?.classList.add('off');
+    stopLoading();
   }
 });
 
@@ -386,7 +439,7 @@ async function doLogin(){
   if(authMode==='signup'&&!hasPdpaConsent()){ showAuthErr('กรุณายอมรับข้อตกลงและนโยบายความเป็นส่วนตัวก่อนสมัคร'); return; }
   btn.textContent=authMode==='signup'?'⏳ กำลังสมัคร...':'⏳ กำลังเข้าสู่ระบบ...'; btn.disabled=true;
   S._loginBusy=true;
-  _lastSessionUid=null; // PATCH v4.1.2: allow fresh onLogin for explicit sign-in
+  bootstrappedUserId=null; _lastSessionUid=null; // allow fresh onLogin for explicit sign-in
   if(loading) loading.classList.remove('off');
   try{
     var authPromise = authMode==='signup'
@@ -448,77 +501,63 @@ function showAuthErr(msg){
   setTimeout(function(){ e.classList.remove('show'); },3000);
 }
 async function onLogin(){
-  // ── PATCH v4.1.2: prevent duplicate concurrent calls ──
-  if(_isBootstrapping){
-    console.log('[BX Auth] onLogin() skipped — already running');
-    return;
+  if(!S.user) return Promise.resolve();
+  if(bootstrapPromise){
+    console.log('[BX Auth] onLogin() reused running bootstrap');
+    return bootstrapPromise;
   }
-  _isBootstrapping = true;
-  // ────────────────────────────────────────────────────
-  document.getElementById('auth-screen').classList.add('off');
-  try{
-    logStep('onLogin start');
-    // Fetch profile ONCE here; pass it forward so loadFromSupabase doesn't re-fetch
-    await ensureProfile();
-    await ensureFamily();
-    logStep('onLogin checkAccess');
-    checkAccess();
-    if(!S.profile.full_name){
-      document.getElementById('onboard-name').value=(S.user.user_metadata&&S.user.user_metadata.full_name)||'';
-      document.getElementById('onboard-modal').classList.add('on');
+  if(bootstrappedUserId===S.user.id&&S.profile){
+    console.log('[BX Auth] onLogin() skipped — user already bootstrapped');
+    stopLoading();
+    return Promise.resolve();
+  }
+  bootstrapPromise=(async function(){
+    isBootstrapping=true; _isBootstrapping=true;
+    document.getElementById('auth-screen').classList.add('off');
+    try{
+      logStep('onLogin start');
+      var profile=await ensureProfile();
+      await ensureFamily();
+      profile=S.profile||profile;
+      logStep('onLogin checkAccess');
+      checkAccess();
+      if(!S.profile.full_name){
+        document.getElementById('onboard-name').value=(S.user.user_metadata&&S.user.user_metadata.full_name)||'';
+        document.getElementById('onboard-modal').classList.add('on');
+      }
+      applyCurrentProfileToPayers();
+      updateHeader();
+      renderPersonFilters();
+      renderCats(); renderPays(); renderIncc(); renderInch();
+      renderHist(); renderCR(); renderDash(); renderIncSum(); renderSetStats(); renderAddSummary();
+      document.getElementById('set-user').textContent=S.user?S.user.email:'';
+      await loadFromSupabase(profile);
+      bootstrappedUserId=S.user.id; _lastSessionUid=S.user.id;
+    }catch(e){
+      console.error('profile bootstrap failed raw:',{
+        message:e&&e.message,
+        details:e&&e.details,
+        hint:e&&e.hint,
+        code:e&&e.code,
+        raw:e
+      });
+      showBootstrapRetryError('โหลดโปรไฟล์ไม่สำเร็จ กรุณาลองอีกครั้ง');
+    }finally{
+      stopLoading();
+      isBootstrapping=false; _isBootstrapping=false;
+      bootstrapPromise=null;
     }
-    await loadFamilyMembers();
-    logStep('onLogin family members loaded');
-    // Mark this user as fully bootstrapped — onAuthStateChange will skip future triggers
-    _lastSessionUid = S.user.id;
-  }catch(e){
-    var isTimeout = e&&e.message&&e.message.indexOf('ใช้เวลานานเกินไป')>=0;
-    console.error('profile bootstrap failed raw:',{
-      message:e&&e.message,
-      details:e&&e.details,
-      hint:e&&e.hint,
-      code:e&&e.code,
-      raw:e
-    });
-    if(isTimeout){
-      toast('เชื่อมต่อช้า — ลองรีเฟรชหน้าใหม่อีกครั้ง','err');
-    } else {
-      toast('โหลดโปรไฟล์ไม่สำเร็จ: '+(e.message||e),'err');
-    }
-  }finally{
-    // Always release loading — never hang on profile error
-    document.getElementById('loading')?.classList.add('off');
-    _isBootstrapping = false;
-  }
-  applyCurrentProfileToPayers();
-  updateHeader();
-  renderPersonFilters();
-  renderCats(); renderPays(); renderIncc(); renderInch();
-  renderHist(); renderCR(); renderDash(); renderIncSum(); renderSetStats(); renderAddSummary();
-  document.getElementById('set-user').textContent=S.user?S.user.email:'';
-  // Pass the already-fetched profile so loadFromSupabase skips re-fetching it
-  try{
-    await loadFromSupabase(S.profile);
-  }catch(e){
-    console.error('onLogin load failed raw:',{
-      message:e&&e.message,
-      details:e&&e.details,
-      hint:e&&e.hint,
-      code:e&&e.code,
-      raw:e
-    });
-    toast('โหลดข้อมูลไม่สำเร็จ: '+(e.message||e),'err');
-  }finally{
-    document.getElementById('loading')?.classList.add('off');
-  }
+  })();
+  return bootstrapPromise;
 }
 async function doLogout(){
   if(!confirm('ออกจากระบบ?')) return;
   await sb.auth.signOut();
   S.user=null;
   // PATCH v4.1.2: reset boot guards so next login runs cleanly
-  _isBootstrapping=false;
-  _lastSessionUid=null;
+  isBootstrapping=false; _isBootstrapping=false;
+  bootstrappedUserId=null; _lastSessionUid=null;
+  bootstrapPromise=null;
   document.getElementById('auth-screen').classList.remove('off');
   toast('ออกจากระบบแล้ว');
 }
@@ -542,89 +581,81 @@ async function loadFromSupabase(preloadedProfile){
     if(!checkAccess()){ setDot('off','Paywall'); return; }
     var fid=S.profile.family_id;
     logStep('9. Family ID for data load',fid);
-    S.expenses=[]; S.incomes=[]; S.crStatus={};
-    // Load expenses
-    logStep('10. Fetching expenses...');
-    var expRes = await withTimeout(sb.from('expenses').select('*').eq('family_id',fid).order('date',{ascending:false}),30000,'โหลด expenses');
-    logStep('10. Expenses response',{count:expRes.data&&expRes.data.length,status:expRes.status,error:expRes.error});
-    throwSb('expenses select',expRes);
-    if(expRes.data&&expRes.data.length){
-      var exSet={};
-      S.expenses.forEach(function(e){ exSet[e.date+'|'+e.amount+'|'+e.detail]=1; });
-      expRes.data.forEach(function(r,i){
-        var key=(r.date||'')+'|'+(r.amount||0)+'|'+(r.detail||'');
-        if(!exSet[key]) S.expenses.push({
-          id:r.id||('sb'+Date.now()+i), date:r.date||'',
-          detail:r.detail||'-', category:r.category||'',
-          catC:r.cat_color||'#7c6ef5', payment:r.payment||'',
-          amount:Number(r.amount||0), paidBy:r.paid_by||'', createdAt:r.created_at||''
-        });
-      });
-      S.expenses.sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+    S.expenses=[]; S.incomes=[]; S.crStatus={}; S.crInfo={};
+    logStep('10. Fetching family data in parallel...');
+    var loads=await Promise.allSettled([
+      withTimeout(sb.from('expenses').select('*').eq('family_id',fid).order('date',{ascending:false}),20000,'โหลด expenses'),
+      withTimeout(sb.from('incomes').select('*').eq('family_id',fid).order('date',{ascending:false}),20000,'โหลด incomes'),
+      withTimeout(sb.from('credits').select('*').eq('family_id',fid).order('date',{ascending:false}),20000,'โหลด credits'),
+      withTimeout(sb.from('credit_info').select('*').eq('family_id',fid),20000,'โหลด credit_info'),
+      withTimeout(sb.from('profiles').select('id,full_name').eq('family_id',fid),20000,'โหลดสมาชิกครอบครัว')
+    ]);
+    function tableData(idx,label){
+      var r=loads[idx];
+      if(r.status==='rejected'){
+        console.warn('[BX Warn] '+label+' load failed:',r.reason);
+        return [];
+      }
+      logStep(label+' response',{count:r.value.data&&r.value.data.length,status:r.value.status,error:r.value.error});
+      if(r.value.error){
+        logSbError(label+' select',r.value);
+        console.warn('[BX Warn] '+label+' fallback to []');
+        return [];
+      }
+      return r.value.data||[];
     }
-    // Load incomes
-    logStep('11. Fetching incomes...');
-    var incRes = await withTimeout(sb.from('incomes').select('*').eq('family_id',fid).order('date',{ascending:false}),30000,'โหลด incomes');
-    logStep('11. Incomes response',{count:incRes.data&&incRes.data.length,status:incRes.status,error:incRes.error});
-    throwSb('incomes select',incRes);
-    if(incRes.data&&incRes.data.length){
-      var incSet={};
-      S.incomes.forEach(function(i){ incSet[i.date+'|'+i.amount+'|'+i.detail]=1; });
-      incRes.data.forEach(function(r,i){
-        var key=(r.date||'')+'|'+(r.amount||0)+'|'+(r.detail||'');
-        if(!incSet[key]) S.incomes.push({
-          id:r.id||('si'+Date.now()+i), date:r.date||'',
-          detail:r.detail||'-', category:r.category||'',
-          channel:r.channel||'', amount:Number(r.amount||0), receiver:r.receiver||''
-        });
+    var expRows=tableData(0,'expenses');
+    var incRows=tableData(1,'incomes');
+    var crRows=tableData(2,'credits');
+    var ciRows=tableData(3,'credit_info');
+    S.familyMembers=tableData(4,'profiles family members');
+    expRows.forEach(function(r,i){
+      S.expenses.push({
+        id:r.id||('sb'+Date.now()+i), date:r.date||'',
+        detail:r.detail||'-', category:r.category||'',
+        catC:r.cat_color||'#7c6ef5', payment:r.payment||'',
+        amount:Number(r.amount||0), paidBy:r.paid_by||'', createdAt:r.created_at||''
       });
-      S.incomes.sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
-    }
-    // Load credit payments
-    logStep('12. Fetching credits...');
-    var crRes = await withTimeout(sb.from('credits').select('*').eq('family_id',fid).order('date',{ascending:false}),30000,'โหลด credits');
-    logStep('12. Credits response',{count:crRes.data&&crRes.data.length,status:crRes.status,error:crRes.error});
-    throwSb('credits select',crRes);
-    if(crRes.data){
-      var mo=thisMo();
-      crRes.data.forEach(function(r){
-        var found=allCR().find(function(c){ return c.n===(r.credit_name||r.name||''); });
-        if(!found) return;
-        if((r.date||'').slice(0,7)===mo){
-          var existing=S.crStatus[found.id]||{};
-          var curKey=String(r.date||'')+'T'+String(r.created_at||'');
-          var oldKey=String(existing.date||'')+'T'+String(existing.baseAt||'');
-          if(!existing.date||curKey>=oldKey){
-            S.crStatus[found.id]={paid:true,amount:Number(r.amount||0),baseRemaining:Number(r.remaining||0),baseAt:r.created_at||'',matchedUsed:0,remaining:Number(r.remaining||0),date:r.date||''};
-          }
+    });
+    S.expenses.sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+    incRows.forEach(function(r,i){
+      S.incomes.push({
+        id:r.id||('si'+Date.now()+i), date:r.date||'',
+        detail:r.detail||'-', category:r.category||'',
+        channel:r.channel||'', amount:Number(r.amount||0), receiver:r.receiver||''
+      });
+    });
+    S.incomes.sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+    var mo=thisMo();
+    crRows.forEach(function(r){
+      var found=allCR().find(function(c){ return c.n===(r.credit_name||r.name||''); });
+      if(!found) return;
+      if((r.date||'').slice(0,7)===mo){
+        var existing=S.crStatus[found.id]||{};
+        var curKey=String(r.date||'')+'T'+String(r.created_at||'');
+        var oldKey=String(existing.date||'')+'T'+String(existing.baseAt||'');
+        if(!existing.date||curKey>=oldKey){
+          S.crStatus[found.id]={paid:true,amount:Number(r.amount||0),baseRemaining:Number(r.remaining||0),baseAt:r.created_at||'',matchedUsed:0,remaining:Number(r.remaining||0),date:r.date||''};
         }
-      });
-    }
-    // Load credit info
-    S.crInfo={};
-    logStep('13. Fetching credit_info...');
-    var ciRes = await withTimeout(sb.from('credit_info').select('*').eq('family_id',fid),30000,'โหลด credit_info');
-    logStep('13. Credit info response',{count:ciRes.data&&ciRes.data.length,status:ciRes.status,error:ciRes.error});
-    throwSb('credit_info select',ciRes);
-    if(ciRes.data){
-      ciRes.data.forEach(function(r){
-        var found=allCR().find(function(c){ return c.n===(r.credit_name||r.name||''); });
-        if(!found){
-          found={id:'cr_'+String(r.credit_name||r.name||Date.now()).toLowerCase().replace(/\W+/g,'_'),n:r.credit_name||r.name||'Credit',t:r.type||'revolving',ico:'💳',rate:Number(r.rate||0)};
-          S.customCr.push(found);
-        } else {
-          found.t=r.type||found.t;
-        }
-        if(!S.crInfo[found.id]||!S.crInfo[found.id].limit){
-          S.crInfo[found.id]={
-            limit:Number(r.credit_limit||r.limit||0), rate:Number(r.rate||found.rate||0),
-            minPay:Number(r.min_pay||r.minPay||0),
-            billCycle:r.bill_cycle||r.billCycle||'',
-            dueDate:r.due_date||r.dueDate||''
-          };
-        }
-      });
-    }
+      }
+    });
+    ciRows.forEach(function(r){
+      var found=allCR().find(function(c){ return c.n===(r.credit_name||r.name||''); });
+      if(!found){
+        found={id:'cr_'+String(r.credit_name||r.name||Date.now()).toLowerCase().replace(/\W+/g,'_'),n:r.credit_name||r.name||'Credit',t:r.type||'revolving',ico:'💳',rate:Number(r.rate||0)};
+        S.customCr.push(found);
+      } else {
+        found.t=r.type||found.t;
+      }
+      if(!S.crInfo[found.id]||!S.crInfo[found.id].limit){
+        S.crInfo[found.id]={
+          limit:Number(r.credit_limit||r.limit||0), rate:Number(r.rate||found.rate||0),
+          minPay:Number(r.min_pay||r.minPay||0),
+          billCycle:r.bill_cycle||r.billCycle||'',
+          dueDate:r.due_date||r.dueDate||''
+        };
+      }
+    });
     loadCreditOptions();
     if(Object.keys(S.crInfo||{}).length>0) document.getElementById('credit-setup-modal').classList.remove('on');
     recomputeMatchedCreditBalances();
