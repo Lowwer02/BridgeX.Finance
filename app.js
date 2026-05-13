@@ -32,11 +32,22 @@ const DEF_INCH = [
 const BASE_CR = [
   {id:'ktc',n:'KTC',t:'revolving',ico:'🔵',rate:18},
   {id:'ktcm',n:'KTC Money',t:'revolving',ico:'🔵',rate:25},
+  {id:'cardx',n:'CardX / SCB',t:'revolving',ico:'🟣',rate:18},
+  {id:'krungsri',n:'Krungsri',t:'revolving',ico:'🟡',rate:18},
+  {id:'ttb',n:'TTB',t:'revolving',ico:'🔵',rate:18},
+  {id:'bbl',n:'BBL',t:'revolving',ico:'🔷',rate:18},
+  {id:'uob',n:'UOB',t:'revolving',ico:'🔴',rate:18},
+  {id:'gsb',n:'GSB',t:'revolving',ico:'🌸',rate:18},
   {id:'aeon',n:'AEON',t:'revolving',ico:'🔴',rate:18},
   {id:'aeonm',n:'AEON Money',t:'revolving',ico:'🔴',rate:25},
   {id:'kbank',n:'K-Bank',t:'revolving',ico:'💚',rate:18},
   {id:'kbankm',n:'K-Bank Money',t:'revolving',ico:'💚',rate:25},
+  {id:'cardxm',n:'CardX Money',t:'revolving',ico:'🟣',rate:25},
+  {id:'ttbm',n:'TTB Money',t:'revolving',ico:'🔵',rate:25},
+  {id:'umay',n:'Umay+',t:'revolving',ico:'🟢',rate:25},
   {id:'kfirst',n:'K-First',t:'revolving',ico:'🟤',rate:18},
+  {id:'lazpay',n:'Laz Pay Later',t:'revolving',ico:'🟦',rate:22},
+  {id:'tiktokpay',n:'TikTok Pay Later',t:'revolving',ico:'⚫',rate:22},
   {id:'shopee',n:'Shopee Pay Later',t:'revolving',ico:'🟠',rate:22},
   {id:'shopeem',n:'Shopee Money',t:'revolving',ico:'🟠',rate:22},
   {id:'true',n:'True Pay Later',t:'revolving',ico:'💜',rate:22},
@@ -47,6 +58,8 @@ const BASE_CR = [
 const PAY2CR = {
   '💚 K-Bank':'kbank','K-Bank':'kbank',
   '🔵 KTC':'ktc','KTC':'ktc',
+  'CardX / SCB':'cardx','Krungsri':'krungsri','TTB':'ttb','BBL':'bbl','UOB':'uob','GSB':'gsb',
+  'CardX Money':'cardxm','TTB Money':'ttbm','Umay+':'umay','Laz Pay Later':'lazpay','TikTok Pay Later':'tiktokpay',
   '🔴 Aeon':'aeon','Aeon':'aeon',
   '🟤 K-First':'kfirst','K-First':'kfirst',
   '🟠 Shopee Pay Later':'shopee','Shopee Pay Later':'shopee',
@@ -1057,49 +1070,65 @@ async function delEx(idOrEl){
 // ═══════════════════════════════════════════════════════
 var crf='overview', activeCrId='', activeInfoId='';
 function setCRF(f,el){ crf=f; document.querySelectorAll('#pg-cr .fchip').forEach(function(c){ c.classList.remove('on'); }); el.classList.add('on'); renderCR(); }
+function crInitials(name){
+  name=String(name||'CR').replace(/[^\wก-๙+\/ ]/g,'').trim();
+  if(name.indexOf('K-Bank')>=0) return 'KB';
+  if(name.indexOf('CardX')>=0) return 'CX';
+  if(name.indexOf('Krungsri')>=0) return 'KS';
+  if(name.indexOf('TikTok')>=0) return 'TT';
+  return name.split(/\s+|\/|-/).filter(Boolean).map(function(p){ return p.charAt(0); }).join('').slice(0,3).toUpperCase()||'CR';
+}
+function renderCreditLine(cr){
+  var mo=thisMo(),st=S.crStatus[cr.id]||{},info=S.crInfo[cr.id]||{};
+  var isPaid=st.paid&&(st.date||'').slice(0,7)===mo;
+  var bal=st.remaining!=null?Number(st.remaining||0):(info.minPay||0);
+  var due=info.dueDate||'-';
+  var rate=info.rate||cr.rate||0;
+  var tone=cr.id.indexOf('kbank')===0||cr.id.indexOf('ttb')===0||cr.id==='gsb'?'green':cr.id.indexOf('aeon')===0||cr.id.indexOf('krungsri')===0?'amber':'';
+  return '<div class="cr-line-card">'+
+    '<div class="cr-line-main"><div class="cr-logo '+tone+'">'+esc(crInitials(cr.n))+'</div><div><div class="cr-line-name">'+esc(cr.n)+'</div><div class="cr-line-meta"><span>Due: '+esc(due)+'</span><span>Rate: '+esc(rate)+'%</span></div></div></div>'+
+    '<div class="cr-line-balance"><div class="cr-line-amt '+(!isPaid&&bal>0?'due':'')+'">฿'+fmt(bal)+'</div><div class="cr-line-label">Current Balance</div></div>'+
+    '<div class="cr-line-actions"><button class="edit" onclick="openInfo(\''+cr.id+'\')">Edit Info</button><button class="pay" onclick="openPay(\''+cr.id+'\')" '+(bal<=0&&isPaid?'disabled':'')+'>Pay Bill</button></div>'+
+    '</div>';
+}
+function renderBillCalendar(){
+  var now=new Date(),yr=now.getFullYear(),mn=now.getMonth(),days=new Date(yr,mn+1,0).getDate(),first=(new Date(yr,mn,1).getDay()+6)%7;
+  var names=['Mo','Tu','We','Th','Fr','Sa','Su'];
+  var dueMap={},legend=[];
+  getMyCredits().forEach(function(cr){
+    var info=S.crInfo[cr.id]||{},d=parseInt(info.dueDate,10);
+    if(!d||d<1||d>31) return;
+    if(!dueMap[d]) dueMap[d]=[];
+    dueMap[d].push(cr);
+  });
+  var cells=names.map(function(n){ return '<div class="cr-cal-dow">'+n+'</div>'; }).join('');
+  for(var i=0;i<first;i++) cells+='<div class="cr-cal-day muted"></div>';
+  for(var d=1;d<=days;d++){
+    var cls=dueMap[d]?(d<=15?'due':'warn'):'';
+    cells+='<div class="cr-cal-day '+cls+'">'+d+'</div>';
+  }
+  Object.keys(dueMap).sort(function(a,b){ return Number(a)-Number(b); }).slice(0,4).forEach(function(d,idx){
+    dueMap[d].slice(0,2).forEach(function(cr){ legend.push('<div><span class="cr-cal-dot '+(idx%2?'warn':'')+'"></span>'+esc(cr.n)+' ('+d+')</div>'); });
+  });
+  return '<div class="cr-calendar"><div class="cr-calendar-head">Bill Calendar <span class="material-symbols-outlined">calendar_month</span></div><div class="cr-calendar-box"><div class="cr-cal-month"><span>‹</span><span>'+now.toLocaleDateString('en-US',{month:'long',year:'numeric'})+'</span><span>›</span></div><div class="cr-cal-grid">'+cells+'</div></div><div class="cr-cal-legend">'+(legend.join('')||'<div>ยังไม่มีวันครบกำหนด</div>')+'</div></div>';
+}
 
 function renderCR(){
+  var overview=document.getElementById('debt-overview-card'),match=document.getElementById('match-summary-card');
   if(S.profile&&S.profile.family_id&&Object.keys(S.crInfo||{}).length===0){
-    var list0=document.getElementById('cr-list'); if(list0) list0.innerHTML="<div class=\"card\" style=\"text-align:center\"><div class=\"ctitle\" style=\"justify-content:center\">Credit Setup</div><p style=\"font-size:13px;color:var(--sub);line-height:1.7;margin-bottom:12px\">ยังไม่มีสินเชื่อในครอบครัวนี้</p><button class=\"btn-go\" onclick=\"openCreditSetupModal('revolving')\">เพิ่มสินเชื่อใบแรก</button></div>";
+    if(overview) overview.innerHTML='';
+    if(match) match.innerHTML='';
+    var list0=document.getElementById('cr-list'); if(list0) list0.innerHTML="<div class=\"cr-setup-empty\"><div class=\"ctitle\" style=\"justify-content:center\">Credit Setup</div><p style=\"font-size:13px;line-height:1.7;margin-bottom:12px\">ยังไม่มีสินเชื่อในครอบครัวนี้</p><button class=\"btn-go\" onclick=\"openCreditSetupModal('revolving')\">เพิ่มสินเชื่อใบแรก</button></div>";
     return;
   }
   renderDebtOverview();
   renderMatchSummary();
   var list=document.getElementById('cr-list'); list.innerHTML='';
-  if(crf==='plan'){ renderSmartDebt(); return; }
-  if(crf==='overview'){ return; } // overview only shows the two cards above
-  var types=crf==='all'?['revolving','fixed']:[crf];
-  var TL={revolving:'💳 สินเชื่อหมุนเวียน',fixed:'🏠 สินเชื่อหลักประกัน'};
-  var TLC={revolving:'var(--p)',fixed:'var(--b)'};
-  var mo=thisMo();
-  types.forEach(function(t){
-    var grp=getMyCredits().filter(function(c){ return c.t===t; });
-    var paidCnt=grp.filter(function(cr){ var st=S.crStatus[cr.id]||{}; return st.paid&&(st.date||'').slice(0,7)===mo; }).length;
-    var totAmt=grp.filter(function(cr){ var st=S.crStatus[cr.id]||{}; return st.paid&&(st.date||'').slice(0,7)===mo; }).reduce(function(s,cr){ return s+(S.crStatus[cr.id].amount||0); },0);
-    // Collapsible section — same style as dashboard
-    var secDiv=document.createElement('div'); secDiv.className='dash-section'; secDiv.dataset.type=t;
-    var isOpen=S['crSec_'+t]!==false;
-    var sHdr=document.createElement('div'); sHdr.className='dash-section-hdr';
-    sHdr.innerHTML='<div class="dash-section-title" style="color:'+TLC[t]+'">'+TL[t]+'</div><div class="dash-section-meta"><span style="color:var(--mut);font-size:11px">'+paidCnt+'/'+grp.length+'</span>'+(totAmt?'<span style="color:var(--gl);font-weight:700;font-size:11px;font-family:var(--mono)">฿'+fmt(totAmt)+'</span>':'')+' <button class="btn-sm" onclick="event.stopPropagation();addCR(\''+t+'\')" style="width:auto;font-size:10px;padding:3px 9px;margin-left:4px">+ เพิ่ม</button><span class="dash-chevron '+(isOpen?'open':'')+'">▾</span></div>';
-    (function(type,sd,sh){ sh.onclick=function(e){ if(e.target.tagName==='BUTTON') return; var b=sd.querySelector('.dash-section-body'),ch=sh.querySelector('.dash-chevron'),open=b.classList.contains('open'); b.classList.toggle('open',!open); ch.classList.toggle('open',!open); S['crSec_'+type]=!open; }; })(t,secDiv,sHdr);
-    var sBody=document.createElement('div'); sBody.className='dash-section-body'+(isOpen?' open':'');
-    var inner=document.createElement('div'); inner.className='dash-body-inner';
-    grp.forEach(function(cr){
-      var st=S.crStatus[cr.id]||{},info=S.crInfo[cr.id]||{};
-      var isPaid=st.paid&&(st.date||'').slice(0,7)===mo;
-      var pct=0;
-      if(info.limit&&info.limit>0){ var used=info.limit-(st.remaining!=null?st.remaining:info.limit); pct=Math.min(100,Math.max(0,Math.round(used/info.limit*100))); }
-      var moLeft=calcMoLeft(st.remaining,info.minPay,info.rate||cr.rate||0);
-      var item=document.createElement('div'); item.className='cr-item '+(isPaid?'paid':'unpaid');
-      var topHtml='<div style="font-size:19px;flex-shrink:0">'+esc(cr.ico||'💳')+'</div><div style="flex:1;min-width:0"><div class="cr-name">'+esc(cr.n)+'</div><div class="cr-sub">'+(isPaid?'จ่าย ฿'+fmt(st.amount)+' · เหลือ ฿'+fmt2(st.remaining||0):'ยังไม่ได้จ่าย'+(info.dueDate?' · ครบ '+info.dueDate:''))+'</div></div><div style="flex-shrink:0;text-align:right"><span class="cr-badge '+(isPaid?'paid':'unpaid')+'">'+(isPaid?'✅ จ่ายแล้ว':'⏳ ค้างชำระ')+'</span><div style="font-size:11px;color:var(--mut);margin-top:3px">'+(isPaid?'฿'+fmt(st.amount):info.minPay?'ขั้นต่ำ ฿'+fmt(info.minPay):'')+'</div></div><div style="display:flex;flex-direction:column;gap:4px;margin-left:6px"><button class="btn-sm" onclick="openPay(\''+cr.id+'\')" style="width:auto;font-size:11px;padding:4px 8px">💳 จ่าย</button><button class="btn-sm" onclick="openInfo(\''+cr.id+'\')" style="width:auto;font-size:11px;padding:4px 8px">ℹ️</button></div>';
-      var barColor=isPaid?'var(--gl)':'var(--a)';
-      var progressHtml=info.limit?'<div class="cr-progress-wrap"><div class="cr-progress-row"><div class="cr-progress-lbl">ใช้ '+pct+'%</div><div class="cr-progress-track"><div class="cr-progress-fill" style="width:'+pct+'%;background:'+barColor+'"></div></div><div class="cr-months">'+(moLeft!=null?'~'+moLeft+' เดือน':'ยังไม่ทราบ')+'</div></div></div>':'';
-      item.innerHTML='<div style="display:flex;align-items:center;gap:9px;width:100%">'+topHtml+'</div>'+progressHtml;
-      inner.appendChild(item);
-    });
-    sBody.appendChild(inner); secDiv.appendChild(sHdr); secDiv.appendChild(sBody);
-    list.appendChild(secDiv);
-  });
+  if(crf==='plan'){ list.className=''; renderSmartDebt(); return; }
+  var grp=getMyCredits().filter(function(c){ return crf==='overview'||crf==='all'||c.t===crf; });
+  list.className='cr-lines';
+  if(!grp.length){ list.innerHTML='<div class="cr-setup-empty">ไม่มีรายการตามตัวกรองนี้</div>'; return; }
+  list.innerHTML=grp.map(renderCreditLine).join('');
 }
 
 function openCreditSetupModal(type){
@@ -1156,7 +1185,7 @@ async function saveFirstCredit(){
 // ── Debt Overview card ─────────────────────────────────
 function renderDebtOverview(){
   var w=document.getElementById('debt-overview-card'); if(!w) return;
-  if(crf!=='overview'&&crf!=='plan'){ w.innerHTML=''; return; }
+  if(crf==='plan'){ w.innerHTML=''; return; }
   var mo=thisMo(),totLimit=0,totUsed=0,totPaid=0,totUnpaid=0,paidCount=0,crCount=0;
   getMyCredits().filter(function(c){ return c.t==='revolving'; }).forEach(function(cr){
     var st=S.crStatus[cr.id]||{},info=S.crInfo[cr.id]||{};
@@ -1167,37 +1196,19 @@ function renderDebtOverview(){
     crCount++;
   });
   var pct=totLimit>0?Math.min(100,Math.max(0,Math.round(totUsed/totLimit*100))):0;
-  w.innerHTML='<div class="debt-overview"><div class="debt-overview-title">📊 ภาพรวมสินเชื่อ — '+thaiMo(mo)+'</div><div class="debt-ov-grid"><div class="debt-ov-box"><div class="debt-ov-lbl">✅ ชำระแล้ว</div><div class="debt-ov-val green">฿'+fmt(totPaid)+'</div><div style="font-size:10px;opacity:.5;margin-top:2px">'+paidCount+'/'+crCount+' บัตร</div></div><div class="debt-ov-box"><div class="debt-ov-lbl">⏳ ค้างชำระ</div><div class="debt-ov-val red">฿'+fmt(totUnpaid)+'</div></div><div class="debt-ov-box" style="grid-column:1/-1"><div class="debt-ov-lbl">วงเงินหมุนเวียนที่ใช้ไป</div><div style="display:flex;align-items:center;gap:8px;margin-top:6px"><div style="flex:1;background:rgba(255,255,255,.1);border-radius:4px;height:8px;overflow:hidden"><div style="height:8px;border-radius:4px;background:var(--a);width:'+pct+'%;transition:width .6s"></div></div><div class="debt-ov-val amber" style="font-size:14px">'+pct+'%</div></div><div style="font-size:10px;opacity:.5;margin-top:4px">฿'+fmt(totUsed)+' / ฿'+fmt(totLimit)+'</div></div></div></div>';
+  var avail=Math.max(0,totLimit-totUsed),availPct=totLimit>0?Math.max(0,Math.round(avail/totLimit*100)):0;
+  w.innerHTML='<div class="cr-kpi-grid">'+
+    '<div class="cr-kpi-card"><div class="cr-kpi-label">Total Approved Limit</div><div class="cr-kpi-val">฿'+fmt(totLimit)+'</div><div class="cr-kpi-note"><span class="material-symbols-outlined">trending_up</span>'+paidCount+'/'+crCount+' paid this month</div></div>'+
+    '<div class="cr-kpi-card cr-gauge-card"><div class="cr-kpi-label">Utilization Rate</div><div class="cr-gauge" style="--pct:'+pct+'%"><strong>'+pct+'%</strong></div><div class="cr-gauge-sub">'+(pct<=40?'Healthy Status':pct<=70?'Watch Status':'High Usage')+'</div></div>'+
+    '<div class="cr-kpi-card"><div class="cr-kpi-label">Available Credit</div><div class="cr-kpi-val green">฿'+fmt(avail)+'</div><div class="cr-kpi-progress"><span style="width:'+availPct+'%"></span></div><div class="cr-kpi-sub" style="text-align:right;margin-top:8px;color:#c9c4d7;font-family:var(--font-label);font-size:12px;font-weight:800">'+availPct+'% Available</div></div>'+
+    '</div>';
 }
 
 // ── Match-up Summary ──────────────────────────────────
 function renderMatchSummary(){
   var w=document.getElementById('match-summary-card'); if(!w) return;
-  if(crf!=='overview'){ w.innerHTML=''; return; }
-  var mo=thisMo();
-  var seen={};
-  var matched=[];
-  Object.keys(PAY2CR).forEach(function(payLabel){
-    var crId=PAY2CR[payLabel];
-    if(seen[crId]) return; seen[crId]=1;
-    var cr=allCR().find(function(c){ return c.id===crId; });
-    if(!cr||!S.crInfo[cr.id]||cr.t!=='revolving') return;
-    var st=S.crStatus[crId]||{};
-    var info=S.crInfo[crId]||{};
-    var usedInExp=creditExpenseUsage(crId,mo,st.baseAt);
-    if(usedInExp>0||st.paid) matched.push({cr:cr,st:st,info:info,usedInExp:usedInExp});
-  });
-  if(!matched.length){
-    w.innerHTML='<div class="match-summary" style="opacity:.72"><div class="match-sum-title">🔄 Match-up: วนใช้สินเชื่อเดือนนี้</div><div style="font-size:12px;color:var(--mut);text-align:center;padding:8px 0">ยังไม่มีรายจ่ายผ่านบัตรเครดิตเดือนนี้</div></div>';
-    return;
-  }
-  var rows=matched.map(function(m){
-    var rem=m.st.remaining!=null?m.st.remaining:(m.info.limit||0);
-    var usedHtml=m.usedInExp>0?'<span class="match-used">-฿'+fmt(m.usedInExp)+'</span>':'<span style="color:var(--mut);font-size:12px">ไม่มีรายจ่ายเดือนนี้</span>';
-    var remHtml=rem>0?'<span style="color:var(--mut);font-size:11px">เหลือ</span><span class="match-left">฿'+fmt2(rem)+'</span>':'';
-    return '<div class="match-row"><div class="match-cr-name">'+esc(m.cr.ico)+' '+esc(m.cr.n)+'</div><div style="display:flex;gap:8px;align-items:center">'+usedHtml+remHtml+'</div></div>';
-  }).join('');
-  w.innerHTML='<div class="match-summary"><div class="match-sum-title">🔄 Match-up: วนใช้สินเชื่อเดือนนี้</div>'+rows+'<div style="font-size:10px;color:var(--mut);margin-top:8px">ยอดวนใช้หักจากวงเงินคงเหลืออัตโนมัติเมื่อบันทึกรายจ่าย</div></div>';
+  if(crf==='plan'){ w.innerHTML=''; return; }
+  w.innerHTML=renderBillCalendar();
 }
 
 // ── Pay & Info drawers ────────────────────────────────

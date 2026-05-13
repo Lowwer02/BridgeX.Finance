@@ -90,7 +90,7 @@
     <div class="modal-title">เพิ่มสินเชื่อใบแรก</div>
     <div class="modal-sub">ครอบครัวนี้ยังไม่มีข้อมูลสินเชื่อ กรุณาเพิ่มอย่างน้อย 1 รายการก่อนใช้งานหน้าสินเชื่อ</div>
     <div class="fld"><label>ประเภท</label><select id="cs-type"><option value="revolving">Revolving</option><option value="fixed">Secured</option></select></div>
-    <div class="fld"><label>Provider</label><select id="cs-provider"><option>KTC</option><option>AEON</option><option>K-Bank</option><option>Shopee Pay Later</option><option>Shopee Money</option><option>True Pay Later</option><option>K-First</option><option>This Shop</option></select></div>
+    <div class="fld"><label>Provider</label><select id="cs-provider"><option>KTC</option><option>AEON</option><option>K-Bank</option><option>Shopee Pay Later</option><option>Shopee Money</option><option>True Pay Later</option><option>K-First</option><option>This Shop</option><option>CardX / SCB</option><option>Krungsri</option><option>TTB</option><option>BBL</option><option>UOB</option><option>GSB</option><option>CardX Money</option><option>TTB Money</option><option>Umay+</option><option>Laz Pay Later</option><option>TikTok Pay Later</option></select></div>
     <div class="fld"><label>วงเงิน / ยอดหนี้</label><input type="number" id="cs-limit" placeholder="0"></div>
     <div class="info-r">
       <div class="fld"><label>ดอกเบี้ย (%/ปี)</label><input type="number" id="cs-rate" placeholder="0" step="0.01"></div>
@@ -225,16 +225,30 @@
 
 <!-- CREDIT + SMART DEBT -->
 <div class="pg" id="pg-cr">
-  <div class="frow">
-    <div class="fchip on" onclick="setCRF('overview',this)">📊 ภาพรวม</div>
-    <div class="fchip" onclick="setCRF('plan',this)">🧠 Smart Plan</div>
-    <div class="fchip" onclick="setCRF('all',this)">รายการ</div>
-    <div class="fchip" onclick="setCRF('revolving',this)">สินเชื่อหมุนเวียน</div>
-    <div class="fchip" onclick="setCRF('fixed',this)">สินเชื่อหลักประกัน</div>
+  <div class="cr-shell">
+    <div class="cr-page-head">
+      <h1>บริหารจัดการวงเงินและสินเชื่อ</h1>
+      <p>Credit Portfolio Overview</p>
+    </div>
+    <div class="frow cr-filter-row">
+      <div class="fchip on" onclick="setCRF('overview',this)">ภาพรวม</div>
+      <div class="fchip" onclick="setCRF('plan',this)">Smart Plan</div>
+      <div class="fchip" onclick="setCRF('all',this)">รายการ</div>
+      <div class="fchip" onclick="setCRF('revolving',this)">สินเชื่อหมุนเวียน</div>
+      <div class="fchip" onclick="setCRF('fixed',this)">สินเชื่อหลักประกัน</div>
+    </div>
+    <div id="debt-overview-card"></div>
+    <div class="cr-detail-grid">
+      <section class="cr-lines-panel">
+        <div class="cr-lines-head">
+          <h2>Active Lines</h2>
+          <button type="button" onclick="openCreditSetupModal('revolving')"><span class="material-symbols-outlined">add</span> เพิ่มสินเชื่อ</button>
+        </div>
+        <div id="cr-list"></div>
+      </section>
+      <aside id="match-summary-card"></aside>
+    </div>
   </div>
-  <div id="debt-overview-card"></div>
-  <div id="match-summary-card"></div>
-  <div id="cr-list"></div>
   <!-- Pay Drawer -->
   <div class="drawer" id="pay-drawer" onclick="closeDrBg(event,'pay-drawer')">
     <div class="dbox">
