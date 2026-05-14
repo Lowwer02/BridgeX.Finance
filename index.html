@@ -111,18 +111,18 @@
 <aside class="app-sidebar">
   <div class="side-brand">BridgeX.Wallet</div>
   <nav class="side-nav">
-    <button class="tbtn" onclick="goTab('dash',this)"><span class="ico">📊</span>Dashboard</button>
-    <button class="tbtn" onclick="goTab('debt-planner',this)"><span class="ico">💸</span>Debt Planner</button>
-    <button class="tbtn" onclick="goTab('cr',this)"><span class="ico">💳</span>Credit</button>
-    <button class="tbtn on" onclick="goTab('add',this)"><span class="ico">＋</span>Add Transaction</button>
-    <button class="tbtn" onclick="goTab('hist',this)"><span class="ico">↺</span>History</button>
-    <button class="tbtn" onclick="goTab('inc',this)"><span class="ico">💰</span>Income</button>
-    <button class="tbtn" onclick="goTab('set',this)"><span class="ico">⚙️</span>Settings</button>
+    <button class="tbtn" onclick="goTab('dash',this)"><span class="ico material-symbols-outlined">dashboard</span>Dashboard</button>
+    <button class="tbtn" onclick="goTab('debt-planner',this)"><span class="ico material-symbols-outlined">payments</span>Debt Planner</button>
+    <button class="tbtn" onclick="goTab('cr',this)"><span class="ico material-symbols-outlined">credit_card</span>Credit</button>
+    <button class="tbtn on" onclick="goTab('add',this)"><span class="ico material-symbols-outlined">add_circle</span>Add Transaction</button>
+    <button class="tbtn" onclick="goTab('hist',this)"><span class="ico material-symbols-outlined">history</span>History</button>
+    <button class="tbtn" onclick="goTab('inc',this)"><span class="ico material-symbols-outlined">account_balance_wallet</span>Income</button>
+    <button class="tbtn" onclick="goTab('set',this)"><span class="ico material-symbols-outlined">settings</span>Settings</button>
   </nav>
   <div class="side-bottom">
     <button class="side-sync" onclick="syncNow()">Sync Bank Accounts</button>
-    <button class="side-link" type="button">ⓘ Support</button>
-    <button class="side-link" type="button" onclick="doLogout()">⇥ Sign Out</button>
+    <button class="side-link" type="button"><span class="material-symbols-outlined">help</span>Support</button>
+    <button class="side-link" type="button" onclick="doLogout()"><span class="material-symbols-outlined">logout</span>Sign Out</button>
     <div class="side-user">
       <div class="side-avatar">BX</div>
       <div>
@@ -137,14 +137,14 @@
 <!-- Topbar -->
 <div class="tb">
   <div class="tb-brand">
-    <button class="hamb" type="button" onclick="toggleSidebar()">☰</button>
+    <button class="hamb material-symbols-outlined" type="button" onclick="toggleSidebar()">menu</button>
     <div class="tb-name" id="topbar-title">Add Transaction</div>
   </div>
   <div class="tb-right">
     <div class="top-search"><span>⌕</span><input type="text" placeholder="Search..."></div>
     <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" title="เปลี่ยนธีม">🌙</button>
-    <button class="icon-btn" type="button" onclick="syncNow()">🔄</button>
-    <button class="icon-btn notify" type="button">🔔</button>
+    <button class="icon-btn" type="button" onclick="syncNow()"><span class="material-symbols-outlined">sync</span></button>
+    <button class="icon-btn notify" type="button"><span class="material-symbols-outlined">notifications</span></button>
     <button class="sync-pill" onclick="syncNow()">
       <span class="sdot" id="sdot"></span>
       <span id="slbl">กำลังโหลด</span>
