@@ -378,80 +378,100 @@
 
 <!-- SETTINGS -->
 <div class="pg" id="pg-set">
-  <div class="card">
-    <div class="ctitle">การเชื่อมต่อ Supabase</div>
-    <div class="status-ok">
-      <div>
-        <div style="font-size:13px;font-weight:700;color:var(--gl)">เชื่อมต่อแล้ว</div>
-        <div id="set-user" style="font-size:11px;color:var(--sub);margin-top:2px">-</div>
-      </div>
+  <header class="set-head">
+    <div>
+      <h1>ตั้งค่า (Settings)</h1>
+      <p>Manage your preferences, security, and joint wealth configurations.</p>
     </div>
-    <button class="btn-go blue" onclick="syncNow()" style="margin-bottom:8px">ดึงข้อมูลจาก Supabase</button>
-    <button class="btn-sm danger" onclick="doLogout()">ออกจากระบบ</button>
-  </div>
-  <div class="card">
-    <div class="ctitle">Subscription</div>
-    <div id="set-subscription" style="font-size:13px;color:var(--sub);line-height:1.8">-</div>
-  </div>
-  <div class="card">
-    <div class="ctitle">จัดการครอบครัว</div>
-    <div class="fld"><label>ID ครอบครัว</label><input type="text" id="family-id-view" readonly></div>
-    <div class="fld"><label>เข้าร่วมครอบครัวอื่น</label><input type="text" id="join-family-id" placeholder="วาง family_id ที่ต้องการเข้าร่วม"></div>
-    <button class="btn-go blue" onclick="joinFamily()">เข้าร่วมครอบครัวนี้</button>
-  </div>
-  <div class="card">
-    <div class="ctitle">การจัดการบัญชีส่วนบุคคล (PDPA)</div>
-    <div class="trust-badge" style="margin-top:0;margin-bottom:12px">Secure &amp; Encrypted Connection</div>
-    <p style="font-size:12px;color:var(--sub);margin-bottom:10px;line-height:1.6">การลบบัญชีจะพยายามลบข้อมูลที่ RLS อนุญาต แล้วเรียก Edge Function/RPC ฝั่ง server เพื่อลบผู้ใช้จาก Auth อย่างปลอดภัย</p>
-    <button class="btn-sm danger" onclick="deleteAccountAndData()" style="padding:12px 14px">ลบบัญชีและข้อมูลทั้งหมด</button>
-  </div>
-  <div class="card">
-    <div class="ctitle">สถิติข้อมูล</div>
-    <div id="set-stats"></div>
-  </div>
-  <div class="card">
-    <div class="ctitle">Export ข้อมูล</div>
-    <div style="display:flex;flex-direction:column;gap:8px">
-      <button class="btn-sm" id="export-expense" onclick="exportCSV('expense')">Export รายจ่าย (.csv) <span class="badge pro">Pro 109฿</span></button>
-      <button class="btn-sm" id="export-income" onclick="exportCSV('income')">Export รายรับ (.csv) <span class="badge pro">Pro 109฿</span></button>
-      <button class="btn-sm" id="export-credit" onclick="exportCSV('credit')">Export สินเชื่อ (.csv) <span class="badge pro">Pro 109฿</span></button>
-    </div>
-  </div>
-  <div class="card" style="margin-bottom:20px">
-    <div class="ctitle">จัดการข้อมูล (local cache)</div>
-    <p style="font-size:12px;color:var(--sub);margin-bottom:10px;line-height:1.6">ล้าง cache ในเครื่อง — Supabase ยังเก็บข้อมูลไว้ครบ</p>
-    <div style="display:flex;flex-direction:column;gap:8px">
-      <button class="btn-sm danger" onclick="clearLocal('expense')">ล้าง cache รายจ่าย</button>
-      <button class="btn-sm danger" onclick="clearLocal('all')">ล้าง cache ทั้งหมด</button>
-    </div>
-  </div>
-  <div class="card" style="margin-bottom:20px;text-align:center">
-    <div class="ctitle" style="justify-content:center">เกี่ยวกับแอป</div>
-    <div style="font-size:17px;font-weight:800;color:var(--tx);letter-spacing:-.3px">BridgeX<span style="color:var(--p)">.Wallet</span></div>
-    <div style="font-size:11px;color:var(--mut);margin-top:2px;margin-bottom:14px">Powered by BridgeX.Finance</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;text-align:left">
-      <div style="background:var(--card2);border-radius:var(--rds);padding:11px;border:1px solid var(--bdr)">
-        <div style="font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">เวอร์ชัน</div>
-        <div style="font-size:14px;font-weight:700;color:var(--p);font-family:var(--mono)">4.1.2</div>
+    <button class="set-export-top" type="button" onclick="exportCSV('expense')"><span class="material-symbols-outlined">download</span> Export Data</button>
+  </header>
+  <div class="set-grid">
+    <section class="set-card set-profile-card">
+      <div class="set-avatar-wrap">
+        <div class="set-avatar">BX</div>
+        <span>EDIT</span>
       </div>
-      <div style="background:var(--card2);border-radius:var(--rds);padding:11px;border:1px solid var(--bdr)">
-        <div style="font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">Database</div>
-        <div style="font-size:14px;font-weight:700;color:var(--gl);font-family:var(--mono)">Supabase</div>
+      <div class="set-profile-body">
+        <h2>BridgeX Wallet</h2>
+        <div class="set-profile-meta">
+          <span class="set-pill green">JOINT MODE</span>
+          <p id="set-user">-</p>
+        </div>
+        <div class="set-field-grid">
+          <div class="set-field"><label>Primary Contact</label><input type="text" value="BridgeX Member" readonly></div>
+          <div class="set-field"><label>Connection</label><input type="text" value="Supabase Connected" readonly></div>
+        </div>
+        <div class="set-action-row">
+          <button type="button" onclick="syncNow()">Sync Now</button>
+          <button type="button" onclick="doLogout()">Sign Out</button>
+        </div>
       </div>
-      <div style="background:var(--card2);border-radius:var(--rds);padding:11px;border:1px solid var(--bdr)">
-        <div style="font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">Hosting</div>
-        <div style="font-size:14px;font-weight:700;color:var(--b);font-family:var(--mono)">Vercel</div>
+    </section>
+    <section class="set-card set-plan-card">
+      <div class="set-card-head"><span>CURRENT PLAN</span><span class="material-symbols-outlined">workspace_premium</span></div>
+      <h2>Pro 109B</h2>
+      <div id="set-subscription" class="set-subscription">-</div>
+      <ul>
+        <li><span class="material-symbols-outlined">check_circle</span> Unlimited Joint Members</li>
+        <li><span class="material-symbols-outlined">check_circle</span> Priority Tax Export</li>
+        <li><span class="material-symbols-outlined">check_circle</span> Dedicated Advisor</li>
+      </ul>
+      <button type="button" onclick="goTab('set',document.querySelector('.tbtn[onclick*=set]'))">Manage Subscription</button>
+    </section>
+    <section class="set-card set-family-card">
+      <div class="set-section-head">
+        <div>
+          <h2><span class="material-symbols-outlined">diversity_3</span> Joint Wealth Mode</h2>
+          <p>Manage shared portfolios and member access levels.</p>
+        </div>
+        <div class="set-family-id">
+          <label>Family ID:</label>
+          <input type="text" id="family-id-view" readonly>
+        </div>
       </div>
-      <div style="background:var(--card2);border-radius:var(--rds);padding:11px;border:1px solid var(--bdr)">
-        <div style="font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">อัปเดตล่าสุด</div>
-        <div style="font-size:14px;font-weight:700;color:var(--a);font-family:var(--mono)">2026</div>
+      <div class="set-family-body">
+        <div class="set-members">
+          <div class="set-member"><span>SA</span><div><strong>Sarah Anderson</strong><small>Admin (Owner)</small></div><em>Full Access</em></div>
+          <div class="set-member"><span>MA</span><div><strong>Michael Anderson</strong><small>Co-Manager</small></div><button type="button">View + Trade</button></div>
+          <div class="set-join-row">
+            <input type="text" id="join-family-id" placeholder="วาง family_id ที่ต้องการเข้าร่วม">
+            <button type="button" onclick="joinFamily()"><span class="material-symbols-outlined">add</span> Add Member</button>
+          </div>
+        </div>
+        <div class="set-sync-options">
+          <div><strong>Real-Time Sync</strong><small>Share balances instantly</small><span class="set-toggle on"><i></i></span></div>
+          <div><strong>Transaction Alerts</strong><small>Notify all on &gt;$10k</small><span class="set-toggle"><i></i></span></div>
+        </div>
       </div>
-    </div>
-    <div style="font-size:11px;color:var(--mut);line-height:1.7;border-top:1px solid var(--bdr);padding-top:12px">
-      แอปบริหารการเงินส่วนตัว ออกแบบสำหรับคู่รัก<br>
-      ติดตามรายรับ-รายจ่าย และสินเชื่อแบบ Real-time<br><br>
-      <span style="color:var(--mut);font-size:10px">Copyright BridgeX · © 2026 BridgeX.Finance · All rights reserved</span>
-    </div>
+    </section>
+    <section class="set-card set-pref-card">
+      <h2><span class="material-symbols-outlined">tune</span> Preferences</h2>
+      <div class="set-pref-row"><div><strong>Theme</strong><small>Application appearance</small></div><div class="set-segment"><button type="button" onclick="toggleTheme()">Dark</button><button type="button" onclick="toggleTheme()">Light</button></div></div>
+      <div class="set-pref-row"><div><strong>Base Currency</strong><small>Default for analytics</small></div><select><option>THB (฿)</option><option>USD ($)</option></select></div>
+      <div class="set-pref-row"><div><strong>Language</strong></div><select><option>Thai</option><option>English</option></select></div>
+      <div class="set-stats-wrap"><h3>สถิติข้อมูล</h3><div id="set-stats"></div></div>
+    </section>
+    <section class="set-card set-security-card">
+      <h2><span class="material-symbols-outlined">shield</span> Security &amp; Data</h2>
+      <div class="set-secure-box">
+        <span class="material-symbols-outlined">verified_user</span>
+        <div><strong>PDPA Compliant</strong><p>Your data is encrypted at rest. We do not share telemetry with third parties.</p></div>
+      </div>
+      <button class="set-danger" type="button" onclick="deleteAccountAndData()"><span class="material-symbols-outlined">delete_forever</span> Delete Account Permanently</button>
+      <div class="set-cache-actions">
+        <button type="button" onclick="clearLocal('expense')">ล้าง cache รายจ่าย</button>
+        <button type="button" onclick="clearLocal('all')">ล้าง cache ทั้งหมด</button>
+      </div>
+    </section>
+    <section class="set-card set-export-card">
+      <h2><span class="material-symbols-outlined">download</span> ส่งออกข้อมูล (Data Export)</h2>
+      <div class="set-export-grid">
+        <button type="button" id="export-expense" onclick="exportCSV('expense')"><span class="material-symbols-outlined">receipt_long</span><strong>รายจ่าย (Expenses)</strong><small>ส่งออกเป็น CSV</small><em class="badge pro">Pro 109฿</em></button>
+        <button type="button" id="export-income" onclick="exportCSV('income')"><span class="material-symbols-outlined">account_balance</span><strong>รายได้ (Income)</strong><small>ส่งออกเป็น CSV</small><em class="badge pro">Pro 109฿</em></button>
+        <button type="button" id="export-credit" onclick="exportCSV('credit')"><span class="material-symbols-outlined">credit_card</span><strong>บัตรเครดิต (Credit)</strong><small>ส่งออกเป็น CSV</small><em class="badge pro">Pro 109฿</em></button>
+      </div>
+    </section>
+    <div class="set-version">App Version 4.1.2 • DB: Supabase • Hosted on Vercel</div>
   </div>
 </div>
 
