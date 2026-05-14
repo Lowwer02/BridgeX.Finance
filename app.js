@@ -1296,11 +1296,17 @@ function renderSmartDebt(){
     if(cr.t==='expense') return false;
     var info=S.crInfo[cr.id]||{};
     var st=S.crStatus[cr.id]||{};
-    return (st.remaining!=null&&st.remaining>0)||(info.minPay&&info.minPay>0);
+    var limit=Number(info.limit||0);
+    var available=st.remaining!=null?Number(st.remaining||0):null;
+    var outstanding=available!=null&&limit>0?Math.max(0,limit-available):limit;
+    return outstanding>0||(info.minPay&&info.minPay>0);
   }).map(function(cr){
     var info=S.crInfo[cr.id]||{};
     var st=S.crStatus[cr.id]||{};
-    return {cr:cr,info:info,st:st,remaining:st.remaining!=null?st.remaining:(info.limit||0),rate:info.rate||cr.rate||0,minPay:info.minPay||0};
+    var limit=Number(info.limit||0);
+    var available=st.remaining!=null?Number(st.remaining||0):null;
+    var outstanding=available!=null&&limit>0?Math.max(0,limit-available):limit;
+    return {cr:cr,info:info,st:st,remaining:outstanding,rate:info.rate||cr.rate||0,minPay:info.minPay||0};
   }).filter(function(d){ return d.remaining>0; });
 
   if(!debtList.length){
@@ -1324,19 +1330,18 @@ function renderSmartDebt(){
 
   // ── Extra cash input (rendered ONCE — never re-created to avoid focus loss) ──
   var extraPanel=document.createElement('div'); extraPanel.className=controls?'debtp-controls-panel':'';
-  if(controls) extraPanel.innerHTML='<div class="debtp-panel-title"><span class="material-symbols-outlined">add_card</span> เพิ่มเงินโปะต่อเดือน</div><p style="font-size:12px;color:var(--sub);line-height:1.6;margin-bottom:16px">ใส่จำนวนเงินที่คุณสามารถจ่ายเพิ่มจากยอดขั้นต่ำได้</p>';
+  if(controls) extraPanel.className+=' debtp-topup-panel';
+  if(controls) extraPanel.innerHTML='<div class="debtp-panel-title topup-title"><span class="material-symbols-outlined">add_card</span><span>เพิ่มเงินโปะต่อเดือน</span></div><p class="topup-sub">ใส่จำนวนเงินที่คุณสามารถจ่ายเพิ่มจากยอดขั้นต่ำได้</p>';
   var extraRow=document.createElement('div'); extraRow.className='extra-cash-row';
-  extraRow.style.cssText='flex-direction:column;align-items:stretch;gap:6px';
-  var extraTop=document.createElement('div'); extraTop.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:10px';
-  var extraLbl=document.createElement('label'); extraLbl.style.cssText='font-size:12px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.06em';
-  extraLbl.textContent='เงินโปะพิเศษ/เดือน';
+  var extraTop=document.createElement('div'); extraTop.className='topup-input-wrap';
+  var extraCurrency=document.createElement('span'); extraCurrency.className='topup-currency'; extraCurrency.textContent='฿';
   var extraInp=document.createElement('input'); extraInp.className='extra-cash-inp'; extraInp.type='number';
   extraInp.id='smart-extra-inp';
   extraInp.placeholder='0'; extraInp.value=S.extraCash!=null?S.extraCash:0;
   extraInp.oninput=function(){ S.extraCash=parseFloat(this.value)||0; updateSmartResults(); };
-  extraTop.appendChild(extraLbl); extraTop.appendChild(extraInp);
-  var extraHint=document.createElement('div'); extraHint.style.cssText='font-size:11px;color:var(--mut);line-height:1.5;padding:0 2px';
-  extraHint.textContent='การโปะเพิ่มทุกเดือนช่วยลดดอกเบี้ยรวมและทำให้หมดหนี้ไวขึ้น';
+  extraTop.appendChild(extraCurrency); extraTop.appendChild(extraInp);
+  var extraHint=document.createElement('div'); extraHint.className='topup-result';
+  extraHint.innerHTML='<div><span>ร่นระยะเวลาได้</span><strong id="smart-extra-saved">-</strong></div><span class="material-symbols-outlined">timelapse</span>';
   extraRow.appendChild(extraTop); extraRow.appendChild(extraHint);
   extraPanel.appendChild(extraRow);
   if(controls) controls.appendChild(extraPanel); else list.appendChild(extraRow);
@@ -1426,6 +1431,9 @@ function updateSmartResults(){
   var isDebtPage=list.id==='debt-plan-list';
   if(isDebtPage){
     var savedInt=(withExtra.interest!=null&&noExtra.interest!=null)?Math.max(0,noExtra.interest-withExtra.interest):0;
+    var savedMo=(withExtra.months!=null&&noExtra.months!=null)?Math.max(0,noExtra.months-withExtra.months):0;
+    var savedEl=document.getElementById('smart-extra-saved');
+    if(savedEl) savedEl.textContent=savedMo?Math.floor(savedMo/12)+' ปี '+(savedMo%12)+' เดือน':'0 เดือน';
     var saveEl=document.getElementById('debtp-save-amt');
     if(saveEl) saveEl.textContent='฿ '+fmt(savedInt);
     var impact=document.getElementById('debtp-impact');
