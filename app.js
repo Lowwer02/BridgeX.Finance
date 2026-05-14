@@ -152,6 +152,7 @@ function payIcon(label){
 }
 function debtMaterialIcon(cr){
   var name=String((cr&&cr.n)||'');
+  if(cr&&cr.t==='revolving') return 'credit_card';
   if(/รถจักรยานยนต์|motor/i.test(name)) return 'two_wheeler';
   if(/รถ|car/i.test(name)) return 'directions_car';
   if(/บ้าน|ที่อยู่อาศัย|home/i.test(name)) return 'home';
@@ -695,7 +696,7 @@ async function loadFromSupabase(preloadedProfile){
     renderPersonFilters();
     sv();
     renderHist(); renderCR(); renderDash(); renderIncSum(); renderSetStats(); renderAddSummary();
-    setDot('ok','Synced');
+    setDot('ok','🔄 Synced');
   } catch(e){
     console.error('Supabase load error raw:',{
       message:e&&e.message,
@@ -1605,6 +1606,63 @@ function renderDash(){
   var totPaid=0,totUnpaid=0;
   getMyCredits().forEach(function(cr){ var st=S.crStatus[cr.id]||{},info=S.crInfo[cr.id]||{},isPaid=st.paid&&(st.date||'').slice(0,7)===mo; if(isPaid) totPaid+=st.amount||0; else if(info.minPay) totUnpaid+=info.minPay; });
 
+  var debtTotal=0, limitTotal=0;
+  getMyCredits().forEach(function(cr){
+    var st=S.crStatus[cr.id]||{}, info=S.crInfo[cr.id]||{}, limit=Number(info.limit||0);
+    if(limit>0){
+      limitTotal+=limit;
+      debtTotal+=Math.max(0,limit-Number(st.remaining!=null?st.remaining:limit));
+    }
+  });
+  var debtPct=limitTotal?Math.min(100,Math.round(debtTotal/limitTotal*100)):0;
+  var projectedSave=Math.max(0,Math.round((totUnpaid+totPaid)*0.12));
+  var catIconMap={'อาหาร':'restaurant','เครื่องดื่ม':'local_cafe','ขนม':'bakery_dining','สัตว์เลี้ยง':'pets','ช้อปปิ้ง':'shopping_bag','กิจกรรม':'sports_esports','การเดินทาง':'directions_car','เดินทาง':'directions_car','สถานที่':'home','ลงทุน':'trending_up','สุขภาพ':'medical_services','บิล':'receipt_long','การศึกษา':'school','บริจาค':'volunteer_activism','ท่องเที่ยว':'flight','ครอบครัว':'family_restroom','อื่น':'more_horiz'};
+  function dashCatIcon(cat){ cat=String(cat||''); var k=Object.keys(catIconMap).find(function(x){ return cat.indexOf(x)>-1; }); return k?catIconMap[k]:'receipt_long'; }
+  function dashDate(d){ try { return new Date(d+'T00:00:00').toLocaleDateString('th-TH',{day:'numeric',month:'short'}); } catch(e){ return d||'-'; } }
+  function monthKey(add){
+    var d=new Date(now.getFullYear(),now.getMonth()+add,1);
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+  }
+  var months=[-3,-2,-1,0].map(monthKey);
+  var maxChart=1;
+  var chart=months.map(function(m){
+    var exp=S.expenses.filter(function(e){ return e.date&&e.date.slice(0,7)===m; }).reduce(function(s,e){ return s+Number(e.amount||0); },0);
+    var inc=S.incomes.filter(function(i){ return i.date&&i.date.slice(0,7)===m; }).reduce(function(s,i){ return s+Number(i.amount||0); },0);
+    maxChart=Math.max(maxChart,exp,inc);
+    return {m:m,exp:exp,inc:inc};
+  });
+  var chartHtml=chart.map(function(x,idx){
+    var label=thaiMo(x.m).split(' ')[0];
+    var incH=Math.max(4,Math.round(x.inc/maxChart*100));
+    var expH=Math.max(4,Math.round(x.exp/maxChart*100));
+    return '<div class="dash-chart-col"><div class="dash-bars"><span class="income" style="height:'+incH+'%"></span><span class="expense" style="height:'+expH+'%"></span></div><div class="dash-chart-label '+(idx===chart.length-1?'on':'')+'">'+label+'</div></div>';
+  }).join('');
+  var calMo=mo, calItems=S.expenses.filter(function(e){ return e.date&&e.date.slice(0,7)===calMo; }), dayTotals={};
+  calItems.forEach(function(e){ dayTotals[e.date]=(dayTotals[e.date]||0)+Number(e.amount||0); });
+  var yr=parseInt(calMo.split('-')[0]), mnth=parseInt(calMo.split('-')[1])-1, firstDay=new Date(yr,mnth,1).getDay(), daysInMonth=new Date(yr,mnth+1,0).getDate();
+  var maxDay=Math.max(1,Object.keys(dayTotals).reduce(function(m,d){ return Math.max(m,dayTotals[d]); },0));
+  var calHtml='';
+  for(var ei=0;ei<firstDay;ei++) calHtml+='<span class="dash-cal-empty"></span>';
+  for(var dd=1;dd<=daysInMonth;dd++){
+    var ds=calMo+'-'+String(dd).padStart(2,'0'), v=dayTotals[ds]||0, lvl=v?Math.max(1,Math.ceil(v/maxDay*4)):0;
+    calHtml+='<button type="button" class="dash-cal-cell l'+lvl+'" title="'+ds+' ฿'+fmt(v)+'">'+dd+'</button>';
+  }
+  var recentExp=S.expenses.map(function(e){ return {type:'exp',date:e.date,detail:e.detail,cat:e.category,person:e.paidBy,amount:e.amount,icon:dashCatIcon(e.category)}; });
+  var recentInc=S.incomes.map(function(i){ return {type:'inc',date:i.date,detail:i.detail||'รายรับ',cat:i.category||'Income',person:i.receiver||'SYS',amount:i.amount,icon:'payments'}; });
+  var recent=recentExp.concat(recentInc).sort(function(a,b){ return String(b.date||'').localeCompare(String(a.date||'')); }).slice(0,5);
+  var recentHtml=recent.length?recent.map(function(r){
+    return '<tr><td><div class="dash-qitem"><span class="material-symbols-outlined">'+r.icon+'</span><div><strong>'+esc(r.detail||'-')+'</strong><small>'+dashDate(r.date)+'</small></div></div></td><td>'+esc(r.cat||'-')+'</td><td><span class="dash-person">'+esc((r.person||'SYS').slice(0,3))+'</span></td><td class="dash-amt '+(r.type==='inc'?'pos':'')+'">'+(r.type==='inc'?'+':'-')+' ฿'+fmt2(r.amount)+'</td></tr>';
+  }).join(''):'<tr><td colspan="4" class="dash-empty">ยังไม่มีรายการ</td></tr>';
+  w.innerHTML='<div class="dash-v2">'+
+    '<section class="dash-kpi main"><div><span>Monthly Net Balance</span><strong>฿'+fmt2(net)+'</strong><small class="'+(net>=0?'pos':'neg')+'"><span class="material-symbols-outlined">trending_up</span> รายรับ ฿'+fmt(incMo)+' · รายจ่าย ฿'+fmt(tot)+'</small></div></section>'+
+    '<section class="dash-kpi"><span>Total Debt</span><strong>฿'+fmt(debtTotal)+'</strong><div class="dash-mini-track"><i style="width:'+debtPct+'%"></i></div><small>ใช้วงเงิน '+debtPct+'%</small></section>'+
+    '<section class="dash-kpi"><span>Projected Interest Savings</span><strong class="green">฿'+fmt(projectedSave)+'</strong><small class="pos"><span class="material-symbols-outlined">auto_awesome</span> ด้วยแผนชำระเร่งด่วน</small></section>'+
+    '<section class="dash-panel chart"><div class="dash-panel-head"><h2>สุขภาพทางการเงินของคุณ</h2><button type="button" onclick="goTab(\'hist\',document.querySelector(\'.tbtn[onclick*=hist]\'))">ดูรายละเอียด</button></div><div class="dash-chart">'+chartHtml+'</div><div class="dash-legend"><span><i class="income"></i>รายได้</span><span><i class="expense"></i>รายจ่าย</span></div></section>'+
+    '<section class="dash-panel calendar"><div class="dash-panel-head"><h2>ปฏิทินรายจ่ายรายวัน</h2><span>'+thaiMo(calMo)+'</span></div><div class="dash-cal-dow"><span>อา</span><span>จ</span><span>อ</span><span>พ</span><span>พฤ</span><span>ศ</span><span>ส</span></div><div class="dash-cal-grid">'+calHtml+'</div><div class="dash-cal-legend"><span>น้อย</span><i class="l0"></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i><span>มาก</span></div></section>'+
+    '<section class="dash-panel history"><div class="dash-panel-head"><h2>Quick History</h2><button type="button" onclick="goTab(\'hist\',document.querySelector(\'.tbtn[onclick*=hist]\'))">ดูทั้งหมด <span class="material-symbols-outlined">arrow_forward</span></button></div><div class="dash-table-wrap"><table class="dash-table"><thead><tr><th>รายการ</th><th>หมวดหมู่</th><th>ผู้ทำรายการ</th><th>จำนวนเงิน</th></tr></thead><tbody>'+recentHtml+'</tbody></table></div></section>'+
+  '</div>';
+  return;
+
   function mkK(lbl,val,vc,sub,full,bc){ var c=document.createElement('div'); c.className='kcard'+(full?' full':''); if(bc) c.style.borderLeft='3px solid '+bc; c.innerHTML='<div class="kl">'+lbl+'</div><div class="kv" style="color:'+vc+'">'+val+'</div>'+(sub?'<div class="ks">'+sub+'</div>':''); return c; }
   var g=document.createElement('div'); g.className='kgrid';
   g.appendChild(mkK('รายจ่ายรวม','฿'+fmt(tot),'var(--p)',items.length+' รายการ · เฉลี่ย ฿'+fmt(avg)+'/วัน',true,'var(--p)'));
@@ -1925,14 +1983,14 @@ function toggleTheme(){
   document.body.classList.toggle('light',!isLight);
   localStorage.setItem('theme',!isLight?'light':'dark');
   localStorage.setItem('themeManual','1');
-  document.getElementById('theme-btn').textContent=!isLight?'Light':'Dark';
+  document.getElementById('theme-btn').textContent=!isLight?'☀️':'🌙';
 }
 function initTheme(){
   var saved=localStorage.getItem('themeManual')==='1'?(localStorage.getItem('theme')||'light'):'light';
   var isLight=saved==='light';
   document.body.classList.toggle('light',isLight);
   var btn=document.getElementById('theme-btn');
-  if(btn) btn.textContent=isLight?'Light':'Dark';
+  if(btn) btn.textContent=isLight?'☀️':'🌙';
 }
 // Call initTheme early
 (function(){ initTheme(); })();
