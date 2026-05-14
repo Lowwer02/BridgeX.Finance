@@ -52,6 +52,11 @@ const BASE_CR = [
   {id:'shopeem',n:'Shopee Money',t:'revolving',ico:'🟠',rate:22},
   {id:'true',n:'True Pay Later',t:'revolving',ico:'💜',rate:22},
   {id:'thisshop',n:'This Shop',t:'revolving',ico:'🛒',rate:20},
+  {id:'pawn_loan',n:'สินเชื่อจำนำ',t:'fixed',ico:'🏦',rate:0},
+  {id:'car_loan',n:'สินเชื่อรถยนต์',t:'fixed',ico:'🚗',rate:0},
+  {id:'motorcycle_loan',n:'สินเชื่อรถจักรยานยนต์',t:'fixed',ico:'🏍️',rate:0},
+  {id:'home_loan',n:'สินเชื่อที่อยู่อาศัย',t:'fixed',ico:'🏠',rate:0},
+  {id:'other_loan',n:'สินเชื่ออื่นๆ',t:'fixed',ico:'📄',rate:0},
   {id:'gold',n:'ทอง',t:'fixed',ico:'🥇',rate:0},
   {id:'car',n:'รถยนต์',t:'fixed',ico:'🚗',rate:0}
 ];
@@ -1070,6 +1075,17 @@ async function delEx(idOrEl){
 // ═══════════════════════════════════════════════════════
 var crf='overview', activeCrId='', activeInfoId='';
 function setCRF(f,el){ crf=f; document.querySelectorAll('#pg-cr .fchip').forEach(function(c){ c.classList.remove('on'); }); el.classList.add('on'); renderCR(); }
+const FIXED_CREDIT_PROVIDERS = ['สินเชื่อจำนำ','สินเชื่อรถยนต์','สินเชื่อรถจักรยานยนต์','สินเชื่อที่อยู่อาศัย','สินเชื่ออื่นๆ'];
+function updateCreditProviderOptions(){
+  var typeEl=document.getElementById('cs-type'), providerEl=document.getElementById('cs-provider');
+  if(!typeEl||!providerEl) return;
+  var cur=providerEl.value;
+  var opts=typeEl.value==='fixed'
+    ? FIXED_CREDIT_PROVIDERS
+    : BASE_CR.filter(function(c){ return c.t==='revolving'; }).map(function(c){ return c.n; });
+  providerEl.innerHTML=opts.map(function(n){ return '<option value="'+esc(n)+'">'+esc(n)+'</option>'; }).join('');
+  if(opts.indexOf(cur)>=0) providerEl.value=cur;
+}
 function crInitials(name){
   name=String(name||'CR').replace(/[^\wก-๙+\/ ]/g,'').trim();
   if(name.indexOf('K-Bank')>=0) return 'KB';
@@ -1118,7 +1134,7 @@ function renderCR(){
   if(S.profile&&S.profile.family_id&&Object.keys(S.crInfo||{}).length===0){
     if(overview) overview.innerHTML='';
     if(match) match.innerHTML='';
-    var list0=document.getElementById('cr-list'); if(list0) list0.innerHTML="<div class=\"cr-setup-empty\"><div class=\"ctitle\" style=\"justify-content:center\">Credit Setup</div><p style=\"font-size:13px;line-height:1.7;margin-bottom:12px\">ยังไม่มีสินเชื่อในครอบครัวนี้</p><button class=\"btn-go\" onclick=\"openCreditSetupModal('revolving')\">เพิ่มสินเชื่อใบแรก</button></div>";
+    var list0=document.getElementById('cr-list'); if(list0) list0.innerHTML="<div class=\"cr-setup-empty\"><div class=\"ctitle\" style=\"justify-content:center\">Credit Setup</div><button class=\"btn-go\" onclick=\"openCreditSetupModal('revolving')\">เพิ่มสินเชื่อใบแรก</button></div>";
     return;
   }
   renderDebtOverview();
@@ -1142,10 +1158,11 @@ function openCreditSetupModal(type){
     return toast('ฟอร์มเพิ่มสินเชื่อโหลดไม่ครบ ลองรีเฟรชหน้าอีกครั้ง','err');
   }
   typeEl.value=t;
+  updateCreditProviderOptions();
   providerEl.value=providerEl.value||'KTC';
   limitEl.value=''; rateEl.value=''; minEl.value=''; billEl.value=''; dueEl.value='';
   var title=modal.querySelector('.modal-title');
-  if(title) title.textContent=t==='revolving'?'เพิ่มสินเชื่อหมุนเวียน':'เพิ่มสินเชื่อแบบผ่อน/มีหลักประกัน';
+  if(title) title.textContent=t==='revolving'?'เพิ่มสินเชื่อหมุนเวียน':'เพิ่มสินเชื่อหลักประกัน';
   modal.classList.add('on');
 }
 function addCR(t){ openCreditSetupModal(t); }
@@ -1153,7 +1170,7 @@ async function saveFirstCredit(){
   try{
     var provider=document.getElementById('cs-provider').value;
     var type=document.getElementById('cs-type').value;
-    if(!provider) return toast('เลือก Provider ก่อน','err');
+    if(!provider) return toast('เลือกผู้ใช้บริการก่อน','err');
     var cr=allCR().find(function(c){ return c.n===provider; });
     if(!cr){
       cr={id:'cr_'+provider.toLowerCase().replace(/\W+/g,'_'),n:provider,t:type,ico:'💳',rate:0};

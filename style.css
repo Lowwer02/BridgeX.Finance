@@ -421,6 +421,22 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
 .cr-cal-legend div{display:flex;align-items:center;gap:8px;font-family:var(--font-label);font-size:12px;font-weight:800;color:#c9c4d7}
 .cr-cal-dot{width:8px;height:8px;border-radius:999px;background:#ffb4ab}.cr-cal-dot.warn{background:#ffb95f}
 .cr-setup-empty{background:rgba(25,25,35,.72);border:1px solid rgba(255,255,255,.10);border-radius:12px;padding:28px;text-align:center;color:#c9c4d7}
+
+/* ── Add Credit Modal ── */
+.credit-setup-box{max-width:560px;background:#13121b;border:1px solid rgba(255,255,255,.10);border-radius:12px;padding:0;box-shadow:0 22px 70px rgba(0,0,0,.46);overflow:hidden}
+.credit-setup-head{padding:28px 28px 24px;border-bottom:1px solid #2a2932}
+.credit-setup-head .modal-title{font-family:var(--font-headline);font-size:28px;line-height:1.2;font-weight:800;color:#e5e0ed;margin:0 42px 8px 0}
+.credit-setup-head .modal-sub{font-family:var(--font-label);font-size:14px;line-height:1.45;font-weight:800;color:#c9c4d7;margin:0}
+.credit-setup-close{top:28px;right:28px;background:transparent;border:none;color:#c9c4d7;font-size:26px}
+.credit-setup-form{padding:26px 28px 28px}
+.credit-setup-form .fld{margin-bottom:22px}
+.credit-setup-form .fld label{font-family:var(--font-label);font-size:12px;font-weight:900;color:#c9c4d7;letter-spacing:.06em;text-transform:uppercase;margin-bottom:9px}
+.credit-setup-form .fld input,.credit-setup-form .fld select{height:58px;background:#201f27;border:1px solid #474554;border-radius:8px;color:#e5e0ed;font-family:var(--font-label);font-size:17px;font-weight:800;padding:0 18px}
+.credit-setup-form .fld input::placeholder{color:#928ea0}
+.credit-setup-form .fld input:focus,.credit-setup-form .fld select:focus{border-color:#c7bfff;box-shadow:0 0 0 3px rgba(199,191,255,.14)}
+.credit-setup-form .info-r{gap:18px}
+.credit-setup-save{height:50px;margin-top:14px;margin-bottom:0;background:#5638d6;color:#c4bbff;border-radius:8px;box-shadow:none;font-family:var(--font-label);font-size:15px;font-weight:900}
+.credit-setup-save:hover{background:#6040e2}
 @media (max-width:900px){
   .app-sidebar{display:flex;transform:translateX(-105%);transition:transform .24s ease;z-index:380}
   body.sidebar-open .app-sidebar{transform:translateX(0)}
@@ -484,6 +500,8 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
   .cr-kpi-card,.cr-calendar{padding:20px}
   .cr-lines-head{align-items:flex-start;flex-direction:column}
   .cr-lines-head button{width:100%;justify-content:center}
+  .credit-setup-head,.credit-setup-form{padding-left:20px;padding-right:20px}
+  .credit-setup-form .info-r{grid-template-columns:1fr;gap:0}
   .hist-kpi{padding:18px}
   .hist-kpi-val{font-size:28px}
   .hist-day-head{align-items:flex-start;flex-direction:column}
