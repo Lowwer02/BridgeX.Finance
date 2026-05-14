@@ -423,7 +423,7 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
 .cr-setup-empty{background:rgba(25,25,35,.72);border:1px solid rgba(255,255,255,.10);border-radius:12px;padding:28px;text-align:center;color:#c9c4d7}
 
 /* ── Add Credit Modal ── */
-.credit-setup-box{max-width:560px;background:#13121b;border:1px solid rgba(255,255,255,.10);border-radius:12px;padding:0;box-shadow:0 22px 70px rgba(0,0,0,.46);overflow:hidden}
+.credit-setup-box{width:95%;max-width:500px;max-height:85vh;background:#13121b;border:1px solid rgba(255,255,255,.10);border-radius:12px;padding:0;box-shadow:0 22px 70px rgba(0,0,0,.46);overflow-y:auto}
 .credit-setup-head{padding:28px 28px 24px;border-bottom:1px solid #2a2932}
 .credit-setup-head .modal-title{font-family:var(--font-headline);font-size:28px;line-height:1.2;font-weight:800;color:#e5e0ed;margin:0 42px 8px 0}
 .credit-setup-head .modal-sub{font-family:var(--font-label);font-size:14px;line-height:1.45;font-weight:800;color:#c9c4d7;margin:0}
@@ -437,6 +437,43 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
 .credit-setup-form .info-r{gap:18px}
 .credit-setup-save{height:50px;margin-top:14px;margin-bottom:0;background:#5638d6;color:#c4bbff;border-radius:8px;box-shadow:none;font-family:var(--font-label);font-size:15px;font-weight:900}
 .credit-setup-save:hover{background:#6040e2}
+
+/* ── Debt Planner V4.1.2 ── */
+#pg-debt-planner{background:#13121b;color:#e5e0ed;min-height:calc(100vh - 68px);padding:60px 42px 64px;margin-left:250px}
+.debtp-shell{width:100%;max-width:1160px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+.debtp-hero{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:24px;background:rgba(28,27,35,.70);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:48px 60px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.debtp-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at center,rgba(76,53,196,.22),transparent 70%);pointer-events:none}
+.debtp-hero>*{position:relative;z-index:1}
+.debtp-hero h1{font-family:var(--font-headline);font-size:48px;line-height:1.1;font-weight:800;color:#e5e0ed;margin-bottom:12px}
+.debtp-hero p{font-size:17px;line-height:1.65;color:#c9c4d7;max-width:680px}
+.debtp-save-card{min-width:236px;text-align:center;background:rgba(53,52,61,.72);border:1px solid rgba(199,191,255,.30);border-radius:12px;padding:18px 22px;font-family:var(--font-label);font-weight:800;color:#c9c4d7}
+.debtp-save-card strong{display:block;font-family:var(--font-headline);font-size:34px;color:#4edea3;margin:6px 0}
+.debtp-save-card span{font-size:12px}
+.debtp-grid{display:grid;grid-template-columns:368px minmax(0,1fr);gap:28px;align-items:start}
+.debtp-side,.debtp-impact,.debtp-list-card{background:rgba(28,27,35,.70);border:1px solid rgba(255,255,255,.06);border-radius:12px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.debtp-side{display:flex;flex-direction:column;gap:28px}
+.debtp-controls-panel{padding:28px}
+.debtp-panel-title{display:flex;align-items:center;gap:10px;font-family:var(--font-headline);font-size:24px;font-weight:800;color:#e5e0ed;margin-bottom:18px}
+.debtp-impact{padding:28px;margin-bottom:28px}
+.debtp-impact h2,.debtp-list-head h2{font-family:var(--font-headline);font-size:24px;font-weight:800;color:#e5e0ed}
+.debtp-impact-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:24px}
+.debtp-impact-card{position:relative;overflow:hidden;background:rgba(53,52,61,.22);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:20px}
+.debtp-impact-card.smart{background:rgba(76,53,196,.08);border-color:rgba(199,191,255,.22)}
+.debtp-impact-label{font-family:var(--font-label);font-size:12px;font-weight:800;color:#c9c4d7;margin-bottom:8px}
+.debtp-impact-time{font-family:var(--font-headline);font-size:34px;font-weight:800;color:#e5e0ed}
+.debtp-impact-card.smart .debtp-impact-time,.debtp-impact-card.smart .debtp-impact-interest{color:#4edea3}
+.debtp-impact-interest{font-family:var(--font-label);font-size:13px;font-weight:800;color:#ffb4ab;margin-top:6px}
+.debtp-progress-row{margin-top:24px}
+.debtp-progress-label{display:flex;justify-content:space-between;font-family:var(--font-label);font-size:12px;font-weight:800;color:#c9c4d7;margin-bottom:8px}
+.debtp-progress{height:12px;border-radius:999px;background:#35343d;overflow:hidden}
+.debtp-progress span{display:block;height:100%;width:45%;border-radius:999px;background:#c7bfff;box-shadow:0 0 10px rgba(199,191,255,.5)}
+.debtp-list-card{overflow:hidden}
+.debtp-list-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:28px;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(28,27,35,.50)}
+.debtp-list-head button{display:flex;align-items:center;gap:7px;border:none;background:transparent;color:#c7bfff;font-family:var(--font-label);font-size:14px;font-weight:800;cursor:pointer}
+#debt-plan-list .debt-plan-row{border:none;border-bottom:1px solid rgba(255,255,255,.06);border-radius:0;background:transparent;margin:0;padding:28px}
+#debt-plan-list .debt-plan-row.highlight{border-left:4px solid #4edea3;background:rgba(78,222,163,.03)}
+#debt-plan-list .dp-rank{width:48px;height:48px;border-radius:12px;background:#201f27;border:1px solid rgba(255,255,255,.06);font-size:18px;display:flex;align-items:center;justify-content:center}
+#debt-plan-list .dp-name{font-size:17px}
 @media (max-width:900px){
   .app-sidebar{display:flex;transform:translateX(-105%);transition:transform .24s ease;z-index:380}
   body.sidebar-open .app-sidebar{transform:translateX(0)}
@@ -454,6 +491,12 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
   #pg-inc{padding:24px 16px 48px;margin-left:0;min-height:calc(100vh - 74px);box-sizing:border-box}
   #pg-hist{padding:20px 16px 48px;margin-left:0;min-height:calc(100vh - 74px);box-sizing:border-box}
   #pg-cr{padding:28px 16px 48px;margin-left:0;min-height:calc(100vh - 74px);box-sizing:border-box}
+  #pg-debt-planner{padding:24px 16px 48px;margin-left:0;min-height:calc(100vh - 74px);box-sizing:border-box}
+  .debtp-hero{align-items:flex-start;flex-direction:column;padding:28px}
+  .debtp-hero h1{font-size:36px}
+  .debtp-save-card{width:100%}
+  .debtp-grid{grid-template-columns:1fr}
+  .debtp-impact-grid{grid-template-columns:1fr}
   .cr-page-head h1{font-size:36px}
   .cr-kpi-grid{grid-template-columns:1fr}
   .cr-detail-grid{grid-template-columns:1fr}
@@ -496,6 +539,10 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
   #pg-inc{padding:20px 16px 48px;box-sizing:border-box}
   #pg-hist{padding:20px 16px 48px;box-sizing:border-box}
   #pg-cr{padding:24px 16px 48px;box-sizing:border-box}
+  #pg-debt-planner{padding:20px 16px 48px;box-sizing:border-box}
+  .debtp-hero,.debtp-impact,.debtp-controls-panel,.debtp-list-head{padding:20px}
+  .debtp-hero h1{font-size:32px}
+  .credit-setup-box{width:95%;max-height:85vh}
   .cr-page-head h1{font-size:32px}
   .cr-kpi-card,.cr-calendar{padding:20px}
   .cr-lines-head{align-items:flex-start;flex-direction:column}

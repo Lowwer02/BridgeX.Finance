@@ -746,7 +746,7 @@ async function saveToSupabase(table, data){
 // TABS
 // ═══════════════════════════════════════════════════════
 function goTab(id,btn){
-  var titles={add:'Add Transaction',inc:'Income',hist:'History',dash:'Dashboard',cr:'Credits',set:'Settings'};
+  var titles={add:'Add Transaction',inc:'Income',hist:'History',dash:'Dashboard',cr:'Credits','debt-planner':'Debt Planner',set:'Settings'};
   var titleEl=document.getElementById('topbar-title');
   if(titleEl) titleEl.textContent=titles[id]||'BridgeX.Finance';
   document.querySelectorAll('.pg').forEach(function(p){ p.classList.remove('on'); });
@@ -757,6 +757,7 @@ function goTab(id,btn){
   if(id==='hist') renderHist();
   if(id==='dash') renderDash();
   if(id==='cr')   renderCR();
+  if(id==='debt-planner') renderSmartDebt();
   if(id==='inc')  renderIncSum();
   if(id==='set')  renderSetStats();
   if(id==='add')  renderAddSummary();
@@ -1274,7 +1275,11 @@ function closeModalBg(e,id){ if(e.target===document.getElementById(id)) closeD(i
 // SMART DEBT PLANNER (Q2: Snowball + Avalanche)
 // ═══════════════════════════════════════════════════════
 function renderSmartDebt(){
-  var list=document.getElementById('cr-list'); list.innerHTML='';
+  var list=document.getElementById('debt-plan-list')||document.getElementById('cr-list');
+  var controls=document.getElementById('debtp-controls');
+  if(!list) return;
+  list.innerHTML='';
+  if(controls) controls.innerHTML='';
   var mo=thisMo();
   // Get credits with data — exclude 'expense' type
   var debtList=getMyCredits().filter(function(cr){
@@ -1294,6 +1299,8 @@ function renderSmartDebt(){
   }
 
   // Strategy toggle
+  var strategyPanel=document.createElement('div'); strategyPanel.className=controls?'debtp-controls-panel':'';
+  if(controls) strategyPanel.innerHTML='<div class="debtp-panel-title"><span class="material-symbols-outlined">model_training</span> กลยุทธ์ชำระหนี้</div>';
   var toggleDiv=document.createElement('div'); toggleDiv.className='strategy-toggle';
   var btnSnow=document.createElement('button'); btnSnow.className='strategy-btn'+(S.strategy==='snowball'?' on':'');
   btnSnow.innerHTML='<span class="st-icon">⛄</span>Snowball<br><span style="font-size:10px;opacity:.7">ก้อนเล็กก่อน</span>';
@@ -1301,10 +1308,13 @@ function renderSmartDebt(){
   var btnAva=document.createElement('button'); btnAva.className='strategy-btn'+(S.strategy==='avalanche'?' on':'');
   btnAva.innerHTML='<span class="st-icon">🏔</span>Avalanche<br><span style="font-size:10px;opacity:.7">ดอกแพงก่อน</span>';
   btnAva.onclick=function(){ S.strategy='avalanche'; updateSmartResults(); };
-  toggleDiv.appendChild(btnSnow); toggleDiv.appendChild(btnAva);
-  list.appendChild(toggleDiv);
+  toggleDiv.appendChild(btnAva); toggleDiv.appendChild(btnSnow);
+  strategyPanel.appendChild(toggleDiv);
+  if(controls) controls.appendChild(strategyPanel); else list.appendChild(toggleDiv);
 
   // ── Extra cash input (rendered ONCE — never re-created to avoid focus loss) ──
+  var extraPanel=document.createElement('div'); extraPanel.className=controls?'debtp-controls-panel':'';
+  if(controls) extraPanel.innerHTML='<div class="debtp-panel-title"><span class="material-symbols-outlined">add_card</span> เพิ่มเงินโปะต่อเดือน</div><p style="font-size:12px;color:var(--sub);line-height:1.6;margin-bottom:16px">ใส่จำนวนเงินที่คุณสามารถจ่ายเพิ่มจากยอดขั้นต่ำได้</p>';
   var extraRow=document.createElement('div'); extraRow.className='extra-cash-row';
   extraRow.style.cssText='flex-direction:column;align-items:stretch;gap:6px';
   var extraTop=document.createElement('div'); extraTop.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:10px';
@@ -1318,7 +1328,8 @@ function renderSmartDebt(){
   var extraHint=document.createElement('div'); extraHint.style.cssText='font-size:11px;color:var(--mut);line-height:1.5;padding:0 2px';
   extraHint.textContent='💡 การโปะเพิ่มทุกเดือนช่วยลดดอกเบี้ยรวมและทำให้หมดหนี้ไวขึ้น';
   extraRow.appendChild(extraTop); extraRow.appendChild(extraHint);
-  list.appendChild(extraRow);
+  extraPanel.appendChild(extraRow);
+  if(controls) controls.appendChild(extraPanel); else list.appendChild(extraRow);
 
   // ── Results container (updated in-place by updateSmartResults) ──
   var resultsWrap=document.createElement('div'); resultsWrap.id='smart-results';
@@ -1330,13 +1341,13 @@ function renderSmartDebt(){
 }
 
 function updateSmartResults(){
-  var list=document.getElementById('cr-list'); if(!list) return;
+  var list=document.getElementById('debt-plan-list')||document.getElementById('cr-list'); if(!list) return;
   var debtList=list._debtList; if(!debtList) return;
   var resultsWrap=document.getElementById('smart-results'); if(!resultsWrap) return;
   resultsWrap.innerHTML='';
 
   // Update strategy button states
-  list.querySelectorAll('.strategy-btn').forEach(function(btn){
+  document.querySelectorAll('#debtp-controls .strategy-btn,#cr-list .strategy-btn').forEach(function(btn){
     var isSnow=btn.textContent.indexOf('Snowball')>=0;
     btn.classList.toggle('on',(isSnow&&S.strategy==='snowball')||(!isSnow&&S.strategy==='avalanche'));
   });
@@ -1377,9 +1388,22 @@ function updateSmartResults(){
 
   var withExtra=simMonths(extra);
   var noExtra=simMonths(0);
+  var isDebtPage=list.id==='debt-plan-list';
+  if(isDebtPage){
+    var savedInt=(withExtra.interest!=null&&noExtra.interest!=null)?Math.max(0,noExtra.interest-withExtra.interest):0;
+    var saveEl=document.getElementById('debtp-save-amt');
+    if(saveEl) saveEl.textContent='฿ '+fmt(savedInt);
+    var impact=document.getElementById('debtp-impact');
+    if(impact){
+      impact.innerHTML='<div class="debtp-impact-grid">'+
+        '<div class="debtp-impact-card"><div class="debtp-impact-label">จ่ายขั้นต่ำปกติ</div><div class="debtp-impact-time">'+(noExtra.months!=null?Math.floor(noExtra.months/12)+' ปี '+(noExtra.months%12)+' เดือน':'∞')+'</div><div class="debtp-impact-interest">ดอกเบี้ยรวม: ฿ '+fmt(noExtra.interest||0)+'</div></div>'+
+        '<div class="debtp-impact-card smart"><div class="debtp-impact-label">⚡ แผน Smart</div><div class="debtp-impact-time">'+(withExtra.months!=null?Math.floor(withExtra.months/12)+' ปี '+(withExtra.months%12)+' เดือน':'∞')+'</div><div class="debtp-impact-interest">ดอกเบี้ยรวม: ฿ '+fmt(withExtra.interest||0)+'</div></div>'+
+        '</div><div class="debtp-progress-row"><div class="debtp-progress-label"><span>ปัจจุบัน</span><span>อิสรภาพทางการเงิน</span></div><div class="debtp-progress"><span></span></div></div>';
+    }
+  }
 
   // ── What-If comparison card (only when extra > 0) ──
-  if(extra>0&&withExtra.months!=null&&noExtra.months!=null){
+  if(!isDebtPage&&extra>0&&withExtra.months!=null&&noExtra.months!=null){
     var savedMo=noExtra.months-withExtra.months;
     var savedInt=noExtra.interest-withExtra.interest;
     var wiCard=document.createElement('div');
@@ -1410,7 +1434,7 @@ function updateSmartResults(){
   // Summary bar
   var sumDiv=document.createElement('div'); sumDiv.className='plan-summary';
   sumDiv.innerHTML='<div class="plan-sum-title">'+(S.strategy==='snowball'?'⛄ Snowball — ปิดก้อนเล็กก่อน':'🏔 Avalanche — โปะดอกแพงก่อน')+'</div><div class="plan-sum-grid"><div class="plan-sum-box"><div class="plan-sum-val">฿'+fmt(totalRem)+'</div><div class="plan-sum-lbl">หนี้รวม</div></div><div class="plan-sum-box"><div class="plan-sum-val">฿'+fmt(totalMinPay+extra)+'</div><div class="plan-sum-lbl">จ่าย/เดือน</div></div><div class="plan-sum-box"><div class="plan-sum-val">'+(withExtra.months!=null?'~'+withExtra.months+' เดือน':'∞')+'</div><div class="plan-sum-lbl">ปลดหนี้</div></div></div>';
-  resultsWrap.appendChild(sumDiv);
+  if(!isDebtPage) resultsWrap.appendChild(sumDiv);
 
   // Debt rows
   var remExtra=extra;

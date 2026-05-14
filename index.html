@@ -113,7 +113,7 @@
   <div class="side-brand">BridgeX.Wallet</div>
   <nav class="side-nav">
     <button class="tbtn" onclick="goTab('dash',this)"><span class="ico">▦</span>Dashboard</button>
-    <button class="tbtn" onclick="goTab('cr',this)"><span class="ico">▣</span>Debt Planner</button>
+    <button class="tbtn" onclick="goTab('debt-planner',this)"><span class="ico">▣</span>Debt Planner</button>
     <button class="tbtn" onclick="goTab('cr',this)"><span class="ico">▭</span>Credit</button>
     <button class="tbtn on" onclick="goTab('add',this)"><span class="ico">＋</span>Add Transaction</button>
     <button class="tbtn" onclick="goTab('hist',this)"><span class="ico">↺</span>History</button>
@@ -227,12 +227,44 @@
   </div>
 </div>
 
+<!-- DEBT PLANNER -->
+<div class="pg" id="pg-debt-planner">
+  <div class="debtp-shell">
+    <section class="debtp-hero">
+      <div>
+        <h1>แผนปลดหนี้อัจฉริยะ</h1>
+        <p>วางแผนจัดการหนี้สินของคุณอย่างเป็นระบบด้วยกลยุทธ์ที่ออกแบบมาเพื่อคุณโดยเฉพาะ</p>
+      </div>
+      <div class="debtp-save-card">
+        <div>ประหยัดดอกเบี้ยได้หลักแสน</div>
+        <strong id="debtp-save-amt">฿ 0</strong>
+        <span>เทียบกับการจ่ายขั้นต่ำ</span>
+      </div>
+    </section>
+    <div class="debtp-grid">
+      <aside class="debtp-side" id="debtp-controls"></aside>
+      <section class="debtp-main">
+        <div class="debtp-impact">
+          <h2>ผลลัพธ์ของแผน</h2>
+          <div id="debtp-impact"></div>
+        </div>
+        <div class="debtp-list-card">
+          <div class="debtp-list-head">
+            <h2>ลำดับการชำระหนี้</h2>
+            <button type="button" onclick="openCreditSetupModal('revolving')"><span class="material-symbols-outlined">add</span> เพิ่มรายการ</button>
+          </div>
+          <div id="debt-plan-list"></div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
 <!-- CREDIT + SMART DEBT -->
 <div class="pg" id="pg-cr">
   <div class="cr-shell">
     <div class="frow cr-filter-row">
       <div class="fchip on" onclick="setCRF('overview',this)">ภาพรวม</div>
-      <div class="fchip" onclick="setCRF('all',this)">รายการ</div>
       <div class="fchip" onclick="setCRF('revolving',this)">สินเชื่อหมุนเวียน</div>
       <div class="fchip" onclick="setCRF('fixed',this)">สินเชื่อหลักประกัน</div>
     </div>
