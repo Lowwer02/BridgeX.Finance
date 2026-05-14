@@ -59,7 +59,7 @@
 
 <div class="modal-overlay" id="legal-modal" onclick="closeModalBg(event,'legal-modal')">
   <div class="modal-box" onclick="event.stopPropagation()">
-    <button class="dclose" onclick="closeD('legal-modal')">✕</button>
+    <button class="dclose" onclick="closeD('legal-modal')">×</button>
     <div class="modal-title" id="legal-title">ข้อตกลงการใช้งาน</div>
     <div class="modal-sub" id="legal-body">กำลังจัดทำเนื้อหา</div>
     <button class="btn-go blue" onclick="closeD('legal-modal')">รับทราบ</button>
@@ -77,7 +77,6 @@
 
 <div class="modal-overlay" id="paywall">
   <div class="modal-box paywall-card">
-    <div style="font-size:42px;margin-bottom:8px">🔒</div>
     <div class="modal-title">กรุณาสมัครสมาชิก 59฿</div>
     <div class="modal-sub">Trial หมดอายุหรือแพ็กเกจยังไม่เปิดใช้งาน<br>สมัคร Standard 59฿ เพื่อใช้งานต่อ หรือ Pro 109฿ เพื่อเปิด Export CSV</div>
     <button class="btn-go" onclick="goTab('set',document.querySelector('.tbtn[onclick*=set]'))">ดูสถานะสมาชิก</button>
@@ -86,7 +85,7 @@
 
 <div class="modal-overlay" id="credit-setup-modal" onclick="closeModalBg(event,'credit-setup-modal')">
   <div class="modal-box credit-setup-box" onclick="event.stopPropagation()">
-    <button class="dclose credit-setup-close" onclick="closeD('credit-setup-modal')">✕</button>
+    <button class="dclose credit-setup-close" onclick="closeD('credit-setup-modal')">×</button>
     <div class="credit-setup-head">
       <div class="modal-title">เพิ่มสินเชื่อหมุนเวียน</div>
       <div class="modal-sub">กรอกข้อมูลสินเชื่อเพื่อเริ่มติดตามวงเงิน ยอดหนี้ และวันครบกำหนด</div>
@@ -118,7 +117,7 @@
     <button class="tbtn on" onclick="goTab('add',this)"><span class="ico">＋</span>Add Transaction</button>
     <button class="tbtn" onclick="goTab('hist',this)"><span class="ico">↺</span>History</button>
     <button class="tbtn" onclick="goTab('inc',this)"><span class="ico">▤</span>Income</button>
-    <button class="tbtn" onclick="goTab('set',this)"><span class="ico">⚙</span>Settings</button>
+    <button class="tbtn" onclick="goTab('set',this)"><span class="ico">S</span>Settings</button>
   </nav>
   <div class="side-bottom">
     <button class="side-sync" onclick="syncNow()">Sync Bank Accounts</button>
@@ -138,14 +137,14 @@
 <!-- Topbar -->
 <div class="tb">
   <div class="tb-brand">
-    <button class="hamb" type="button" onclick="toggleSidebar()">☰</button>
+    <button class="hamb" type="button" onclick="toggleSidebar()">Menu</button>
     <div class="tb-name" id="topbar-title">Add Transaction</div>
   </div>
   <div class="tb-right">
     <div class="top-search"><span>⌕</span><input type="text" placeholder="Search..."></div>
-    <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" title="เปลี่ยนธีม">🌙</button>
-    <button class="icon-btn" type="button" onclick="syncNow()">♻</button>
-    <button class="icon-btn notify" type="button">♢</button>
+    <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" title="เปลี่ยนธีม">Dark</button>
+    <button class="icon-btn" type="button" onclick="syncNow()">Sync</button>
+    <button class="icon-btn notify" type="button">Alert</button>
     <button class="sync-pill" onclick="syncNow()">
       <span class="sdot" id="sdot"></span>
       <span id="slbl">กำลังโหลด</span>
@@ -179,13 +178,13 @@
       <div class="card" style="display:none">
         <div class="ctitle">ผู้จ่าย</div>
         <div class="payers">
-          <div class="payer" id="py-j" onclick="selP('เจ')"><div class="av">👨</div><div class="nm">เจ</div><div class="rl">คุณ</div></div>
-          <div class="payer" id="py-f" onclick="selP('แฟง')"><div class="av">👩</div><div class="nm">แฟง</div><div class="rl">แฟน</div></div>
+          <div class="payer" id="py-j" onclick="selP('เจ')"><div class="av">จ</div><div class="nm">เจ</div><div class="rl">คุณ</div></div>
+          <div class="payer" id="py-f" onclick="selP('แฟง')"><div class="av">ฟ</div><div class="nm">แฟง</div><div class="rl">แฟน</div></div>
         </div>
       </div>
       <div class="add-actions">
         <button class="btn-sm" onclick="resetExpenseForm()">Cancel</button>
-        <button class="btn-go" onclick="submitExp()">✓ Save Transaction</button>
+        <button class="btn-go" onclick="submitExp()">Save Transaction</button>
       </div>
     </div>
     <aside class="add-glass add-summary">
@@ -283,19 +282,19 @@
   <!-- Pay Drawer -->
   <div class="drawer" id="pay-drawer" onclick="closeDrBg(event,'pay-drawer')">
     <div class="dbox">
-      <button class="dclose" onclick="closeD('pay-drawer')">✕</button>
+      <button class="dclose" onclick="closeD('pay-drawer')">×</button>
       <div class="dtitle" id="dr-title">ชำระ</div>
       <div class="dsub" id="dr-sub">-</div>
       <div class="fld"><label>จำนวนที่จ่าย (บาท)</label><input type="number" id="dr-amt" placeholder="0" inputmode="decimal"></div>
       <div class="fld"><label>วงเงินคงเหลือหลังจ่าย (บาท)</label><input type="number" id="dr-rem" placeholder="0" inputmode="decimal"></div>
       <div class="fld"><label>วันที่จ่าย</label><input type="date" id="dr-dt"></div>
-      <button class="btn-go" onclick="submitCredit()">✅ บันทึกการชำระ</button>
+      <button class="btn-go" onclick="submitCredit()">บันทึกการชำระ</button>
     </div>
   </div>
   <!-- Info Drawer -->
   <div class="drawer" id="info-drawer" onclick="closeDrBg(event,'info-drawer')">
     <div class="dbox">
-      <button class="dclose" onclick="closeD('info-drawer')">✕</button>
+      <button class="dclose" onclick="closeD('info-drawer')">×</button>
       <div class="dtitle" id="inf-title">ข้อมูลสินเชื่อ</div>
       <div class="dsub">บันทึกครั้งเดียว จำไปตลอด</div>
       <div class="fld"><label>วงเงินอนุมัติรวม (บาท)</label><input type="number" id="inf-credit_limit" placeholder="0"></div>
@@ -307,7 +306,7 @@
         <div class="fld"><label>วันตัดรอบบิล</label><input type="text" id="inf-bill" placeholder="เช่น 25"></div>
         <div class="fld"><label>วันครบกำหนด</label><input type="text" id="inf-due" placeholder="เช่น 15"></div>
       </div>
-      <button class="btn-go" onclick="saveInfo()">💾 บันทึกข้อมูล</button>
+      <button class="btn-go" onclick="saveInfo()">บันทึกข้อมูล</button>
     </div>
   </div>
 </div>
@@ -359,8 +358,8 @@
             <textarea id="i-det" placeholder="เช่น เงินเดือน, โบนัส..."></textarea>
           </div>
           <div class="payers inc-payers inc-receiver-field" id="py-chips">
-            <div class="payer" id="ip-j" onclick="selIP('เจ')"><div class="av">👨</div><div class="nm">เจ</div><div class="rl">คุณ</div></div>
-            <div class="payer" id="ip-f" onclick="selIP('แฟง')"><div class="av">👩</div><div class="nm">แฟง</div><div class="rl">แฟน</div></div>
+            <div class="payer" id="ip-j" onclick="selIP('เจ')"><div class="av">จ</div><div class="nm">เจ</div><div class="rl">คุณ</div></div>
+            <div class="payer" id="ip-f" onclick="selIP('แฟง')"><div class="av">ฟ</div><div class="nm">แฟง</div><div class="rl">แฟน</div></div>
           </div>
         </div>
       </div>
@@ -378,14 +377,13 @@
   <div class="card">
     <div class="ctitle">การเชื่อมต่อ Supabase</div>
     <div class="status-ok">
-      <span style="font-size:20px">🟢</span>
       <div>
         <div style="font-size:13px;font-weight:700;color:var(--gl)">เชื่อมต่อแล้ว</div>
         <div id="set-user" style="font-size:11px;color:var(--sub);margin-top:2px">-</div>
       </div>
     </div>
-    <button class="btn-go blue" onclick="syncNow()" style="margin-bottom:8px">🔄 ดึงข้อมูลจาก Supabase</button>
-    <button class="btn-sm danger" onclick="doLogout()">🚪 ออกจากระบบ</button>
+    <button class="btn-go blue" onclick="syncNow()" style="margin-bottom:8px">ดึงข้อมูลจาก Supabase</button>
+    <button class="btn-sm danger" onclick="doLogout()">ออกจากระบบ</button>
   </div>
   <div class="card">
     <div class="ctitle">Subscription</div>
@@ -401,7 +399,7 @@
     <div class="ctitle">การจัดการบัญชีส่วนบุคคล (PDPA)</div>
     <div class="trust-badge" style="margin-top:0;margin-bottom:12px">Secure &amp; Encrypted Connection</div>
     <p style="font-size:12px;color:var(--sub);margin-bottom:10px;line-height:1.6">การลบบัญชีจะพยายามลบข้อมูลที่ RLS อนุญาต แล้วเรียก Edge Function/RPC ฝั่ง server เพื่อลบผู้ใช้จาก Auth อย่างปลอดภัย</p>
-    <button class="btn-sm danger" onclick="deleteAccountAndData()" style="padding:12px 14px">🗑️ ลบบัญชีและข้อมูลทั้งหมด</button>
+    <button class="btn-sm danger" onclick="deleteAccountAndData()" style="padding:12px 14px">ลบบัญชีและข้อมูลทั้งหมด</button>
   </div>
   <div class="card">
     <div class="ctitle">สถิติข้อมูล</div>
@@ -410,22 +408,21 @@
   <div class="card">
     <div class="ctitle">Export ข้อมูล</div>
     <div style="display:flex;flex-direction:column;gap:8px">
-      <button class="btn-sm" id="export-expense" onclick="exportCSV('expense')">📋 Export รายจ่าย (.csv) <span class="badge pro">Pro 109฿</span></button>
-      <button class="btn-sm" id="export-income" onclick="exportCSV('income')">💵 Export รายรับ (.csv) <span class="badge pro">Pro 109฿</span></button>
-      <button class="btn-sm" id="export-credit" onclick="exportCSV('credit')">💳 Export สินเชื่อ (.csv) <span class="badge pro">Pro 109฿</span></button>
+      <button class="btn-sm" id="export-expense" onclick="exportCSV('expense')">Export รายจ่าย (.csv) <span class="badge pro">Pro 109฿</span></button>
+      <button class="btn-sm" id="export-income" onclick="exportCSV('income')">Export รายรับ (.csv) <span class="badge pro">Pro 109฿</span></button>
+      <button class="btn-sm" id="export-credit" onclick="exportCSV('credit')">Export สินเชื่อ (.csv) <span class="badge pro">Pro 109฿</span></button>
     </div>
   </div>
   <div class="card" style="margin-bottom:20px">
     <div class="ctitle">จัดการข้อมูล (local cache)</div>
     <p style="font-size:12px;color:var(--sub);margin-bottom:10px;line-height:1.6">ล้าง cache ในเครื่อง — Supabase ยังเก็บข้อมูลไว้ครบ</p>
     <div style="display:flex;flex-direction:column;gap:8px">
-      <button class="btn-sm danger" onclick="clearLocal('expense')">🗑 ล้าง cache รายจ่าย</button>
-      <button class="btn-sm danger" onclick="clearLocal('all')">🗑 ล้าง cache ทั้งหมด</button>
+      <button class="btn-sm danger" onclick="clearLocal('expense')">ล้าง cache รายจ่าย</button>
+      <button class="btn-sm danger" onclick="clearLocal('all')">ล้าง cache ทั้งหมด</button>
     </div>
   </div>
   <div class="card" style="margin-bottom:20px;text-align:center">
     <div class="ctitle" style="justify-content:center">เกี่ยวกับแอป</div>
-    <div style="font-size:28px;margin-bottom:8px">💰</div>
     <div style="font-size:17px;font-weight:800;color:var(--tx);letter-spacing:-.3px">BridgeX<span style="color:var(--p)">.Wallet</span></div>
     <div style="font-size:11px;color:var(--mut);margin-top:2px;margin-bottom:14px">Powered by BridgeX.Finance</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;text-align:left">

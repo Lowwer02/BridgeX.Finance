@@ -60,14 +60,14 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
 .side-user-sub{font-size:11px;color:#c9c4d7}
 .tb{background:rgba(19,18,27,.72);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,.10);padding:0 32px;height:68px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:300;box-shadow:none;margin-left:250px}
 .tb-brand{display:flex;align-items:center;gap:8px}
-.hamb{display:none;border:none;background:transparent;color:#c9c4d7;font-size:25px;line-height:1;cursor:pointer;position:relative;z-index:360;pointer-events:auto}
+.hamb{display:none;border:none;background:transparent;color:#c9c4d7;font-size:12px;font-weight:800;line-height:1;cursor:pointer;position:relative;z-index:360;pointer-events:auto;text-transform:uppercase;letter-spacing:.04em}
 .tb-logo{display:none}
 .tb-name{font-family:var(--font-headline);font-size:26px;font-weight:700;letter-spacing:0;color:#e5e0ed}
 .tb-name span{color:var(--p)}
 .tb-right{display:flex;align-items:center;gap:8px}
 .top-search{width:252px;height:48px;border-radius:999px;background:#2a2932;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px;padding:0 18px;color:#928ea0;font-family:var(--font-label);font-weight:700}
 .top-search input{border:none;background:transparent;outline:none;color:#e5e0ed;width:100%;font:inherit}
-.icon-btn{width:40px;height:40px;border:none;background:transparent;color:#c9c4d7;font-size:21px;cursor:pointer;position:relative}
+.icon-btn{min-width:40px;height:40px;border:none;background:transparent;color:#c9c4d7;font-size:12px;font-weight:800;cursor:pointer;position:relative;padding:0 8px}
 .icon-btn.notify::after{content:'';position:absolute;top:9px;right:8px;width:8px;height:8px;background:#4edea3;border-radius:999px}
 .tb .theme-btn,.tb .sync-pill{display:none}
 .user-pill{display:flex;flex-direction:column;align-items:flex-end;gap:2px;max-width:150px}
@@ -439,23 +439,23 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
 .credit-setup-save:hover{background:#6040e2}
 
 /* ── Debt Planner V4.1.2 ── */
-#pg-debt-planner{background:#13121b;color:#e5e0ed;min-height:calc(100vh - 68px);padding:60px 42px 64px;margin-left:250px}
-.debtp-shell{width:100%;max-width:1160px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
-.debtp-hero{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:24px;background:rgba(28,27,35,.70);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:48px 60px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
-.debtp-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at center,rgba(76,53,196,.22),transparent 70%);pointer-events:none}
+#pg-debt-planner{background:#13121b;color:#e5e0ed;min-height:calc(100vh - 68px);padding:52px 42px 64px;margin-left:250px}
+.debtp-shell{width:100%;max-width:1160px;margin:0 auto;display:flex;flex-direction:column;gap:24px}
+.debtp-hero{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:24px;background:rgba(28,27,35,.72);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:42px 54px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 20px 70px rgba(0,0,0,.18)}
+.debtp-hero::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(76,53,196,.16),transparent 58%);pointer-events:none}
 .debtp-hero>*{position:relative;z-index:1}
-.debtp-hero h1{font-family:var(--font-headline);font-size:48px;line-height:1.1;font-weight:800;color:#e5e0ed;margin-bottom:12px}
+.debtp-hero h1{font-family:var(--font-headline);font-size:44px;line-height:1.12;font-weight:800;color:#fff;margin-bottom:12px;letter-spacing:0}
 .debtp-hero p{font-size:17px;line-height:1.65;color:#c9c4d7;max-width:680px}
-.debtp-save-card{min-width:236px;text-align:center;background:rgba(53,52,61,.72);border:1px solid rgba(199,191,255,.30);border-radius:12px;padding:18px 22px;font-family:var(--font-label);font-weight:800;color:#c9c4d7}
+.debtp-save-card{min-width:236px;text-align:center;background:rgba(32,31,39,.92);border:1px solid rgba(199,191,255,.22);border-radius:12px;padding:18px 22px;font-family:var(--font-label);font-weight:800;color:#c9c4d7}
 .debtp-save-card strong{display:block;font-family:var(--font-headline);font-size:34px;color:#4edea3;margin:6px 0}
 .debtp-save-card span{font-size:12px}
 .debtp-grid{display:grid;grid-template-columns:368px minmax(0,1fr);gap:28px;align-items:start}
-.debtp-side,.debtp-impact,.debtp-list-card{background:rgba(28,27,35,.70);border:1px solid rgba(255,255,255,.06);border-radius:12px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
-.debtp-side{display:flex;flex-direction:column;gap:28px}
-.debtp-controls-panel{padding:28px}
-.debtp-panel-title{display:flex;align-items:center;gap:10px;font-family:var(--font-headline);font-size:24px;font-weight:800;color:#e5e0ed;margin-bottom:18px}
+.debtp-side,.debtp-impact,.debtp-list-card{background:rgba(28,27,35,.72);border:1px solid rgba(255,255,255,.07);border-radius:12px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 18px 60px rgba(0,0,0,.14)}
+.debtp-side{display:flex;flex-direction:column;gap:20px}
+.debtp-controls-panel{padding:24px}
+.debtp-panel-title{display:flex;align-items:center;gap:10px;font-family:var(--font-headline);font-size:22px;font-weight:800;color:#fff;margin-bottom:18px}
 .debtp-impact{padding:28px;margin-bottom:28px}
-.debtp-impact h2,.debtp-list-head h2{font-family:var(--font-headline);font-size:24px;font-weight:800;color:#e5e0ed}
+.debtp-impact h2,.debtp-list-head h2{font-family:var(--font-headline);font-size:24px;font-weight:800;color:#fff}
 .debtp-impact-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:24px}
 .debtp-impact-card{position:relative;overflow:hidden;background:rgba(53,52,61,.22);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:20px}
 .debtp-impact-card.smart{background:rgba(76,53,196,.08);border-color:rgba(199,191,255,.22)}
@@ -472,8 +472,11 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
 .debtp-list-head button{display:flex;align-items:center;gap:7px;border:none;background:transparent;color:#c7bfff;font-family:var(--font-label);font-size:14px;font-weight:800;cursor:pointer}
 #debt-plan-list .debt-plan-row{border:none;border-bottom:1px solid rgba(255,255,255,.06);border-radius:0;background:transparent;margin:0;padding:28px}
 #debt-plan-list .debt-plan-row.highlight{border-left:4px solid #4edea3;background:rgba(78,222,163,.03)}
-#debt-plan-list .dp-rank{width:48px;height:48px;border-radius:12px;background:#201f27;border:1px solid rgba(255,255,255,.06);font-size:18px;display:flex;align-items:center;justify-content:center}
-#debt-plan-list .dp-name{font-size:17px}
+#debt-plan-list .dp-rank{width:42px;height:42px;border-radius:12px;background:#201f27;border:1px solid rgba(255,255,255,.07);font-size:16px;display:flex;align-items:center;justify-content:center}
+#debt-plan-list .dp-name{font-size:17px;color:#ffffff}
+#debt-plan-list .dp-name-row{display:flex;align-items:center;gap:14px;min-width:0}
+#debt-plan-list .dp-icon{width:44px;height:44px;border-radius:12px;background:#201f27;border:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;color:#c7bfff;font-size:24px;flex-shrink:0}
+#debt-plan-list .dp-fixed-badge{font-size:10px;padding:2px 7px;border-radius:20px;background:rgba(77,158,245,.14);color:#9ec7ff;border:1px solid rgba(77,158,245,.28);margin-left:8px}
 @media (max-width:900px){
   .app-sidebar{display:flex;transform:translateX(-105%);transition:transform .24s ease;z-index:380}
   body.sidebar-open .app-sidebar{transform:translateX(0)}
@@ -667,17 +670,20 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
 .debt-ov-val.amber{color:var(--a)}
 
 /* ── Smart Debt planner ── */
-.strategy-toggle{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
-.strategy-btn{border:1px solid var(--bdr);background:var(--card2);color:var(--sub);border-radius:var(--rds);padding:12px 10px;font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer;text-align:center;transition:all .18s;line-height:1.4}
-.strategy-btn.on{background:var(--pbg);border-color:var(--p);color:var(--pl)}
-.strategy-btn .st-icon{font-size:20px;display:block;margin-bottom:4px}
+.strategy-toggle{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.strategy-btn{border:1px solid rgba(255,255,255,.09);background:rgba(32,31,39,.78);color:#c9c4d7;border-radius:12px;padding:14px 12px;font-family:var(--font);font-size:12px;font-weight:700;cursor:pointer;text-align:center;transition:all .18s;line-height:1.45}
+.strategy-btn.on{background:rgba(76,53,196,.16);border-color:#c7bfff;color:#fff;box-shadow:0 0 0 1px rgba(199,191,255,.12) inset}
+.strategy-btn .st-icon{font-size:21px;display:block;margin-bottom:5px;color:#c7bfff}
 .debt-plan-row{background:var(--card);border-radius:var(--rds);border:1px solid var(--bdr);padding:13px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
 .debt-plan-row.highlight{border-color:var(--a);background:rgba(245,166,35,.06)}
 .dp-rank{font-size:20px;font-weight:900;color:var(--mut);font-family:var(--mono);min-width:28px;text-align:center}
 .dp-rank.top{color:var(--a)}
 .dp-body{flex:1;min-width:0}
-.dp-name{font-size:13.5px;font-weight:700;color:var(--tx)}
+.dp-name-row{display:flex;align-items:center;gap:10px;min-width:0}
+.dp-icon{width:38px;height:38px;border-radius:10px;background:var(--card2);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;color:var(--pl);font-size:21px;flex-shrink:0}
+.dp-name{font-size:13.5px;font-weight:700;color:#ffffff}
 .dp-info{font-size:11px;color:var(--mut);margin-top:2px}
+.dp-fixed-badge{font-size:10px;padding:2px 7px;border-radius:20px;background:rgba(77,158,245,.15);color:var(--b);border:1px solid rgba(77,158,245,.3);margin-left:6px}
 .dp-extra-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(245,166,35,.15);color:var(--a);border:1px solid rgba(245,166,35,.3);margin-top:4px}
 .dp-right{text-align:right;flex-shrink:0}
 .dp-rem{font-size:15px;font-weight:800;font-family:var(--mono);color:var(--tx)}
