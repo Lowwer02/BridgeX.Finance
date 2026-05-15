@@ -1599,8 +1599,12 @@ function renderDash(){
   }
   var tot=items.reduce(function(s,e){ return s+e.amount; },0);
   var personTotals={};
-  items.forEach(function(e){ if(e.paidBy) personTotals[e.paidBy]=(personTotals[e.paidBy]||0)+e.amount; });
-  var topPeople=Object.keys(personTotals).sort(function(a,b){ return personTotals[b]-personTotals[a]; }).slice(0,2);
+  (S.familyMembers||[]).forEach(function(m){
+    var name=m&&m.full_name?m.full_name:(m&&m.name?m.name:'');
+    if(name) personTotals[name]=personTotals[name]||0;
+  });
+  S.expenses.forEach(function(e){ if(e.paidBy) personTotals[e.paidBy]=(personTotals[e.paidBy]||0)+Number(e.amount||0); });
+  var topPeople=Object.keys(personTotals).filter(function(name){ return personTotals[name]>0; }).sort(function(a,b){ return personTotals[b]-personTotals[a]; });
   var incMo=S.incomes.filter(function(i){ return i.date&&i.date.slice(0,7)===mo; }).reduce(function(s,i){ return s+i.amount; },0);
   var net=incMo-tot;
   var avg=tot/Math.max(df==='mo'?now.getDate():30,1);

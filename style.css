@@ -765,16 +765,16 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
   .debt-plan-row{flex-wrap:wrap}
   .topup-result strong{font-size:19px}
   .dash-page-head h1{font-size:31px}
-  #dash,.dash-v2{width:100%;max-width:100%;overflow:hidden}
-  .dash-v2{gap:18px}
+  #dash{width:100%;max-width:100%;overflow:hidden}
+  #dash .dash-v2{display:flex;flex-direction:column;width:100%;max-width:100%;gap:16px;overflow:hidden}
   .dash-kpi strong{font-size:clamp(31px,8.8vw,39px)}
   .dash-kpi.main strong{font-size:clamp(33px,9.4vw,42px)}
-  .dash-kpi,.dash-panel{width:100%;max-width:100%;padding:20px;box-sizing:border-box}
-  .dash-kpi{min-height:178px}
+  .dash-kpi,.dash-panel{width:100%;max-width:100%;min-height:unset;padding:20px;box-sizing:border-box}
+  .dash-kpi strong,.dash-amt{white-space:normal;word-wrap:break-word;overflow-wrap:anywhere}
   .dash-chart{height:268px}
   .dash-bars{height:206px}
   .dash-bars span{width:22px}
-  .dash-cal-dow,.dash-cal-grid{gap:6px}
+  .dash-cal-dow,.dash-cal-grid{width:100%;max-width:100%;gap:6px;margin-left:auto;margin-right:auto;padding-left:0;padding-right:0;box-sizing:border-box;justify-content:center}
   .dash-cal-dow span{font-size:15px}
   .dash-cal-legend{gap:8px;font-size:15px}
   .dash-cal-legend i{width:17px;height:17px;flex-basis:17px}
