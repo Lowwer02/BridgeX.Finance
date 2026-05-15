@@ -694,35 +694,37 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
   .add-actions .btn-sm,.add-actions .btn-go{flex:1;min-width:0;width:auto;padding:13px 10px;margin:0}
 }
 @media (max-width:768px){
-  #pg-dash{width:100vw;max-width:100vw;margin-left:0;padding:28px 20px 64px;box-sizing:border-box;overflow-x:hidden}
+  #pg-dash{width:100%;max-width:100%;margin-left:0;padding:24px 16px 64px;box-sizing:border-box;overflow-x:hidden}
   .dash-page-head{width:100%;max-width:100%;margin-bottom:22px}
   .dash-page-head h1{font-size:31px;line-height:1.18}
   .dash-page-head p{font-size:16px;line-height:1.55}
   #pg-dash #dash-filters{width:100%;max-width:100%;margin-bottom:18px;gap:10px}
   #pg-dash .fchip{font-size:14px;padding:9px 15px}
-  #dash,.dash-v2{width:100%;max-width:100%;min-width:0;margin-left:0;margin-right:0;box-sizing:border-box;overflow:visible}
-  .dash-v2{display:grid;grid-template-columns:minmax(0,1fr);gap:24px}
-  .dash-kpi,.dash-kpi.main,.dash-panel{grid-column:1/-1;width:100%;max-width:100%;min-width:0;padding:28px;box-sizing:border-box;border-radius:16px}
-  .dash-kpi{min-height:220px;overflow:visible}
+  #dash,.dash-v2{width:100%;max-width:100%;min-width:0;margin-left:0;margin-right:0;box-sizing:border-box;overflow:hidden}
+  .dash-v2{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;justify-items:stretch}
+  .dash-kpi,.dash-kpi.main,.dash-panel{grid-column:1/-1;width:100%;max-width:100%;min-width:0;margin:0;padding:22px;box-sizing:border-box;border-radius:16px;overflow:hidden}
+  .dash-kpi{min-height:188px;display:flex;flex-direction:column;justify-content:space-between;gap:14px}
   .dash-kpi span:not(.material-symbols-outlined){font-size:15px;line-height:1.35}
-  .dash-kpi strong{font-size:clamp(36px,10.4vw,50px);line-height:1.05;margin:18px 0;white-space:nowrap}
-  .dash-kpi.main strong{font-size:clamp(40px,11.2vw,54px)}
-  .dash-kpi small{font-size:17px;line-height:1.45;gap:9px}
+  .dash-kpi strong{max-width:100%;font-size:clamp(32px,8.9vw,42px);line-height:1.08;margin:10px 0;white-space:nowrap;letter-spacing:0}
+  .dash-kpi.main strong{font-size:clamp(34px,9.4vw,46px)}
+  .dash-kpi small{font-size:15px;line-height:1.45;gap:8px;flex-wrap:wrap}
   .dash-kpi .material-symbols-outlined{font-size:25px}
   .dash-mini-track{height:9px;margin-top:18px}
-  .dash-panel{padding:30px}
-  .dash-panel-head{align-items:flex-start;gap:12px;margin-bottom:28px}
-  .dash-panel-head h2{font-size:32px;line-height:1.22}
-  .dash-panel-head button{font-size:18px}
-  .dash-chart{height:310px;gap:14px;padding-left:0;padding-right:0}
-  .dash-bars{height:242px}
-  .dash-bars span{width:28px}
-  .dash-legend{font-size:18px;gap:28px}
-  .dash-cal-dow,.dash-cal-grid{gap:10px}
-  .dash-cal-dow span{font-size:18px}
-  .dash-cal-cell,.dash-cal-empty{border-radius:10px;min-height:46px}
-  .dash-cal-legend{font-size:18px;gap:14px}
-  .dash-cal-legend i{width:24px;height:24px}
+  .dash-panel{padding:22px}
+  .dash-panel-head{align-items:flex-start;gap:10px;margin-bottom:22px}
+  .dash-panel-head h2{font-size:28px;line-height:1.22}
+  .dash-panel-head button{font-size:16px}
+  .dash-chart{width:100%;height:280px;gap:10px;padding-left:0;padding-right:0;box-sizing:border-box}
+  .dash-bars{height:214px}
+  .dash-bars span{width:24px}
+  .dash-legend{font-size:16px;gap:20px;flex-wrap:wrap}
+  .dash-panel.calendar{display:flex;flex-direction:column;align-items:stretch}
+  .dash-cal-dow,.dash-cal-grid{width:100%;max-width:100%;gap:7px;margin-left:auto;margin-right:auto;box-sizing:border-box}
+  .dash-cal-dow{margin-bottom:10px}
+  .dash-cal-dow span{font-size:16px;text-align:center}
+  .dash-cal-cell,.dash-cal-empty{width:100%;min-width:0;min-height:0;aspect-ratio:1;border-radius:9px;box-sizing:border-box}
+  .dash-cal-legend{width:100%;justify-content:center;gap:10px;font-size:16px;flex-wrap:nowrap;margin-top:18px}
+  .dash-cal-legend i{width:18px;height:18px;flex:0 0 18px}
   .dash-table-wrap{width:100%;max-width:100%;overflow-x:hidden}
   .dash-table{width:100%;min-width:0;table-layout:fixed}
   .dash-table th,.dash-table td{font-size:16px;padding:18px 0}
@@ -752,7 +754,7 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
   #pg-add{padding:20px 16px 48px;box-sizing:border-box}
   #pg-inc{padding:20px 16px 48px;box-sizing:border-box}
   #pg-hist{padding:20px 16px 48px;box-sizing:border-box}
-  #pg-dash{width:100vw;max-width:100vw;margin-left:0;padding:20px 16px 48px;box-sizing:border-box;overflow-x:hidden}
+  #pg-dash{width:100%;max-width:100%;margin-left:0;padding:22px 16px 52px;box-sizing:border-box;overflow-x:hidden}
   #pg-cr{padding:24px 16px 48px;box-sizing:border-box}
   #pg-debt-planner{padding:20px 16px 48px;box-sizing:border-box}
   .debtp-hero,.debtp-impact,.debtp-controls-panel,.debtp-list-head{padding:16px}
@@ -763,16 +765,21 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
   .debt-plan-row{flex-wrap:wrap}
   .topup-result strong{font-size:19px}
   .dash-page-head h1{font-size:31px}
-  #dash,.dash-v2{width:100%;max-width:100%;overflow:visible}
-  .dash-kpi strong{font-size:clamp(34px,10.5vw,46px)}
-  .dash-kpi.main strong{font-size:clamp(38px,11vw,50px)}
-  .dash-kpi,.dash-panel{width:100%;max-width:100%;padding:26px;box-sizing:border-box}
-  .dash-chart{height:292px}
-  .dash-bars{height:228px}
-  .dash-bars span{width:26px}
-  .dash-cal-dow,.dash-cal-grid{gap:8px}
+  #dash,.dash-v2{width:100%;max-width:100%;overflow:hidden}
+  .dash-v2{gap:18px}
+  .dash-kpi strong{font-size:clamp(31px,8.8vw,39px)}
+  .dash-kpi.main strong{font-size:clamp(33px,9.4vw,42px)}
+  .dash-kpi,.dash-panel{width:100%;max-width:100%;padding:20px;box-sizing:border-box}
+  .dash-kpi{min-height:178px}
+  .dash-chart{height:268px}
+  .dash-bars{height:206px}
+  .dash-bars span{width:22px}
+  .dash-cal-dow,.dash-cal-grid{gap:6px}
+  .dash-cal-dow span{font-size:15px}
+  .dash-cal-legend{gap:8px;font-size:15px}
+  .dash-cal-legend i{width:17px;height:17px;flex-basis:17px}
   .dash-panel-head{align-items:flex-start;flex-direction:column;gap:10px}
-  .dash-panel-head h2{font-size:29px}
+  .dash-panel-head h2{font-size:26px}
   .dash-table{min-width:0}
   #pg-set{padding:24px 16px 56px}
   .set-head h1{font-size:32px}
