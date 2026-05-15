@@ -197,6 +197,7 @@ function recomputeMatchedCreditBalances(){
     var st=S.crStatus[crId]||{paid:false,amount:0,remaining:null,date:''};
     var info=S.crInfo[crId]||{};
     var base = st.baseRemaining!=null ? st.baseRemaining : (st.remaining!=null ? st.remaining : (info.limit||0));
+    if(!validCreatedTime(st.baseAt)) st.baseAt=mo+'-01T00:00:00.000Z';
     var used=creditExpenseUsage(crId,mo,st.baseAt);
     st.baseRemaining = base;
     st.matchedUsed = used;
@@ -721,6 +722,10 @@ async function syncNow(){
 async function saveToSupabase(table, data){
   if(!S.user){ console.warn('saveToSupabase: no user session'); return; }
   if(!S.profile||!S.profile.family_id){ await ensureProfile(); await ensureFamily(); }
+  if(!S.profile||!S.profile.family_id){
+    console.error('[BX Error]',new Error('missing family_id before save'));
+    return toast('ยังไม่พบ family_id กรุณาลองใหม่อีกครั้ง','err');
+  }
   if(!checkAccess()) return toast('กรุณาสมัครสมาชิก 59฿','err');
   try {
     var row = Object.assign({user_id: S.user.id,family_id:S.profile.family_id}, data);
@@ -1074,8 +1079,7 @@ async function delEx(idOrEl){
   // Delete from Supabase
   if(S.user){
     try{
-      var numId=Number(id);
-      var res=await sb.from('expenses').delete().eq('id', isNaN(numId)?id:numId).eq('family_id',S.profile.family_id);
+      var res=await sb.from('expenses').delete().eq('id', String(id)).eq('family_id',S.profile.family_id);
       if(res.error){ toast('ลบจาก DB ไม่สำเร็จ: '+res.error.message,'err'); }
       else{ toast('ลบรายการแล้ว','ok'); }
     }catch(e){ toast('เกิดข้อผิดพลาด: '+(e.message||e),'err'); }
@@ -1388,7 +1392,7 @@ function updateSmartResults(){
   var sd = sorted.map(function(d) {
     return { remaining: d.remaining, minPay: d.minPay, rate: d.rate, fixed: isFixed(d) };
   });
-  var mo = 0, totalInt = 0;
+  var mo = 0, totalInt = 0, prevRemaining = Infinity, growingStreak = 0;
 
   while (sd.some(function(d) { return d.remaining > 0; }) && mo < 600) {
     // 1) คิดดอกเบี้ยทุกหนี้ก่อน
@@ -1422,6 +1426,11 @@ function updateSmartResults(){
     });
 
     mo++;
+    var totalRemaining=sd.reduce(function(s,d){ return s+Math.max(0,d.remaining||0); },0);
+    if(totalRemaining>=prevRemaining) growingStreak++;
+    else growingStreak=0;
+    prevRemaining=totalRemaining;
+    if(growingStreak>=3) return { months:null, interest:Math.round(totalInt), impossible:true };
   }
 
   return { months: mo < 600 ? mo : null, interest: Math.round(totalInt) };
