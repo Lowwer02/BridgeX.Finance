@@ -690,27 +690,45 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
   .add-actions .btn-sm,.add-actions .btn-go{flex:1;min-width:0;width:auto;padding:13px 10px;margin:0}
 }
 @media (max-width:768px){
-  #pg-dash{width:100%;max-width:100%;padding:24px 18px 56px;box-sizing:border-box;overflow-x:hidden}
+  #pg-dash{width:100%;max-width:100%;padding:28px 20px 64px;box-sizing:border-box;overflow-x:hidden}
   .dash-page-head{width:100%;max-width:100%;margin-bottom:22px}
   .dash-page-head h1{font-size:31px;line-height:1.18}
   .dash-page-head p{font-size:16px;line-height:1.55}
   #pg-dash #dash-filters{width:100%;max-width:100%;margin-bottom:18px;gap:10px}
   #pg-dash .fchip{font-size:14px;padding:9px 15px}
   #dash,.dash-v2{width:100%;max-width:100%;min-width:0;box-sizing:border-box;overflow-x:hidden}
-  .dash-v2{grid-template-columns:minmax(0,1fr);gap:20px}
-  .dash-kpi,.dash-kpi.main,.dash-panel{grid-column:1/-1;width:100%;max-width:100%;min-width:0;padding:22px;box-sizing:border-box}
-  .dash-kpi{min-height:178px}
-  .dash-kpi strong{font-size:31px}
-  .dash-kpi.main strong{font-size:38px}
-  .dash-kpi small{font-size:13px;line-height:1.45}
-  .dash-panel-head h2{font-size:23px}
-  .dash-panel-head button{font-size:13px}
-  .dash-chart{height:240px;gap:12px}
-  .dash-bars{height:188px}
-  .dash-bars span{width:24px}
-  .dash-cal-dow,.dash-cal-grid{gap:7px}
-  .dash-cal-cell,.dash-cal-empty{border-radius:8px}
-  .dash-table-wrap{width:100%;max-width:100%;overflow-x:auto}
+  .dash-v2{grid-template-columns:minmax(0,1fr);gap:24px}
+  .dash-kpi,.dash-kpi.main,.dash-panel{grid-column:1/-1;width:100%;max-width:100%;min-width:0;padding:28px;box-sizing:border-box;border-radius:16px}
+  .dash-kpi{min-height:220px}
+  .dash-kpi span:not(.material-symbols-outlined){font-size:15px;line-height:1.35}
+  .dash-kpi strong{font-size:clamp(40px,11vw,54px);line-height:1.05;margin:18px 0}
+  .dash-kpi.main strong{font-size:clamp(44px,12vw,58px)}
+  .dash-kpi small{font-size:17px;line-height:1.45;gap:9px}
+  .dash-kpi .material-symbols-outlined{font-size:25px}
+  .dash-mini-track{height:9px;margin-top:18px}
+  .dash-panel{padding:30px}
+  .dash-panel-head{align-items:flex-start;gap:12px;margin-bottom:28px}
+  .dash-panel-head h2{font-size:32px;line-height:1.22}
+  .dash-panel-head button{font-size:18px}
+  .dash-chart{height:310px;gap:14px;padding-left:0;padding-right:0}
+  .dash-bars{height:242px}
+  .dash-bars span{width:28px}
+  .dash-legend{font-size:18px;gap:28px}
+  .dash-cal-dow,.dash-cal-grid{gap:10px}
+  .dash-cal-dow span{font-size:18px}
+  .dash-cal-cell,.dash-cal-empty{border-radius:10px;min-height:46px}
+  .dash-cal-legend{font-size:18px;gap:14px}
+  .dash-cal-legend i{width:24px;height:24px}
+  .dash-table-wrap{width:100%;max-width:100%;overflow-x:hidden}
+  .dash-table{width:100%;min-width:0;table-layout:fixed}
+  .dash-table th,.dash-table td{font-size:16px;padding:18px 0}
+  .dash-table th:nth-child(2),.dash-table td:nth-child(2),.dash-table th:nth-child(3),.dash-table td:nth-child(3){display:none}
+  .dash-table th:last-child,.dash-table td:last-child{width:34%;text-align:right}
+  .dash-qitem{gap:16px}
+  .dash-qicon{width:58px;height:58px}
+  .dash-qitem strong{font-size:21px;line-height:1.25}
+  .dash-qitem small{font-size:16px}
+  .dash-amt{font-size:18px;white-space:normal}
   #pg-set{width:100%;max-width:100%;margin-left:0;padding:28px 18px 64px;box-sizing:border-box;overflow-x:hidden}
   .set-head,.set-grid{width:100%;max-width:100%;min-width:0;box-sizing:border-box}
   .set-head{align-items:flex-start;flex-direction:column;gap:18px;margin-bottom:24px}
@@ -740,17 +758,17 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
   .debtp-impact-time{font-size:24px}
   .debt-plan-row{flex-wrap:wrap}
   .topup-result strong{font-size:19px}
-  .dash-page-head h1{font-size:26px}
-  .dash-kpi strong{font-size:26px}
-  .dash-kpi.main strong{font-size:30px}
-  .dash-kpi,.dash-panel{padding:16px}
-  .dash-chart{height:190px}
-  .dash-bars{height:145px}
-  .dash-bars span{width:18px}
-  .dash-cal-dow,.dash-cal-grid{gap:5px}
-  .dash-panel-head{align-items:flex-start;flex-direction:column;gap:8px}
-  .dash-panel-head h2{font-size:19px}
-  .dash-table{min-width:520px}
+  .dash-page-head h1{font-size:31px}
+  .dash-kpi strong{font-size:clamp(38px,12vw,50px)}
+  .dash-kpi.main strong{font-size:clamp(42px,13vw,54px)}
+  .dash-kpi,.dash-panel{padding:26px}
+  .dash-chart{height:292px}
+  .dash-bars{height:228px}
+  .dash-bars span{width:26px}
+  .dash-cal-dow,.dash-cal-grid{gap:8px}
+  .dash-panel-head{align-items:flex-start;flex-direction:column;gap:10px}
+  .dash-panel-head h2{font-size:29px}
+  .dash-table{min-width:0}
   #pg-set{padding:24px 16px 56px}
   .set-head h1{font-size:32px}
   .set-card{padding:18px}

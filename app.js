@@ -1908,11 +1908,61 @@ function renderV4Settings(){
 async function joinFamily(){
   var fid=document.getElementById('join-family-id').value.trim();
   if(!fid) return toast('กรอก family_id ก่อน','err');
-  var res=await sb.from('profiles').update({family_id:fid,updated_at:new Date().toISOString()}).eq('id',S.user.id).select('*').single();
-  if(res.error) return toast(res.error.message,'err');
-  S.profile=res.data;
-  await loadFromSupabase();
-  toast('เข้าร่วมครอบครัวแล้ว','ok');
+  if(!S.user) return toast('ไม่พบ session ผู้ใช้','err');
+  try{
+    toast('กำลังเชื่อมครอบครัว...','info');
+    var exists=await withTimeout(
+      sb.from('profiles').select('id,full_name,family_id').eq('family_id',fid).limit(1),
+      8000,
+      'ตรวจสอบ family_id'
+    );
+    if(exists.error) throw exists.error;
+    if(!exists.data||!exists.data.length) return toast('ไม่พบ family_id นี้','err');
+
+    var res=await withTimeout(
+      sb.from('profiles').update({family_id:fid,updated_at:new Date().toISOString()}).eq('id',S.user.id).select('*').single(),
+      10000,
+      'บันทึก family_id'
+    );
+    if(res.error) throw res.error;
+    S.profile=res.data;
+
+    var tables=['expenses','incomes','credits','credit_info'];
+    var moved=await Promise.allSettled(tables.map(function(t){
+      return withTimeout(
+        sb.from(t).update({family_id:fid}).eq('user_id',S.user.id).is('family_id',null),
+        8000,
+        'ย้ายข้อมูล '+t
+      );
+    }));
+    for(var i=0;i<moved.length;i++){
+      if(moved[i].status==='rejected') throw moved[i].reason;
+      if(moved[i].value&&moved[i].value.error) throw moved[i].value.error;
+    }
+
+    localStorage.removeItem('crInfo');
+    localStorage.removeItem('crStatus');
+    S.crInfo={};
+    S.crStatus={};
+
+    await withTimeout(loadFromSupabase(S.profile),15000,'โหลดข้อมูลครอบครัว');
+    updateHeader();
+    var names=(S.familyMembers||[]).map(function(m){ return m.full_name||m.name||m.id||''; }).filter(Boolean);
+    var title=document.getElementById('legal-title');
+    var body=document.getElementById('legal-body');
+    if(title) title.textContent='เชื่อมครอบครัวสำเร็จ';
+    if(body) body.innerHTML=names.length
+      ? 'สมาชิกครอบครัว:<br>'+names.map(esc).join('<br>')
+      : 'เชื่อมต่อครอบครัวนี้เรียบร้อยแล้ว';
+    var modal=document.getElementById('legal-modal');
+    if(modal) modal.classList.add('on');
+    var inp=document.getElementById('join-family-id');
+    if(inp) inp.value='';
+    toast('เชื่อมครอบครัวสำเร็จ','ok');
+  }catch(e){
+    console.error('[BX Error]',e);
+    toast((e&&e.message)||'เชื่อมครอบครัวไม่สำเร็จ','err');
+  }
 }
 function exportCSV(type){
   if(!(S.profile&&S.profile.sub_tier==='pro_109'&&S.hasAccess)) return toast('Export CSV ใช้ได้เฉพาะ Pro 109฿','err');
