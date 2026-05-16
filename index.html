@@ -158,7 +158,7 @@
     <div class="add-main">
       <div class="add-glass add-amount-card">
         <div class="amt-lbl">Amount</div>
-        <div class="amt-row"><span class="amt-cur">฿</span><input class="amt-inp" id="f-amt" type="number" placeholder="0.00" inputmode="decimal"></div>
+        <div class="amt-row"><span class="amt-cur">฿ </span><input class="amt-inp" id="f-amt" type="number" placeholder="0.00" inputmode="decimal"></div>
         <div class="add-meta-row">
           <div class="fld inc-field add-date-field"><label>Date</label><input type="date" id="f-dt"></div>
           <div class="add-mode-toggle"><span class="on">Joint</span><span>Personal</span></div>
@@ -190,7 +190,7 @@
     <aside class="add-glass add-summary">
       <h3>Today's Summary</h3>
       <div class="sum-label">Total Spent Today</div>
-      <div class="sum-amount" id="add-sum-today">฿0</div>
+      <div class="sum-amount" id="add-sum-today">฿ 0</div>
       <div class="sum-track"><div class="sum-fill" id="add-sum-bar"></div></div>
       <div class="sum-budget" id="add-sum-budget">0% of daily budget</div>
       <div class="recent-title">Recent Transactions</div>
@@ -332,12 +332,12 @@
         <div class="inc-amount-zone">
           <label>Amount Received</label>
           <div class="inc-amount-input">
-            <span>฿</span>
+            <span>฿ </span>
             <input class="amt-inp" id="i-amt" type="number" placeholder="0.00" inputmode="decimal">
           </div>
           <div class="inc-quick-row">
-            <button type="button" onclick="document.getElementById('i-amt').value=(Number(document.getElementById('i-amt').value)||0)+1000">+ ฿1,000</button>
-            <button type="button" onclick="document.getElementById('i-amt').value=(Number(document.getElementById('i-amt').value)||0)+5000">+ ฿5,000</button>
+            <button type="button" onclick="document.getElementById('i-amt').value=(Number(document.getElementById('i-amt').value)||0)+1000">+ ฿ 1,000</button>
+            <button type="button" onclick="document.getElementById('i-amt').value=(Number(document.getElementById('i-amt').value)||0)+5000">+ ฿ 5,000</button>
           </div>
         </div>
         <div class="inc-meta-zone">
