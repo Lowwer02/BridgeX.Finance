@@ -134,7 +134,12 @@ function sv(){
 // ═══════════════════════════════════════════════════════
 // HELPERS
 // ═══════════════════════════════════════════════════════
-function today(){ var n=new Date(); return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0'); }
+function today(){
+  var d = new Date();
+  return d.getFullYear() + '-' +
+    String(d.getMonth()+1).padStart(2,'0') + '-' +
+    String(d.getDate()).padStart(2,'0');
+}
 function thisMo(){ return today().slice(0,7); }
 function fmt(n){ return Number(n||0).toLocaleString('th-TH',{maximumFractionDigits:0}); }
 function fmt2(n){ return Number(n||0).toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2}); }
@@ -142,8 +147,9 @@ function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')
 function cleanLabel(s){ return String(s||'').replace(/^[^\wก-๙]+/u,'').trim(); }
 function validYMD(d){
   if(!/^\d{4}-\d{2}-\d{2}$/.test(String(d||''))) return false;
-  var x=new Date(d+'T00:00:00');
-  return !isNaN(x.getTime())&&x.toISOString().slice(0,10)===d;
+  var p=String(d).split('-').map(Number);
+  var x=new Date(p[0],p[1]-1,p[2]);
+  return x.getFullYear()===p[0]&&x.getMonth()===p[1]-1&&x.getDate()===p[2];
 }
 function trimLimit(v,max,label){
   var s=String(v||'').trim();
