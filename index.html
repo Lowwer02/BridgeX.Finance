@@ -389,10 +389,11 @@
     <section class="set-card set-profile-card">
       <div class="set-avatar-wrap">
         <div class="set-avatar">BX</div>
-        <span>EDIT</span>
+        <button class="set-avatar-edit" type="button" onclick="pickSettingsAvatar()">EDIT</button>
+        <input id="set-avatar-file" type="file" accept="image/*" hidden onchange="saveSettingsAvatar(this)">
       </div>
       <div class="set-profile-body">
-        <h2>BridgeX Wallet</h2>
+        <h2 id="set-profile-name">-</h2>
         <div class="set-profile-meta">
           <span class="set-pill green">JOINT MODE</span>
           <p id="set-user">-</p>
@@ -427,12 +428,12 @@
         <div class="set-family-id">
           <label>Family ID:</label>
           <input type="text" id="family-id-view" readonly>
+          <button class="set-copy-btn" type="button" onclick="copyFamilyId()"><span class="material-symbols-outlined">content_copy</span></button>
         </div>
       </div>
       <div class="set-family-body">
         <div class="set-members">
-          <div class="set-member"><span>SA</span><div><strong>Sarah Anderson</strong><small>Admin (Owner)</small></div><em>Full Access</em></div>
-          <div class="set-member"><span>MA</span><div><strong>Michael Anderson</strong><small>Co-Manager</small></div><button type="button">View + Trade</button></div>
+          <div id="set-members-list"></div>
           <div class="set-join-row">
             <input type="text" id="join-family-id" placeholder="วาง family_id ที่ต้องการเข้าร่วม">
             <button type="button" onclick="joinFamily()"><span class="material-symbols-outlined">add</span> Add Member</button>

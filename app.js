@@ -62,10 +62,14 @@ const BASE_CR = [
 ];
 const PAY2CR = {
   'K-Bank':'kbank',
+  'K-Bank Money':'kbankm',
   'KTC':'ktc',
+  'KTC Money':'ktcm',
   'CardX / SCB':'cardx','Krungsri':'krungsri','TTB':'ttb','BBL':'bbl','UOB':'uob','GSB':'gsb',
   'CardX Money':'cardxm','TTB Money':'ttbm','Umay+':'umay','Laz Pay Later':'lazpay','TikTok Pay Later':'tiktokpay',
+  'AEON':'aeon',
   'Aeon':'aeon',
+  'AEON Money':'aeonm',
   'K-First':'kfirst',
   'Shopee Pay Later':'shopee',
   'Shopee Money':'shopeem',
@@ -104,6 +108,7 @@ var S = {
   hasAccess: false,
   accessReason: '',
   familyMembers: [],
+  avatarData: localStorage.getItem('setAvatar')||'',
   expenses: [],
   incomes: [],
   crInfo: readLS('crInfo',{}),
@@ -301,7 +306,7 @@ async function ensureProfile(){
   if(!res.data){
     logStep('2. Profile missing, inserting...');
     var meta=S.user.user_metadata||{};
-    var trialEnd=new Date(Date.now()+60*86400000).toISOString();
+    var trialEnd=new Date(Date.now()+15*86400000).toISOString();
     var row={id:S.user.id,full_name:meta.full_name||meta.name||'',sub_tier:'trial',trial_end:trialEnd,updated_at:new Date().toISOString()};
     var ins=await withTimeout(sb.from('profiles').insert([row]).select('*').single(),8000,'สร้างโปรไฟล์');
     logStep('2. Profile insert response',{hasData:!!ins.data,status:ins.status,error:ins.error});
@@ -1973,17 +1978,70 @@ function renderSetStats(){
   cBox.innerHTML='<div style="font-size:13px;font-weight:700;color:var(--a)">ชำระสินเชื่อเดือนนี้ ฿ '+fmt(crPaid)+'</div>';
   w.appendChild(cBox);
 }
+function memberInitials(name){
+  name=String(name||'').trim();
+  if(!name) return 'BX';
+  var parts=name.split(/\s+/).filter(Boolean);
+  return parts.slice(0,2).map(function(p){ return p.charAt(0).toUpperCase(); }).join('');
+}
+function pickSettingsAvatar(){
+  var f=document.getElementById('set-avatar-file');
+  if(f) f.click();
+}
+function saveSettingsAvatar(input){
+  var file=input&&input.files&&input.files[0];
+  if(!file) return;
+  var reader=new FileReader();
+  reader.onload=function(){
+    S.avatarData=String(reader.result||'');
+    localStorage.setItem('setAvatar',S.avatarData);
+    renderV4Settings();
+    toast('อัปเดตรูปโปรไฟล์แล้ว','ok');
+  };
+  reader.onerror=function(){ toast('อ่านรูปภาพไม่สำเร็จ','err'); };
+  reader.readAsDataURL(file);
+}
+function copyFamilyId(){
+  var fid=(document.getElementById('family-id-view')||{}).value||'';
+  if(!fid) return toast('ยังไม่มี Family ID','err');
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(fid).then(function(){ toast('คัดลอก Family ID แล้ว','ok'); }).catch(function(){ toast('คัดลอกไม่สำเร็จ','err'); });
+  }else{
+    toast('เบราว์เซอร์ไม่รองรับการคัดลอกอัตโนมัติ','err');
+  }
+}
 function renderV4Settings(){
   updateHeader();
+  var profileName=S.profile&&S.profile.full_name?S.profile.full_name:(S.user&&S.user.email?S.user.email:'BridgeX Member');
+  var nameEl=document.getElementById('set-profile-name');
+  if(nameEl) nameEl.textContent=profileName;
+  var userEl=document.getElementById('set-user');
+  if(userEl) userEl.textContent=S.user?S.user.email:'';
+  var avatar=document.querySelector('.set-avatar');
+  if(avatar){
+    if(S.avatarData) avatar.innerHTML='<img alt="Profile" src="'+S.avatarData+'">';
+    else avatar.textContent=memberInitials(profileName);
+  }
   var sub=document.getElementById('set-subscription');
   if(sub) sub.innerHTML='<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'+subscriptionBadge()+'</div><div>สถานะ: '+(S.hasAccess?'ใช้งานได้':'ถูกล็อก')+'</div><div>Trial หมดอายุ: '+(S.profile&&S.profile.trial_end?new Date(S.profile.trial_end).toLocaleDateString('th-TH'):'-')+'</div>';
   var fam=document.getElementById('family-id-view');
   if(fam) fam.value=(S.profile&&S.profile.family_id)||'';
-  var isPro=S.profile&&S.profile.sub_tier==='pro_109'&&S.hasAccess;
+  var membersEl=document.getElementById('set-members-list');
+  if(membersEl){
+    var members=(S.familyMembers||[]).slice();
+    if(S.profile&&S.profile.full_name&&!members.some(function(m){ return m.id===S.profile.id||m.full_name===S.profile.full_name; })) members.unshift(S.profile);
+    membersEl.innerHTML=members.length?members.map(function(m,idx){
+      var name=m.full_name||m.name||m.email||m.id||'Member';
+      return '<div class="set-member"><span>'+esc(memberInitials(name))+'</span><div><strong>'+esc(name)+'</strong><small>'+(idx===0?'Admin (Owner)':'Family Member')+'</small></div><em>Full Access</em></div>';
+    }).join(''):'<div class="set-member"><span>BX</span><div><strong>ยังไม่มีสมาชิก</strong><small>เชื่อมครอบครัวเพื่อแสดงสมาชิก</small></div></div>';
+  }
+  var isPro=S.profile&&S.profile.sub_tier==='pro_109';
   ['export-expense','export-income','export-credit'].forEach(function(id){
     var b=document.getElementById(id);
     if(b) b.classList.toggle('locked',!isPro);
   });
+  var topExport=document.querySelector('.set-export-top');
+  if(topExport) topExport.classList.toggle('locked',!isPro);
 }
 async function joinFamily(){
   var fid=document.getElementById('join-family-id').value.trim();
