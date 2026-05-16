@@ -140,6 +140,31 @@ function fmt(n){ return Number(n||0).toLocaleString('th-TH',{maximumFractionDigi
 function fmt2(n){ return Number(n||0).toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function cleanLabel(s){ return String(s||'').replace(/^[^\wก-๙]+/u,'').trim(); }
+function validYMD(d){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(String(d||''))) return false;
+  var x=new Date(d+'T00:00:00');
+  return !isNaN(x.getTime())&&x.toISOString().slice(0,10)===d;
+}
+function trimLimit(v,max,label){
+  var s=String(v||'').trim();
+  if(s.length>max){ toast(label+'ยาวเกิน '+max+' ตัวอักษร','err'); return null; }
+  return s;
+}
+function validateTxnInput(row, opts){
+  opts=opts||{};
+  if(opts.requireDate!==false&&!validYMD(row.date)) return toast('วันที่ไม่ถูกต้อง','err'),false;
+  if(opts.requireAmount!==false&&(!Number.isFinite(Number(row.amount))||Number(row.amount)<=0)) return toast('จำนวนเงินไม่ถูกต้อง','err'),false;
+  var fields=[['detail',500,'รายละเอียด/Note '],['note',500,'Note '],['category',100,'หมวดหมู่ '],['payment',100,'ช่องทางชำระ '],['channel',100,'ช่องทางรับ '],['receiver',100,'ผู้รับ '],['paidBy',100,'ผู้จ่าย '],['paid_by',100,'ผู้จ่าย '],['credit_name',100,'ชื่อสินเชื่อ ']];
+  for(var i=0;i<fields.length;i++){
+    var f=fields[i];
+    if(row[f[0]]!=null){
+      var t=trimLimit(row[f[0]],f[1],f[2]);
+      if(t==null) return false;
+      row[f[0]]=t;
+    }
+  }
+  return true;
+}
 function allCR(){ return BASE_CR.concat(S.customCr); }
 function getMyCredits(){
   return allCR().filter(function(c){ return !!(S.crInfo&&S.crInfo[c.id]); });
@@ -729,6 +754,11 @@ async function saveToSupabase(table, data){
   if(!checkAccess()) return toast('กรุณาสมัครสมาชิก 59฿','err');
   try {
     var row = Object.assign({user_id: S.user.id,family_id:S.profile.family_id}, data);
+    if(table==='expenses'||table==='incomes'||table==='credits'){
+      if(!validateTxnInput(row)) return;
+    } else if(table==='credit_info'){
+      if(!validateTxnInput(row,{requireDate:false,requireAmount:false})) return;
+    }
     if(table!=='credit_info'&&!row.created_at) row.created_at = new Date().toISOString();
     var res;
     if(table==='credit_info'){
@@ -898,6 +928,9 @@ async function submitExp(){
   if(!dt) return toast('เลือกวันที่ด้วย','err');
   var cat=S.cats.find(function(c){ return c.id===S.fc.cat; });
   var pay=S.pays.find(function(p){ return p.id===S.fc.pay; });
+  var checkRow={date:dt,detail:det,category:cat&&cat.l,payment:pay&&pay.l,amount:amt,paidBy:S.fc.payer};
+  if(!validateTxnInput(checkRow)) return;
+  det=checkRow.detail;
   var ex={id:Date.now(),date:dt,detail:det||'-',category:cat.l,catId:cat.id,catC:cat.c||'#7c6ef5',payment:pay.l,amount:amt,paidBy:S.fc.payer,createdAt:new Date().toISOString()};
   S.expenses.unshift(ex);
   autoMatch(ex);
@@ -971,8 +1004,22 @@ var hf='all';
 function setHF(f,el){ hf=f; document.querySelectorAll('#pg-hist .fchip').forEach(function(c){ c.classList.remove('on'); }); el.classList.add('on'); renderHist(); }
 // Track which day-groups are open (default open)
 var openDays = {};
+var renderHistRaf=0;
+function pruneOpenDays(visibleDays){
+  var cutoff=Date.now()-60*86400000;
+  Object.keys(openDays).forEach(function(d){
+    if(visibleDays&&visibleDays[d]) return;
+    var t=validCreatedTime(d+'T00:00:00');
+    if(!t||t<cutoff) delete openDays[d];
+  });
+}
 function renderHist(){
+  if(renderHistRaf) cancelAnimationFrame(renderHistRaf);
+  renderHistRaf=requestAnimationFrame(function(){ renderHistRaf=0; renderHistNow(); });
+}
+function renderHistNow(){
   var list=document.getElementById('hist-list'),kpis=document.getElementById('hist-kpis'); if(!list) return; list.innerHTML='';
+  var visibleDays={};
   var mo=thisMo();
   var items=S.expenses.slice();
   if(hf==='mo') items=items.filter(function(e){ return e.date&&e.date.slice(0,7)===mo; });
@@ -988,7 +1035,7 @@ function renderHist(){
       '<div class="hist-kpi"><div class="hist-kpi-top"><span>รายการสูงสุด</span><span class="material-symbols-outlined">category</span></div><div class="hist-kpi-val">฿'+fmt(catTotals[topCat]||0)+'</div><div class="hist-kpi-sub">'+esc(topCat)+'</div></div>'+
       '<div class="hist-kpi a"><div class="hist-kpi-top"><span>จำนวนธุรกรรม</span><span class="material-symbols-outlined">receipt_long</span></div><div class="hist-kpi-val">'+items.length+'</div><div class="hist-kpi-sub">รายการตามตัวกรองปัจจุบัน</div></div>';
   }
-  if(!items.length){ list.innerHTML='<div class="hist-empty"><p>ยังไม่มีรายการ</p></div>'; return; }
+  if(!items.length){ pruneOpenDays(visibleDays); list.innerHTML='<div class="hist-empty"><p>ยังไม่มีรายการ</p></div>'; return; }
   var catIconMap={'อาหาร':'restaurant','เครื่องดื่ม':'local_cafe','ขนม':'bakery_dining','สัตว์เลี้ยง':'pets','ช้อปปิ้ง':'shopping_bag','กิจกรรม':'sports_esports','การเดินทาง':'directions_car','เดินทาง':'directions_car','สถานที่':'home','ลงทุน':'trending_up','สุขภาพ':'medical_services','บิล':'receipt_long','การศึกษา':'school','บริจาค':'volunteer_activism','ท่องเที่ยว':'flight','ครอบครัว':'family_restroom','อื่น':'more_horiz'};
   function catIcon(cat){
     cat=String(cat||'');
@@ -1023,6 +1070,7 @@ function renderHist(){
     var dayGrps={};
     moItems.forEach(function(e){ var k=e.date||'unknown'; if(!dayGrps[k]) dayGrps[k]=[]; dayGrps[k].push(e); });
     Object.keys(dayGrps).sort(function(a,b){ return b.localeCompare(a); }).forEach(function(dayKey){
+      visibleDays[dayKey]=1;
       var dayItems=dayGrps[dayKey];
       var dayTot=dayItems.reduce(function(s,e){ return s+e.amount; },0);
       var isOpen=openDays[dayKey]!==false;
@@ -1068,6 +1116,7 @@ function renderHist(){
     });
     list.appendChild(moDiv);
   });
+  pruneOpenDays(visibleDays);
 }
 async function delEx(idOrEl){
   var id=typeof idOrEl==='object'?idOrEl.dataset.id:idOrEl;
@@ -1079,7 +1128,9 @@ async function delEx(idOrEl){
   // Delete from Supabase
   if(S.user){
     try{
-      var res=await sb.from('expenses').delete().eq('id', String(id)).eq('family_id',S.profile.family_id);
+      var q=sb.from('expenses').delete().eq('id', String(id)).eq('user_id',S.user.id);
+      if(S.profile&&S.profile.family_id) q=q.eq('family_id',S.profile.family_id);
+      var res=await q;
       if(res.error){ toast('ลบจาก DB ไม่สำเร็จ: '+res.error.message,'err'); }
       else{ toast('ลบรายการแล้ว','ok'); }
     }catch(e){ toast('เกิดข้อผิดพลาด: '+(e.message||e),'err'); }
@@ -1259,6 +1310,7 @@ async function submitCredit(){
   var dt=document.getElementById('dr-dt').value;
   if(!amt||amt<=0) return toast('ใส่จำนวนเงินด้วย','err');
   var cr=allCR().find(function(c){ return c.id===activeCrId; });
+  if(!validateTxnInput({date:dt,credit_name:cr&&cr.n,amount:amt})) return;
   var baseAt=new Date().toISOString();
   S.crStatus[activeCrId]={paid:true,amount:amt,baseRemaining:rem,baseAt:baseAt,matchedUsed:0,remaining:rem,date:dt};
   recomputeMatchedCreditBalances();
@@ -1524,8 +1576,12 @@ async function submitInc(){
   if(!S.fi.cat) return toast('เลือกหมวดหมู่ด้วย','err');
   if(!S.fi.ch) return toast('เลือกช่องทางรับด้วย','err');
   if(!S.fi.rcv) return toast('เลือกผู้รับด้วย','err');
+  if(!dt) return toast('เลือกวันที่ด้วย','err');
   var cat=S.incc.find(function(c){ return c.id===S.fi.cat; });
   var ch=S.inch.find(function(c){ return c.id===S.fi.ch; });
+  var checkRow={date:dt,detail:det,category:cat&&cat.l,channel:ch&&ch.l,amount:amt,receiver:S.fi.rcv};
+  if(!validateTxnInput(checkRow)) return;
+  det=checkRow.detail;
   var inc={id:Date.now(),date:dt,detail:det||'-',category:cat.l,channel:ch.l,amount:amt,receiver:S.fi.rcv};
   S.incomes.unshift(inc);
   document.getElementById('i-amt').value=''; document.getElementById('i-det').value=''; document.getElementById('i-dt').value=today();
@@ -1943,7 +1999,7 @@ async function joinFamily(){
     var tables=['expenses','incomes','credits','credit_info'];
     var moved=await Promise.allSettled(tables.map(function(t){
       return withTimeout(
-        sb.from(t).update({family_id:fid}).eq('user_id',S.user.id).is('family_id',null),
+        sb.from(t).update({family_id:fid}).eq('user_id',S.user.id),
         8000,
         'ย้ายข้อมูล '+t
       );
@@ -1955,8 +2011,10 @@ async function joinFamily(){
 
     localStorage.removeItem('crInfo');
     localStorage.removeItem('crStatus');
+    localStorage.removeItem('customCr');
     S.crInfo={};
     S.crStatus={};
+    S.customCr=[];
 
     await withTimeout(loadFromSupabase(S.profile),15000,'โหลดข้อมูลครอบครัว');
     updateHeader();
@@ -1996,36 +2054,20 @@ async function deleteAccountAndData(){
     toast('กำลังลบบัญชี...','info');
     var tables=['expenses','incomes','credits','credit_info'];
     for(var i=0;i<tables.length;i++){
-      var q=sb.from(tables[i]).delete();
+      var q=sb.from(tables[i]).delete().eq('user_id',S.user.id);
       if(fid) q=q.eq('family_id',fid);
       var res=await q;
       if(res.error) console.warn('delete table failed ['+tables[i]+']:',res.error.message);
     }
     var prof=await sb.from('profiles').delete().eq('id',S.user.id);
     if(prof.error) console.warn('delete profile failed:',prof.error.message);
-    var serverErr=null;
-    try{
-      var fn=await sb.functions.invoke('delete-user',{body:{user_id:S.user.id}});
-      if(fn.error) serverErr=fn.error;
-    }catch(e1){
-      serverErr=e1;
-      try{
-        var rpc=await sb.rpc('delete_current_user');
-        if(rpc.error) serverErr=rpc.error; else serverErr=null;
-      }catch(e2){ serverErr=e2; }
-    }
     await sb.auth.signOut();
     S.expenses=[]; S.incomes=[]; S.crStatus={}; S.crInfo={};
     localStorage.removeItem('crStatus');
     localStorage.removeItem('crInfo');
     S.user=null; S.profile=null;
     document.getElementById('auth-screen').classList.remove('off');
-    if(serverErr){
-      console.warn('server-side auth delete not completed:',serverErr);
-      toast('ลบข้อมูลแล้ว แต่ต้องตั้ง Edge Function/RPC เพื่อลบ Auth user ให้สมบูรณ์','err');
-    }else{
-      toast('ลบบัญชีเรียบร้อย','ok');
-    }
+    toast('ลบข้อมูลผู้ใช้แล้ว หากต้องการลบ Auth user ให้ใช้ Edge Function/RPC ที่ปลอดภัย','ok');
   }catch(e){
     console.error('delete account failed:',e);
     toast('ลบบัญชีไม่สำเร็จ: '+(e.message||e),'err');
