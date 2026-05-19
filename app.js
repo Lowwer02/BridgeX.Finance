@@ -399,7 +399,17 @@ function withTimeout(promise, ms, label){
 function stopLoading(){ document.getElementById('loading')?.classList.add('off'); }
 function showBootstrapRetryError(msg){
   var auth=document.getElementById('auth-screen');
-  if(auth) auth.classList.remove('off');
+  if(auth&&!S.user) auth.classList.remove('off');
+  if(auth&&S.user) auth.classList.add('off');
+  toast(msg||'โหลดโปรไฟล์ไม่สำเร็จ กรุณาลองใหม่','err');
+  var title=document.getElementById('legal-title');
+  var body=document.getElementById('legal-body');
+  if(S.user&&title&&body){
+    title.textContent='โหลดโปรไฟล์ไม่สำเร็จ';
+    body.innerHTML=esc(msg||'โหลดโปรไฟล์ไม่สำเร็จ กรุณาลองใหม่')+'<br><br><button type="button" onclick="retryBootstrap()" class="btn-go">ลองอีกครั้ง</button>';
+    document.getElementById('legal-modal').classList.add('on');
+    return;
+  }
   var e=document.getElementById('auth-err');
   if(e){
     e.innerHTML=esc(msg||'โหลดข้อมูลไม่สำเร็จ')+' <button type="button" onclick="retryBootstrap()" style="margin-left:8px;border:1px solid currentColor;background:transparent;color:inherit;border-radius:8px;padding:4px 8px;font:inherit;cursor:pointer">ลองอีกครั้ง</button>';
@@ -610,6 +620,7 @@ async function onLogin(){
         details:e&&e.details,
         hint:e&&e.hint,
         code:e&&e.code,
+        status:e&&e.status,
         raw:e
       });
       showBootstrapRetryError('โหลดโปรไฟล์ไม่สำเร็จ กรุณาลองอีกครั้ง');
