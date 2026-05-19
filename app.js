@@ -637,6 +637,8 @@ async function doLogout(){
 // SUPABASE DATA
 // ═══════════════════════════════════════════════════════
 async function loadFromSupabase(preloadedProfile){
+  if(loadFromSupabase._running) return;
+  loadFromSupabase._running = true;
   setDot('spin','โหลด...');
   try {
     logStep('8. loadFromSupabase start');
@@ -652,7 +654,7 @@ async function loadFromSupabase(preloadedProfile){
     if(!checkAccess()){ setDot('off','Paywall'); return; }
     var fid=S.profile.family_id;
     logStep('9. Family ID for data load',fid);
-    S.expenses=[]; S.incomes=[]; S.crStatus={}; S.crInfo={};
+    S.expenses=[]; S.incomes=[]; S.crStatus={}; S.crInfo={}; S.customCr=[];
     logStep('10. Fetching family data in parallel...');
     var loads=await Promise.allSettled([
       withTimeout(sb.from('expenses').select('*').eq('family_id',fid).order('date',{ascending:false}),6000,'โหลด expenses'),
@@ -745,6 +747,7 @@ async function loadFromSupabase(preloadedProfile){
     setDot('off','ออฟไลน์');
     toast('โหลดข้อมูลจาก Supabase ไม่สำเร็จ ใช้ข้อมูลในเครื่องไปก่อน','err');
   } finally {
+    loadFromSupabase._running = false;
     document.getElementById('loading')?.classList.add('off');
   }
 }
@@ -781,6 +784,8 @@ async function saveToSupabase(table, data){
         .eq('credit_name',row.credit_name)
         .select('id');
       if(!res.error && (!res.data || !res.data.length)){
+        if(!row.user_id) row.user_id = S.user.id;
+        if(!row.family_id) row.family_id = S.profile.family_id;
         row.id = makeRowId();
         res = await sb.from(table).insert([row]);
       }
@@ -1137,6 +1142,7 @@ async function delEx(idOrEl){
   var id=typeof idOrEl==='object'?idOrEl.dataset.id:idOrEl;
   // Confirm dialog
   if(!confirm('ลบรายการนี้ออกจากฐานข้อมูล?\n\nการลบไม่สามารถย้อนกลับได้')) return;
+  var backup = S.expenses.find(function(e){ return String(e.id)===String(id); });
   // Remove from local state immediately (optimistic)
   S.expenses=S.expenses.filter(function(e){ return String(e.id)!==String(id); });
   renderHist(); renderDash(); renderAddSummary();
@@ -1146,8 +1152,15 @@ async function delEx(idOrEl){
       var q=sb.from('expenses').delete().eq('id', String(id)).eq('user_id',S.user.id);
       if(S.profile&&S.profile.family_id) q=q.eq('family_id',S.profile.family_id);
       var res=await q;
-      if(res.error){ toast('ลบจาก DB ไม่สำเร็จ: '+res.error.message,'err'); }
-      else{ toast('ลบรายการแล้ว','ok'); }
+      if(res.error){
+        if(backup){
+          S.expenses.unshift(backup);
+          renderHist(); renderDash(); renderAddSummary();
+        }
+        toast('ลบไม่สำเร็จ กรุณาลองใหม่','err');
+      } else {
+        toast('ลบรายการแล้ว','ok');
+      }
     }catch(e){ toast('เกิดข้อผิดพลาด: '+(e.message||e),'err'); }
   }
 }
@@ -2146,7 +2159,11 @@ function clearLocal(type){
   if(!confirm('ล้าง cache '+(type==='all'?'ทั้งหมด':'รายจ่าย')+'?\n(Supabase ยังเก็บข้อมูลไว้)')) return;
   if(type==='expense'||type==='all') S.expenses=[];
   if(type==='income'||type==='all') S.incomes=[];
-  if(type==='all'){ S.crStatus={}; localStorage.removeItem('crStatus'); }
+  if(type==='all'){
+    S.crStatus={}; localStorage.removeItem('crStatus');
+    S.crInfo={}; localStorage.removeItem('crInfo');
+    S.customCr=[]; localStorage.removeItem('customCr');
+  }
   renderHist(); renderDash(); renderIncSum(); renderSetStats(); renderAddSummary();
   toast('ล้าง cache แล้ว');
 }
