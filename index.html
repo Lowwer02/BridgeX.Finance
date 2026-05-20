@@ -476,6 +476,26 @@
   </div>
 </div>
 
+<div class="success-modal hidden" id="success-modal" onclick="successModalBg(event)">
+  <div class="success-card">
+    <div class="success-glow"></div>
+    <div class="success-icon"><span class="material-symbols-outlined">check_circle</span></div>
+    <h2 id="success-modal-title">บันทึกรายการสำเร็จ</h2>
+    <p id="success-modal-message">ข้อมูลของคุณถูกบันทึกเรียบร้อยแล้ว</p>
+    <div class="success-summary">
+      <div><span class="material-symbols-outlined">verified</span><span>สถานะ</span><strong>สำเร็จ</strong></div>
+      <div><span class="material-symbols-outlined">sync</span><span>ระบบ</span><strong>BridgeX</strong></div>
+    </div>
+    <div class="success-actions">
+      <button type="button" class="success-primary" id="success-modal-continue" onclick="hideSuccessModal()"><span class="material-symbols-outlined">add_circle</span> บันทึกรายการอื่นต่อ</button>
+      <div>
+        <button type="button" id="success-modal-close" onclick="hideSuccessModal()">ตกลง</button>
+        <button type="button" onclick="hideSuccessModal();goTab('hist',document.querySelector('.tbtn[onclick*=hist]'))"><span class="material-symbols-outlined">history</span> ไปที่ประวัติ</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 <script src="app.js" defer></script>
 </body>
