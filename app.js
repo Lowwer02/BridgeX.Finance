@@ -246,11 +246,23 @@ function toast(msg,type){
   t.textContent=msg; t.className='toast on'+(type?' '+type:'');
   clearTimeout(t._t); t._t=setTimeout(function(){ t.classList.remove('on'); },2800);
 }
-function showSuccessModal(message){
+function showSuccessModal(message,details,title){
   var modal=document.getElementById('success-modal');
   if(!modal) return toast(message||'บันทึกสำเร็จ','ok');
+  var ttl=document.getElementById('success-modal-title');
+  if(ttl) ttl.textContent=title||'บันทึกรายการสำเร็จ';
   var msg=document.getElementById('success-modal-message');
   if(msg) msg.textContent=message||'ข้อมูลของคุณถูกบันทึกเรียบร้อยแล้ว';
+  var box=document.getElementById('success-modal-details');
+  if(box){
+    var rows=(details&&details.length)?details:[
+      {icon:'verified',label:'สถานะ',value:'สำเร็จ'},
+      {icon:'sync',label:'ระบบ',value:'BridgeX'}
+    ];
+    box.innerHTML=rows.map(function(r){
+      return '<div><span class="material-symbols-outlined">'+esc(r.icon||'info')+'</span><span>'+esc(r.label||'-')+'</span><strong>'+esc(r.value||'-')+'</strong></div>';
+    }).join('');
+  }
   modal.classList.remove('hidden');
 }
 function hideSuccessModal(){
@@ -988,7 +1000,12 @@ async function submitExp(){
   renderHist();
   renderDash();
   renderAddSummary();
-  showSuccessModal('฿ '+fmt2(amt));
+  showSuccessModal('฿ '+fmt2(amt),[
+    {icon:'calendar_today',label:'วันที่',value:ex.date},
+    {icon:'category',label:'หมวดหมู่',value:ex.category},
+    {icon:'account_balance_wallet',label:'ช่องทางจ่ายเงิน',value:ex.payment},
+    {icon:'notes',label:'Note',value:ex.detail}
+  ]);
   // Save to Supabase
   saveToSupabase('expenses',{id:rowId,date:ex.date,detail:ex.detail,category:ex.category,payment:ex.payment,amount:ex.amount,paid_by:ex.paidBy,created_at:ex.createdAt});
 }
@@ -1313,7 +1330,12 @@ async function saveFirstCredit(){
     renderCR();
     renderDash();
     renderSetStats();
-    showSuccessModal('บันทึกสินเชื่อ '+cr.n+' สำเร็จ');
+    showSuccessModal('฿ '+fmt2(info.limit),[
+      {icon:'calendar_today',label:'วันที่',value:today()},
+      {icon:'credit_card',label:'สินเชื่อ',value:cr.n},
+      {icon:'category',label:'ประเภท',value:cr.t==='fixed'?'สินเชื่อหลักประกัน':'สินเชื่อหมุนเวียน'},
+      {icon:'payments',label:'จ่ายขั้นต่ำ',value:'฿ '+fmt(info.minPay)}
+    ],'บันทึกสินเชื่อสำเร็จ');
   }catch(e){
     console.error('save credit setup failed:',e);
     toast('บันทึกสินเชื่อไม่สำเร็จ: '+(e.message||e),'err');
@@ -1369,7 +1391,12 @@ async function submitCredit(){
   S.crStatus[activeCrId]={paid:true,amount:amt,baseRemaining:rem,baseAt:baseAt,matchedUsed:0,remaining:rem,date:dt};
   recomputeMatchedCreditBalances();
   sv(); closeD('pay-drawer'); renderCR(); renderDash();
-  showSuccessModal('บันทึกชำระ '+cr.n+' สำเร็จ');
+  showSuccessModal('฿ '+fmt2(amt),[
+    {icon:'calendar_today',label:'วันที่',value:dt},
+    {icon:'credit_card',label:'สินเชื่อ',value:cr.n},
+    {icon:'payments',label:'จำนวนเงิน',value:'฿ '+fmt2(amt)},
+    {icon:'account_balance_wallet',label:'คงเหลือ',value:'฿ '+fmt2(rem)}
+  ],'บันทึกชำระสินเชื่อสำเร็จ');
   saveToSupabase('credits',{date:dt,credit_name:cr.n,type:cr.t,amount:amt,remaining:rem,status:'จ่ายแล้ว',created_at:baseAt});
 }
 function openInfo(id){
@@ -1385,7 +1412,12 @@ async function saveInfo(){
   var cr=allCR().find(function(c){ return c.id===activeInfoId; });
   var info={limit:parseFloat(document.getElementById('inf-credit_limit').value)||0,rate:parseFloat(document.getElementById('inf-rate').value)||0,minPay:parseFloat(document.getElementById('inf-min').value)||0,billCycle:document.getElementById('inf-bill').value,dueDate:document.getElementById('inf-due').value};
   S.crInfo[activeInfoId]=info; sv(); closeD('info-drawer'); renderCR();
-  showSuccessModal('บันทึกข้อมูล '+cr.n+' สำเร็จ');
+  showSuccessModal('฿ '+fmt2(info.limit),[
+    {icon:'calendar_today',label:'วันที่',value:today()},
+    {icon:'credit_card',label:'สินเชื่อ',value:cr.n},
+    {icon:'percent',label:'ดอกเบี้ย',value:String(info.rate||0)+'%'},
+    {icon:'payments',label:'จ่ายขั้นต่ำ',value:'฿ '+fmt(info.minPay)}
+  ],'บันทึกข้อมูลสินเชื่อสำเร็จ');
   saveToSupabase('credit_info',{credit_name:cr.n,type:cr.t,credit_limit:info.limit,rate:info.rate,min_pay:info.minPay,bill_cycle:info.billCycle,due_date:info.dueDate});
 }
 function closeD(id){ document.getElementById(id).classList.remove('on'); }
@@ -1642,7 +1674,12 @@ async function submitInc(){
   S.fi={cat:'',ch:'',rcv:''}; renderIncc(); renderInch();
   if(S.profile&&S.profile.full_name) S.fi.rcv=S.profile.full_name;
   applyCurrentProfileToPayers();
-  showSuccessModal('฿ '+fmt2(amt)); renderIncSum();
+  showSuccessModal('฿ '+fmt2(amt),[
+    {icon:'calendar_today',label:'วันที่',value:inc.date},
+    {icon:'category',label:'หมวดหมู่',value:inc.category},
+    {icon:'account_balance_wallet',label:'ช่องทางรับเงิน',value:inc.channel},
+    {icon:'notes',label:'รายละเอียด',value:inc.detail}
+  ]); renderIncSum();
   saveToSupabase('incomes',{date:inc.date,detail:inc.detail,category:inc.category,channel:inc.channel,amount:inc.amount,receiver:inc.receiver});
 }
 function renderIncSum(){
