@@ -10,6 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 <!-- Supabase SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="stylesheet" href="style.css">
 </head>
 <body class="light">
@@ -317,9 +318,16 @@
     <h1>สรุปภาพรวมความมั่งคั่ง</h1>
     <p>ข้อมูลล่าสุด ณ วันนี้ ดูแลสุขภาพทางการเงินของคุณอย่างมืออาชีพ</p>
   </header>
-  <div class="frow" id="dash-filters">
-    <div class="fchip on" onclick="setDF('mo',this)">เดือนนี้</div>
-    <div class="fchip" onclick="setDF('all',this)">ทั้งหมด</div>
+  <div class="dash-filter-stack" id="dash-filters">
+    <div class="dash-filter-tier">
+      <span>ช่วงเวลา</span>
+      <button type="button" data-dash-time="this_month" onclick="setDashTimeFilter('this_month')">เดือนนี้</button>
+      <button type="button" data-dash-time="last_month" onclick="setDashTimeFilter('last_month')">เดือนก่อน</button>
+      <button type="button" data-dash-time="all_time" onclick="setDashTimeFilter('all_time')">ทั้งหมด</button>
+    </div>
+    <div class="dash-filter-tier" id="dash-entity-filters">
+      <span>มุมมอง</span>
+    </div>
   </div>
   <div id="dash"></div>
 </div>
@@ -450,6 +458,7 @@
       <div class="set-pref-row"><div><strong>Theme</strong><small>Application appearance</small></div><div class="set-segment"><button type="button" onclick="toggleTheme()">Dark</button><button type="button" onclick="toggleTheme()">Light</button></div></div>
       <div class="set-pref-row"><div><strong>Base Currency</strong><small>Default for analytics</small></div><select><option>THB (฿)</option><option>USD ($)</option></select></div>
       <div class="set-pref-row"><div><strong>Language</strong></div><select><option>Thai</option><option>English</option></select></div>
+      <div class="set-budget-wrap"><h3>ตั้งค่างบประมาณรายเดือน</h3><div id="budget-settings"></div><button type="button" onclick="saveBudgets()">บันทึกงบประมาณ</button></div>
       <div class="set-stats-wrap"><h3>สถิติข้อมูล</h3><div id="set-stats"></div></div>
     </section>
     <section class="set-card set-security-card">

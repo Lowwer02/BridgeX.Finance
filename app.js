@@ -125,6 +125,9 @@ var S = {
   activeCr:'', activeInfo:''
 };
 var authMode='login';
+var currentDashTimeFilter='this_month';
+var currentDashUserFilter='joint';
+var dashCategoryChart=null;
 
 function sv(){
   localStorage.setItem('crInfo',JSON.stringify(S.crInfo));
@@ -724,7 +727,7 @@ async function loadFromSupabase(preloadedProfile){
         id:r.id||('sb'+Date.now()+i), date:r.date||'',
         detail:r.detail||'-', category:cleanLabel(r.category)||'',
         catC:r.cat_color||'#7c6ef5', payment:cleanLabel(r.payment)||'',
-        amount:Number(r.amount||0), paidBy:r.paid_by||'', createdAt:r.created_at||''
+        amount:Number(r.amount||0), paidBy:r.paid_by||'', user_id:r.user_id||'', createdAt:r.created_at||''
       });
     });
     S.expenses.sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
@@ -732,7 +735,7 @@ async function loadFromSupabase(preloadedProfile){
       S.incomes.push({
         id:r.id||('si'+Date.now()+i), date:r.date||'',
         detail:r.detail||'-', category:cleanLabel(r.category)||'',
-        channel:cleanLabel(r.channel)||'', amount:Number(r.amount||0), receiver:r.receiver||''
+        channel:cleanLabel(r.channel)||'', amount:Number(r.amount||0), receiver:r.receiver||'', user_id:r.user_id||''
       });
     });
     S.incomes.sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
@@ -962,7 +965,6 @@ function renderPersonFilters(){
     });
   }
   fill('hist-filters',setHF,hf);
-  fill('dash-filters',setDF,df);
 }
 
 // ═══════════════════════════════════════════════════════
@@ -985,7 +987,7 @@ async function submitExp(){
   if(!validateTxnInput(checkRow)) return;
   det=checkRow.detail;
   var rowId=makeRowId();
-  var ex={id:rowId,date:dt,detail:det||'-',category:cat.l,catId:cat.id,catC:cat.c||'#7c6ef5',payment:pay.l,amount:amt,paidBy:S.fc.payer,createdAt:new Date().toISOString()};
+  var ex={id:rowId,date:dt,detail:det||'-',category:cat.l,catId:cat.id,catC:cat.c||'#7c6ef5',payment:pay.l,amount:amt,paidBy:S.fc.payer,user_id:S.user&&S.user.id||'',createdAt:new Date().toISOString()};
   S.expenses.unshift(ex);
   autoMatch(ex);
   // Reset form
@@ -1668,7 +1670,7 @@ async function submitInc(){
   var checkRow={date:dt,detail:det,category:cat&&cat.l,channel:ch&&ch.l,amount:amt,receiver:S.fi.rcv};
   if(!validateTxnInput(checkRow)) return;
   det=checkRow.detail;
-  var inc={id:Date.now(),date:dt,detail:det||'-',category:cat.l,channel:ch.l,amount:amt,receiver:S.fi.rcv};
+  var inc={id:Date.now(),date:dt,detail:det||'-',category:cat.l,channel:ch.l,amount:amt,receiver:S.fi.rcv,user_id:S.user&&S.user.id||''};
   S.incomes.unshift(inc);
   document.getElementById('i-amt').value=''; document.getElementById('i-det').value=''; document.getElementById('i-dt').value=today();
   S.fi={cat:'',ch:'',rcv:''}; renderIncc(); renderInch();
@@ -1734,16 +1736,84 @@ function renderIncSum(){
 // DASHBOARD
 // ═══════════════════════════════════════════════════════
 var df='mo';
-function setDF(f,el){ df=f; document.querySelectorAll('#pg-dash .fchip').forEach(function(c){ c.classList.remove('on'); }); el.classList.add('on'); renderDash(); }
+function setDF(f,el){ currentDashTimeFilter=f==='all'?'all_time':'this_month'; if(el) el.classList.add('on'); renderDash(); }
+function dashMonthKey(add){
+  var n=new Date();
+  var d=new Date(n.getFullYear(),n.getMonth()+add,1);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+}
+function setDashTimeFilter(f){ currentDashTimeFilter=f; renderDash(); }
+function setDashUserFilter(f){ currentDashUserFilter=f; renderDash(); }
+function dashEntityMembers(){
+  var out=[], seen={};
+  function add(id,name){
+    if(!id||seen[id]) return;
+    seen[id]=1; out.push({id:id,name:name||id});
+  }
+  if(S.user) add(S.user.id,(S.profile&&S.profile.full_name)||'ฉัน');
+  (S.familyMembers||[]).forEach(function(m){ add(m.id,m.full_name||m.name||m.id); });
+  S.expenses.forEach(function(e){ add(e.user_id,e.paidBy||e.user_id); });
+  S.incomes.forEach(function(i){ add(i.user_id,i.receiver||i.user_id); });
+  return out;
+}
+function renderDashFilters(){
+  document.querySelectorAll('[data-dash-time]').forEach(function(b){ b.classList.toggle('on',b.dataset.dashTime===currentDashTimeFilter); });
+  var wrap=document.getElementById('dash-entity-filters'); if(!wrap) return;
+  var members=dashEntityMembers();
+  var html='<span>มุมมอง</span><button type="button" data-dash-user="joint" onclick="setDashUserFilter(\'joint\')">รวมครอบครัว</button>';
+  members.forEach(function(m){
+    var val=(S.user&&m.id===S.user.id)?'me':m.id;
+    var label=(S.user&&m.id===S.user.id)?'ฉัน':m.name;
+    html+='<button type="button" data-dash-user="'+esc(val)+'" onclick="setDashUserFilter(\''+esc(val)+'\')">'+esc(label)+'</button>';
+  });
+  wrap.innerHTML=html;
+  wrap.querySelectorAll('[data-dash-user]').forEach(function(b){ b.classList.toggle('on',b.dataset.dashUser===currentDashUserFilter); });
+}
+function filterDashRows(rows){
+  var time=currentDashTimeFilter, user=currentDashUserFilter==='me'&&S.user?S.user.id:currentDashUserFilter;
+  var mo=thisMo(), last=dashMonthKey(-1);
+  return rows.filter(function(r){
+    var okTime=time==='all_time'||(time==='this_month'&&r.date&&r.date.slice(0,7)===mo)||(time==='last_month'&&r.date&&r.date.slice(0,7)===last);
+    var okUser=user==='joint'||String(r.user_id||'')===String(user);
+    return okTime&&okUser;
+  });
+}
+function renderDashCategoryChart(filteredExpenses){
+  var canvas=document.getElementById('dash-category-chart');
+  if(!canvas||!window.Chart) return;
+  var totals={};
+  filteredExpenses.forEach(function(e){ var k=e.category||'อื่นๆ'; totals[k]=(totals[k]||0)+Number(e.amount||0); });
+  var labels=Object.keys(totals).sort(function(a,b){ return totals[b]-totals[a]; });
+  var data=labels.map(function(k){ return totals[k]; });
+  if(dashCategoryChart) dashCategoryChart.destroy();
+  dashCategoryChart=new Chart(canvas,{
+    type:'doughnut',
+    data:{labels:labels.length?labels:['ไม่มีข้อมูล'],datasets:[{data:data.length?data:[1],backgroundColor:['#4c35c4','#10b981','#ffb95f','#ffb4ab','#c7bfff','#4edea3','#928ea0'],borderColor:'rgba(19,18,27,.9)',borderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#c9c4d7',boxWidth:10,font:{family:'Inter'}}}},cutout:'64%'}
+  });
+}
+function budgetProgressHtml(filteredExpenses){
+  var budgets=(S.profile&&S.profile.budgets)||{};
+  var mo=thisMo(), monthItems=filteredExpenses.filter(function(e){ return e.date&&e.date.slice(0,7)===mo; });
+  var totals={};
+  monthItems.forEach(function(e){ var k=e.category||'อื่นๆ'; totals[k]=(totals[k]||0)+Number(e.amount||0); });
+  var cats=Object.keys(budgets).filter(function(k){ return Number(budgets[k]||0)>0; });
+  if(!cats.length) return '<div class="budget-empty">ยังไม่ได้ตั้งค่างบประมาณรายเดือน</div>';
+  return cats.map(function(k){
+    var budget=Number(budgets[k]||0), used=Number(totals[k]||0), pct=budget?Math.round(used/budget*100):0;
+    var tone=pct>=100?'danger':pct>=80?'warn':'ok';
+    return '<div class="budget-row '+tone+'"><div><strong>'+esc(k)+'</strong><span>฿ '+fmt(used)+' / ฿ '+fmt(budget)+'</span></div><div class="budget-track"><i style="width:'+Math.min(100,pct)+'%"></i></div><em>'+pct+'%</em></div>';
+  }).join('');
+}
 function renderDash(){
   var w=document.getElementById('dash'); w.innerHTML='';
+  renderDashFilters();
   var now=new Date(), mo=thisMo();
-  var items=S.expenses.slice();
-  if(df==='mo') items=items.filter(function(e){ return e.date&&e.date.slice(0,7)===mo; });
-  if(df.indexOf('person:')===0){
-    var filterName=df.slice(7);
-    items=items.filter(function(e){ return e.paidBy===filterName; });
-  }
+  var items=filterDashRows(S.expenses);
+  var incomeItems=filterDashRows(S.incomes);
+  var entityUser=currentDashUserFilter==='me'&&S.user?S.user.id:currentDashUserFilter;
+  var entityExpenses=currentDashUserFilter==='joint'?S.expenses.slice():S.expenses.filter(function(e){ return String(e.user_id||'')===String(entityUser); });
+  var entityIncomes=currentDashUserFilter==='joint'?S.incomes.slice():S.incomes.filter(function(i){ return String(i.user_id||'')===String(entityUser); });
   var tot=items.reduce(function(s,e){ return s+e.amount; },0);
   var personTotals={};
   (S.familyMembers||[]).forEach(function(m){
@@ -1752,9 +1822,9 @@ function renderDash(){
   });
   S.expenses.forEach(function(e){ if(e.paidBy) personTotals[e.paidBy]=(personTotals[e.paidBy]||0)+Number(e.amount||0); });
   var topPeople=Object.keys(personTotals).filter(function(name){ return personTotals[name]>0; }).sort(function(a,b){ return personTotals[b]-personTotals[a]; });
-  var incMo=S.incomes.filter(function(i){ return i.date&&i.date.slice(0,7)===mo; }).reduce(function(s,i){ return s+i.amount; },0);
+  var incMo=incomeItems.reduce(function(s,i){ return s+i.amount; },0);
   var net=incMo-tot;
-  var avg=tot/Math.max(df==='mo'?now.getDate():30,1);
+  var avg=tot/Math.max(currentDashTimeFilter==='this_month'?now.getDate():30,1);
   var catM={};
   items.forEach(function(e){ if(!catM[e.category]) catM[e.category]={t:0,c:e.catC||'#7c6ef5'}; catM[e.category].t+=e.amount; });
   var cats=Object.keys(catM).map(function(k){ return [k,catM[k]]; }).sort(function(a,b){ return b[1].t-a[1].t; });
@@ -1787,8 +1857,8 @@ function renderDash(){
   var months=[-3,-2,-1,0].map(monthKey);
   var maxChart=1;
   var chart=months.map(function(m){
-    var exp=S.expenses.filter(function(e){ return e.date&&e.date.slice(0,7)===m; }).reduce(function(s,e){ return s+Number(e.amount||0); },0);
-    var inc=S.incomes.filter(function(i){ return i.date&&i.date.slice(0,7)===m; }).reduce(function(s,i){ return s+Number(i.amount||0); },0);
+    var exp=entityExpenses.filter(function(e){ return e.date&&e.date.slice(0,7)===m; }).reduce(function(s,e){ return s+Number(e.amount||0); },0);
+    var inc=entityIncomes.filter(function(i){ return i.date&&i.date.slice(0,7)===m; }).reduce(function(s,i){ return s+Number(i.amount||0); },0);
     maxChart=Math.max(maxChart,exp,inc);
     return {m:m,exp:exp,inc:inc};
   });
@@ -1798,7 +1868,7 @@ function renderDash(){
     var expH=Math.max(4,Math.round(x.exp/maxChart*100));
     return '<div class="dash-chart-col"><div class="dash-bars"><span class="income" style="height:'+incH+'%"></span><span class="expense" style="height:'+expH+'%"></span></div><div class="dash-chart-label '+(idx===chart.length-1?'on':'')+'">'+label+'</div></div>';
   }).join('');
-  var calMo=mo, calItems=S.expenses.filter(function(e){ return e.date&&e.date.slice(0,7)===calMo; }), dayTotals={};
+  var calMo=mo, calItems=entityExpenses.filter(function(e){ return e.date&&e.date.slice(0,7)===calMo; }), dayTotals={};
   calItems.forEach(function(e){ dayTotals[e.date]=(dayTotals[e.date]||0)+Number(e.amount||0); });
   var yr=parseInt(calMo.split('-')[0]), mnth=parseInt(calMo.split('-')[1])-1, firstDay=new Date(yr,mnth,1).getDay(), daysInMonth=new Date(yr,mnth+1,0).getDate();
   var maxDay=Math.max(1,Object.keys(dayTotals).reduce(function(m,d){ return Math.max(m,dayTotals[d]); },0));
@@ -1808,8 +1878,8 @@ function renderDash(){
     var ds=calMo+'-'+String(dd).padStart(2,'0'), v=dayTotals[ds]||0, lvl=v?Math.max(1,Math.ceil(v/maxDay*4)):0;
     calHtml+='<button type="button" class="dash-cal-cell l'+lvl+'" title="'+ds+' ฿ '+fmt(v)+'">'+dd+'</button>';
   }
-  var recentExp=S.expenses.map(function(e){ return {type:'exp',date:e.date,detail:e.detail,cat:e.category,person:e.paidBy,amount:e.amount,icon:dashCatIcon(e.category)}; });
-  var recentInc=S.incomes.map(function(i){ return {type:'inc',date:i.date,detail:i.detail||'รายรับ',cat:i.category||'Income',person:i.receiver||'SYS',amount:i.amount,icon:'payments'}; });
+  var recentExp=items.map(function(e){ return {type:'exp',date:e.date,detail:e.detail,cat:e.category,person:e.paidBy,amount:e.amount,icon:dashCatIcon(e.category)}; });
+  var recentInc=incomeItems.map(function(i){ return {type:'inc',date:i.date,detail:i.detail||'รายรับ',cat:i.category||'Income',person:i.receiver||'SYS',amount:i.amount,icon:'payments'}; });
   var recent=recentExp.concat(recentInc).sort(function(a,b){ return String(b.date||'').localeCompare(String(a.date||'')); }).slice(0,5);
   var recentHtml=recent.length?recent.map(function(r){
     return '<tr><td><div class="dash-qitem"><span class="material-symbols-outlined">'+r.icon+'</span><div><strong>'+esc(r.detail||'-')+'</strong><small>'+dashDate(r.date)+'</small></div></div></td><td>'+esc(r.cat||'-')+'</td><td><span class="dash-person">'+esc((r.person||'SYS').slice(0,3))+'</span></td><td class="dash-amt '+(r.type==='inc'?'pos':'')+'">'+(r.type==='inc'?'+':'-')+' ฿ '+fmt2(r.amount)+'</td></tr>';
@@ -1819,9 +1889,11 @@ function renderDash(){
     '<section class="dash-kpi"><span>Total Debt</span><strong>฿ '+fmt(debtTotal)+'</strong><div class="dash-mini-track"><i style="width:'+debtPct+'%"></i></div><small>ใช้วงเงิน '+debtPct+'%</small></section>'+
     '<section class="dash-kpi"><span>Projected Interest Savings</span><strong class="green">฿ '+fmt(projectedSave)+'</strong><small class="pos"><span class="material-symbols-outlined">auto_awesome</span> ด้วยแผนชำระเร่งด่วน</small></section>'+
     '<section class="dash-panel chart"><div class="dash-panel-head"><h2>สุขภาพทางการเงินของคุณ</h2><button type="button" onclick="goTab(\'hist\',document.querySelector(\'.tbtn[onclick*=hist]\'))">ดูรายละเอียด</button></div><div class="dash-chart">'+chartHtml+'</div><div class="dash-legend"><span><i class="income"></i>รายได้</span><span><i class="expense"></i>รายจ่าย</span></div></section>'+
+    '<section class="dash-panel category"><div class="dash-panel-head"><h2>Expenses by Category</h2><span>งบประมาณรายเดือน</span></div><div class="dash-doughnut-wrap"><canvas id="dash-category-chart"></canvas></div><div class="budget-progress">'+budgetProgressHtml(items)+'</div></section>'+
     '<section class="dash-panel calendar"><div class="dash-panel-head"><h2>ปฏิทินรายจ่ายรายวัน</h2><span>'+thaiMo(calMo)+'</span></div><div class="dash-cal-dow"><span>อา</span><span>จ</span><span>อ</span><span>พ</span><span>พฤ</span><span>ศ</span><span>ส</span></div><div class="dash-cal-grid">'+calHtml+'</div><div class="dash-cal-legend"><span>น้อย</span><i class="l0"></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i><span>มาก</span></div></section>'+
     '<section class="dash-panel history"><div class="dash-panel-head"><h2>Quick History</h2><button type="button" onclick="goTab(\'hist\',document.querySelector(\'.tbtn[onclick*=hist]\'))">ดูทั้งหมด <span class="material-symbols-outlined">arrow_forward</span></button></div><div class="dash-table-wrap"><table class="dash-table"><thead><tr><th>รายการ</th><th>หมวดหมู่</th><th>ผู้ทำรายการ</th><th>จำนวนเงิน</th></tr></thead><tbody>'+recentHtml+'</tbody></table></div></section>'+
   '</div>';
+  renderDashCategoryChart(items);
   return;
 
   function mkK(lbl,val,vc,sub,full,bc){ var c=document.createElement('div'); c.className='kcard'+(full?' full':''); if(bc) c.style.borderLeft='3px solid '+bc; c.innerHTML='<div class="kl">'+lbl+'</div><div class="kv" style="color:'+vc+'">'+val+'</div>'+(sub?'<div class="ks">'+sub+'</div>':''); return c; }
@@ -2086,8 +2158,35 @@ function copyFamilyId(){
     toast('เบราว์เซอร์ไม่รองรับการคัดลอกอัตโนมัติ','err');
   }
 }
+function renderBudgetSettings(){
+  var w=document.getElementById('budget-settings'); if(!w) return;
+  var budgets=(S.profile&&S.profile.budgets)||{};
+  var cats=S.cats.slice(0,8);
+  w.innerHTML=cats.map(function(c){
+    return '<label class="budget-input-row"><span>'+esc(c.l)+'</span><input type="number" min="0" step="1" data-budget-cat="'+esc(c.l)+'" value="'+(Number(budgets[c.l]||0)||'')+'" placeholder="0"></label>';
+  }).join('');
+}
+async function saveBudgets(){
+  if(!S.user||!S.profile) return toast('ไม่พบโปรไฟล์','err');
+  var budgets={};
+  document.querySelectorAll('[data-budget-cat]').forEach(function(inp){
+    var v=Number(inp.value||0);
+    if(v>0) budgets[inp.dataset.budgetCat]=v;
+  });
+  S.profile.budgets=budgets;
+  try{
+    var res=await sb.from('profiles').update({budgets:budgets,updated_at:new Date().toISOString()}).eq('id',S.user.id);
+    if(res.error) throw res.error;
+    toast('บันทึกงบประมาณแล้ว','ok');
+    renderDash();
+  }catch(e){
+    console.error('save budgets failed:',e);
+    toast('บันทึกงบประมาณไม่สำเร็จ','err');
+  }
+}
 function renderV4Settings(){
   updateHeader();
+  renderBudgetSettings();
   var profileName=S.profile&&S.profile.full_name?S.profile.full_name:(S.user&&S.user.email?S.user.email:'BridgeX Member');
   var nameEl=document.getElementById('set-profile-name');
   if(nameEl) nameEl.textContent=profileName;
