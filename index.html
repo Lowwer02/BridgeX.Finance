@@ -208,12 +208,20 @@
       <aside class="hist-filter-card">
         <div class="hist-filter-head">
           <h3><span class="material-symbols-outlined">tune</span> ตัวกรอง</h3>
-          <button type="button" onclick="setHF('all',document.querySelector('#hist-filters .fchip'))">ล้างทั้งหมด</button>
+          <button type="button" onclick="setHistTimeFilter('all_time');setHistUserFilter('joint')">ล้างทั้งหมด</button>
         </div>
-        <div class="hist-filter-label">ช่วงเวลา / ผู้จ่าย</div>
-        <div class="frow hist-filter-row" id="hist-filters">
-          <div class="fchip on" onclick="setHF('all',this)">ทั้งหมด</div>
-          <div class="fchip" onclick="setHF('mo',this)">เดือนนี้</div>
+        <div class="dash-filter-stack hist-filter-stack">
+          <div class="dash-filter-tier" id="hist-time-filters">
+            <span>ช่วงเวลา</span>
+            <button type="button" data-hist-time="this_month" onclick="setHistTimeFilter('this_month')">เดือนนี้</button>
+            <button type="button" data-hist-time="last_month" onclick="setHistTimeFilter('last_month')">เดือนก่อน</button>
+            <button type="button" data-hist-time="all_time" onclick="setHistTimeFilter('all_time')">ทั้งหมด</button>
+          </div>
+          <div class="dash-filter-tier" id="hist-filters">
+            <span>มุมมอง</span>
+            <button type="button" data-hist-user="joint" onclick="setHistUserFilter('joint')">รวม</button>
+            <button type="button" data-hist-user="me" onclick="setHistUserFilter('me')">ฉัน</button>
+          </div>
         </div>
       </aside>
       <section class="hist-table-card">

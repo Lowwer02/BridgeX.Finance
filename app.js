@@ -111,6 +111,7 @@ var S = {
   avatarData: localStorage.getItem('setAvatar')||'',
   expenses: [],
   incomes: [],
+  credits: [],
   crInfo: readLS('crInfo',{}),
   crStatus: readLS('crStatus',{}),
   customCr: readLS('customCr',[]),
@@ -127,6 +128,8 @@ var S = {
 var authMode='login';
 var currentDashTimeFilter='this_month';
 var currentDashUserFilter='joint';
+var currentHistTimeFilter='this_month';
+var currentHistUserFilter='joint';
 var dashCategoryChart=null;
 
 function sv(){
@@ -694,7 +697,7 @@ async function loadFromSupabase(preloadedProfile){
     if(!checkAccess()){ setDot('off','Paywall'); return; }
     var fid=S.profile.family_id;
     logStep('9. Family ID for data load',fid);
-    S.expenses=[]; S.incomes=[]; S.crStatus={}; S.crInfo={}; S.customCr=[];
+    S.expenses=[]; S.incomes=[]; S.credits=[]; S.crStatus={}; S.crInfo={}; S.customCr=[];
     logStep('10. Fetching family data in parallel...');
     var loads=await Promise.allSettled([
       withTimeout(sb.from('expenses').select('*').eq('family_id',fid).order('date',{ascending:false}),6000,'โหลด expenses'),
@@ -741,6 +744,12 @@ async function loadFromSupabase(preloadedProfile){
     S.incomes.sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
     var mo=thisMo();
     crRows.forEach(function(r){
+      S.credits.push({
+        id:r.id||('sc'+Date.now()+S.credits.length), date:r.date||'',
+        credit_name:cleanLabel(r.credit_name||r.name||''), type:r.type||'revolving',
+        amount:Number(r.amount||0), remaining:Number(r.remaining||0),
+        status:r.status||'', user_id:r.user_id||'', createdAt:r.created_at||''
+      });
       var found=allCR().find(function(c){ return c.n===(r.credit_name||r.name||''); });
       if(!found) return;
       if((r.date||'').slice(0,7)===mo){
@@ -951,20 +960,7 @@ function loadCreditOptions(){
   renderPays();
 }
 function renderPersonFilters(){
-  var names={};
-  (S.familyMembers||[]).forEach(function(p){ if(p.full_name) names[p.full_name]=1; });
-  S.expenses.forEach(function(e){ if(e.paidBy) names[e.paidBy]=1; });
-  function fill(wrapId,setter,current){
-    var wrap=document.getElementById(wrapId); if(!wrap) return;
-    Array.from(wrap.querySelectorAll('.person-chip')).forEach(function(el){ el.remove(); });
-    Object.keys(names).sort().forEach(function(n){
-      var b=document.createElement('div'); b.className='fchip person-chip'+(current==='person:'+n?' on':'');
-      b.textContent=n;
-      b.onclick=function(){ setter('person:'+n,b); };
-      wrap.appendChild(b);
-    });
-  }
-  fill('hist-filters',setHF,hf);
+  renderHistFilters();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1067,6 +1063,27 @@ function autoMatch(ex){
 // ═══════════════════════════════════════════════════════
 var hf='all';
 function setHF(f,el){ hf=f; document.querySelectorAll('#pg-hist .fchip').forEach(function(c){ c.classList.remove('on'); }); el.classList.add('on'); renderHist(); }
+function setHistTimeFilter(f){ currentHistTimeFilter=f; renderHist(); }
+function setHistUserFilter(f){ currentHistUserFilter=f; renderHist(); }
+function renderHistFilters(){
+  var timeWrap=document.getElementById('hist-time-filters'), userWrap=document.getElementById('hist-filters');
+  if(timeWrap) timeWrap.querySelectorAll('[data-hist-time]').forEach(function(b){ b.classList.toggle('on',b.dataset.histTime===currentHistTimeFilter); });
+  if(!userWrap) return;
+  Array.from(userWrap.querySelectorAll('[data-hist-user].dyn')).forEach(function(el){ el.remove(); });
+  (S.familyMembers||[]).forEach(function(m){
+    if(!m||!m.id||String(m.id)===String(S.user&&S.user.id)) return;
+    var b=document.createElement('button');
+    b.type='button'; b.className='dyn'; b.dataset.histUser=m.id;
+    b.textContent=m.full_name||m.email||'สมาชิก';
+    b.onclick=function(){ setHistUserFilter(m.id); };
+    userWrap.appendChild(b);
+  });
+  userWrap.querySelectorAll('[data-hist-user]').forEach(function(b){
+    var v=b.dataset.histUser==='me'&&S.user?S.user.id:b.dataset.histUser;
+    var cur=currentHistUserFilter==='me'&&S.user?S.user.id:currentHistUserFilter;
+    b.classList.toggle('on',String(v)===String(cur));
+  });
+}
 // Track which day-groups are open (default open)
 var openDays = {};
 var renderHistRaf=0;
@@ -1084,16 +1101,28 @@ function renderHist(){
 }
 function renderHistNow(){
   var list=document.getElementById('hist-list'),kpis=document.getElementById('hist-kpis'); if(!list) return; list.innerHTML='';
+  renderHistFilters();
   var visibleDays={};
-  var mo=thisMo();
-  var items=S.expenses.slice();
-  if(hf==='mo') items=items.filter(function(e){ return e.date&&e.date.slice(0,7)===mo; });
-  if(hf.indexOf('person:')===0){ var pn=hf.slice(7); items=items.filter(function(e){ return e.paidBy===pn; }); }
+  var mo=thisMo(), last=dashMonthKey(-1);
+  var rows=S.expenses.map(function(e){
+    return {type:'expense',id:e.id,date:e.date,detail:e.detail||'-',category:e.category||'-',channel:e.payment||'-',amount:Number(e.amount||0),person:e.paidBy||'',user_id:e.user_id||'',catC:e.catC||'#c7bfff',raw:e};
+  }).concat(S.incomes.map(function(i){
+    return {type:'income',id:i.id,date:i.date,detail:i.detail||'รายรับ',category:i.category||'รายรับ',channel:i.channel||'-',amount:Number(i.amount||0),person:i.receiver||'',user_id:i.user_id||'',catC:'#4edea3',raw:i};
+  })).concat((S.credits||[]).map(function(c){
+    return {type:'credit',id:c.id,date:c.date,detail:c.credit_name||'ชำระสินเชื่อ',category:'Credit Payment',channel:c.status||'จ่ายแล้ว',amount:Number(c.amount||0),person:'',user_id:c.user_id||'',catC:'#ffb95f',raw:c};
+  }));
+  var entity=currentHistUserFilter==='me'&&S.user?S.user.id:currentHistUserFilter;
+  var items=rows.filter(function(r){
+    var okTime=currentHistTimeFilter==='all_time'||(currentHistTimeFilter==='this_month'&&r.date&&r.date.slice(0,7)===mo)||(currentHistTimeFilter==='last_month'&&r.date&&r.date.slice(0,7)===last);
+    var okUser=entity==='joint'||String(r.user_id||'')===String(entity);
+    return okTime&&okUser;
+  }).sort(function(a,b){ return String(b.date||'').localeCompare(String(a.date||'')); });
   var now=new Date(), weekAgo=new Date(now.getTime()-6*86400000);
-  var weekItems=items.filter(function(e){ return e.date&&new Date(e.date+'T00:00:00')>=weekAgo; });
+  var expenseItems=items.filter(function(e){ return e.type==='expense'; });
+  var weekItems=expenseItems.filter(function(e){ return e.date&&new Date(e.date+'T00:00:00')>=weekAgo; });
   var weekTot=weekItems.reduce(function(s,e){ return s+Number(e.amount||0); },0);
   var catTotals={};
-  items.forEach(function(e){ var c=e.category||'ไม่ระบุ'; catTotals[c]=(catTotals[c]||0)+Number(e.amount||0); });
+  expenseItems.forEach(function(e){ var c=e.category||'ไม่ระบุ'; catTotals[c]=(catTotals[c]||0)+Number(e.amount||0); });
   var topCat=Object.keys(catTotals).sort(function(a,b){ return catTotals[b]-catTotals[a]; })[0]||'-';
   if(kpis){
     kpis.innerHTML='<div class="hist-kpi g"><div class="hist-kpi-top"><span>ใช้จ่ายสัปดาห์นี้</span><span class="material-symbols-outlined">trending_down</span></div><div class="hist-kpi-val">฿ '+fmt(weekTot)+'</div><div class="hist-kpi-sub">'+weekItems.length+' รายการใน 7 วันล่าสุด</div></div>'+
@@ -1116,6 +1145,9 @@ function renderHistNow(){
     return 'account_balance_wallet';
   }
   function personInitial(name){ name=String(name||'?').trim(); return (name.charAt(0)||'?').toUpperCase(); }
+  function typeIcon(t){ return t==='income'?'payments':t==='credit'?'credit_score':'receipt_long'; }
+  function typeLabel(t){ return t==='income'?'รายรับ':t==='credit'?'ชำระสินเชื่อ':'รายจ่าย'; }
+  function signedAmount(r){ return r.type==='income'?Number(r.amount||0):-Number(r.amount||0); }
   function dateLabel(d){
     if(!d) return '-';
     try{ return new Date(d+'T00:00:00').toLocaleDateString('th-TH',{day:'2-digit',month:'short',year:'numeric'}); }
@@ -1126,7 +1158,7 @@ function renderHistNow(){
   items.forEach(function(e){ var k=(e.date||'').slice(0,7); if(!monthGrps[k]) monthGrps[k]=[]; monthGrps[k].push(e); });
   Object.keys(monthGrps).sort(function(a,b){ return b.localeCompare(a); }).forEach(function(moKey){
     var moItems=monthGrps[moKey];
-    var moTot=moItems.reduce(function(s,e){ return s+e.amount; },0);
+    var moTot=moItems.reduce(function(s,e){ return s+signedAmount(e); },0);
     var moDiv=document.createElement('div'); moDiv.className='hist-month';
     var moHdr=document.createElement('div'); moHdr.className='hist-month-title';
     moHdr.textContent=thaiMo(moKey)+' · ฿ '+fmt(moTot)+' ('+moItems.length+' รายการ)';
@@ -1137,31 +1169,35 @@ function renderHistNow(){
     Object.keys(dayGrps).sort(function(a,b){ return b.localeCompare(a); }).forEach(function(dayKey){
       visibleDays[dayKey]=1;
       var dayItems=dayGrps[dayKey];
-      var dayTot=dayItems.reduce(function(s,e){ return s+e.amount; },0);
-      var isOpen=openDays[dayKey]!==false;
+      var dayTot=dayItems.reduce(function(s,e){ return s+signedAmount(e); },0);
+      var latestDay=items[0]&&items[0].date;
+      var isOpen=openDays.hasOwnProperty(dayKey)?openDays[dayKey]!==false:dayKey===latestDay;
       var dFull=dayKey&&dayKey!=='unknown'?new Date(dayKey).toLocaleDateString('th-TH',{weekday:'short',day:'numeric',month:'short'}):'ไม่ระบุวัน';
       // Day header
       var dayHdr=document.createElement('div');
       dayHdr.className='hist-day-head';
-      dayHdr.innerHTML='<div class="hist-day-left"><span class="hist-day-name">'+esc(dFull)+'</span><span class="hist-day-count">'+dayItems.length+' รายการ</span></div><div class="hist-day-right"><span class="hist-day-total">฿ '+fmt(dayTot)+'</span><span class="day-chev" style="transition:transform .25s;display:inline-block;transform:'+(isOpen?'rotate(180deg)':'rotate(0deg)')+'">▾</span></div>';
+      dayHdr.innerHTML='<div class="hist-day-left"><span class="hist-day-name">'+esc(dFull)+'</span><span class="hist-day-count">'+dayItems.length+' รายการ</span></div><div class="hist-day-right"><span class="hist-day-total '+(dayTot>=0?'pos':'neg')+'">'+(dayTot>=0?'+ ':'- ')+'฿ '+fmt(Math.abs(dayTot))+'</span><span class="day-chev" style="transition:transform .25s;display:inline-block;transform:'+(isOpen?'rotate(180deg)':'rotate(0deg)')+'">▾</span></div>';
       // Day body
       var dayBody=document.createElement('div');
       dayBody.className='hist-table-wrap';
       dayBody.style.maxHeight=isOpen?'9999px':'0';
       var scroll=document.createElement('div'); scroll.className='hist-table-scroll';
       var table=document.createElement('table'); table.className='hist-table';
-      table.innerHTML='<thead><tr><th>วันที่</th><th>รายละเอียด</th><th>หมวดหมู่</th><th>ช่องทางชำระ</th><th style="text-align:right">จำนวนเงิน</th><th style="text-align:center">ผู้จ่าย</th><th></th></tr></thead><tbody></tbody>';
+      table.innerHTML='<thead><tr><th>วันที่</th><th>รายละเอียด</th><th>ประเภท</th><th>ช่องทาง</th><th style="text-align:right">จำนวนเงิน</th><th style="text-align:center">ผู้ทำรายการ</th><th></th></tr></thead><tbody></tbody>';
       var tbody=table.querySelector('tbody');
       dayItems.forEach(function(e){
         var row=document.createElement('tr');
+        row.className='hist-row-'+e.type;
         row.style.setProperty('--hist-cat-color',e.catC||'#c7bfff');
+        var amtClass=e.type==='income'?'pos':'neg';
+        var amtText=(e.type==='income'?'+ ':'- ')+'฿ '+fmt(e.amount);
         row.innerHTML='<td><div class="hist-date">'+esc(dateLabel(e.date))+'</div></td>'+
-          '<td><div class="hist-detail-name">'+esc(e.detail||'-')+'</div><div class="hist-detail-sub">'+esc(e.payment||'')+'</div></td>'+
-          '<td><div class="hist-cat"><span class="material-symbols-outlined">'+catIcon(e.category)+'</span><span>'+esc(e.category||'-')+'</span></div></td>'+
-          '<td><div class="hist-pay"><span class="material-symbols-outlined">'+payMatIcon(e.payment)+'</span><span>'+esc(e.payment||'-')+'</span></div></td>'+
-          '<td class="hist-amount">฿ '+fmt(e.amount)+'</td>'+
-          '<td style="text-align:center"><span class="hist-person">'+esc(personInitial(e.paidBy))+'</span></td>'+
-          '<td style="text-align:right"><button class="hist-del" onclick="delEx(this.dataset.id)" data-id="'+e.id+'">×</button></td>';
+          '<td><div class="hist-detail-name">'+esc(e.detail||'-')+'</div><div class="hist-detail-sub">'+esc(e.channel||'')+'</div></td>'+
+          '<td><div class="hist-cat"><span class="material-symbols-outlined">'+(e.type==='expense'?catIcon(e.category):typeIcon(e.type))+'</span><span>'+esc(typeLabel(e.type))+'</span></div></td>'+
+          '<td><div class="hist-pay"><span class="material-symbols-outlined">'+payMatIcon(e.channel)+'</span><span>'+esc(e.category||e.channel||'-')+'</span></div></td>'+
+          '<td class="hist-amount '+amtClass+'">'+amtText+'</td>'+
+          '<td style="text-align:center"><span class="hist-person">'+esc(personInitial(e.person||typeLabel(e.type)))+'</span></td>'+
+          '<td style="text-align:right">'+(e.type==='expense'?'<button class="hist-del" onclick="delEx(this.dataset.id)" data-id="'+e.id+'">×</button>':'')+'</td>';
         tbody.appendChild(row);
       });
       scroll.appendChild(table);
@@ -1234,15 +1270,23 @@ function crInitials(name){
   if(name.indexOf('TikTok')>=0) return 'TT';
   return name.split(/\s+|\/|-/).filter(Boolean).map(function(p){ return p.charAt(0); }).join('').slice(0,3).toUpperCase()||'CR';
 }
+function creditPaymentsThisMonth(cr){
+  var mo=thisMo();
+  return (S.credits||[]).filter(function(p){
+    return p.date&&p.date.slice(0,7)===mo&&(p.credit_name===cr.n||p.credit_id===cr.id);
+  });
+}
 function renderCreditLine(cr){
   var mo=thisMo(),st=S.crStatus[cr.id]||{},info=S.crInfo[cr.id]||{};
-  var isPaid=st.paid&&(st.date||'').slice(0,7)===mo;
+  var paidRows=creditPaymentsThisMonth(cr);
+  var isPaid=paidRows.length>0||(st.paid&&(st.date||'').slice(0,7)===mo);
   var bal=st.remaining!=null?Number(st.remaining||0):(info.minPay||0);
   var due=info.dueDate||'-';
   var rate=info.rate||cr.rate||0;
   var tone=cr.id.indexOf('kbank')===0||cr.id.indexOf('ttb')===0||cr.id==='gsb'?'green':cr.id.indexOf('aeon')===0||cr.id.indexOf('krungsri')===0?'amber':'';
   return '<div class="cr-line-card">'+
     '<div class="cr-line-main"><div class="cr-logo '+tone+'">'+esc(crInitials(cr.n))+'</div><div><div class="cr-line-name">'+esc(cr.n)+'</div><div class="cr-line-meta"><span>Due: '+esc(due)+'</span><span>Rate: '+esc(rate)+'%</span></div></div></div>'+
+    '<div class="cr-pay-state '+(isPaid?'paid':'warn')+'"><span class="material-symbols-outlined">'+(isPaid?'check_circle':'warning')+'</span><em>'+(isPaid?'Paid':'Due')+'</em></div>'+
     '<div class="cr-line-balance"><div class="cr-line-amt '+(!isPaid&&bal>0?'due':'')+'">฿ '+fmt(bal)+'</div><div class="cr-line-label">Current Balance</div></div>'+
     '<div class="cr-line-actions"><button class="edit" onclick="openInfo(\''+cr.id+'\')">Edit Info</button><button class="pay" onclick="openPay(\''+cr.id+'\')" '+(bal<=0&&isPaid?'disabled':'')+'>Pay Bill</button></div>'+
     '</div>';
@@ -1350,6 +1394,7 @@ function renderDebtOverview(){
   var w=document.getElementById('debt-overview-card'); if(!w) return;
   if(crf==='plan'){ w.innerHTML=''; return; }
   var mo=thisMo(),totLimit=0,totUsed=0,totPaid=0,totUnpaid=0,paidCount=0,crCount=0;
+  var monthPaid=(S.credits||[]).filter(function(c){ return c.date&&c.date.slice(0,7)===mo; }).reduce(function(s,c){ return s+Number(c.amount||0); },0);
   getMyCredits().filter(function(c){ return c.t==='revolving'; }).forEach(function(cr){
     var st=S.crStatus[cr.id]||{},info=S.crInfo[cr.id]||{};
     var isPaid=st.paid&&(st.date||'').slice(0,7)===mo;
@@ -1360,7 +1405,8 @@ function renderDebtOverview(){
   });
   var pct=totLimit>0?Math.min(100,Math.max(0,Math.round(totUsed/totLimit*100))):0;
   var avail=Math.max(0,totLimit-totUsed),availPct=totLimit>0?Math.max(0,Math.round(avail/totLimit*100)):0;
-  w.innerHTML='<div class="cr-kpi-grid">'+
+  w.innerHTML='<div class="cr-paid-summary"><div><span class="material-symbols-outlined">verified</span><p>ยอดสินเชื่อที่ชำระเดือนนี้</p></div><strong>฿ '+fmt(monthPaid)+'</strong><small>'+thaiMo(mo)+'</small></div>'+
+    '<div class="cr-kpi-grid">'+
     '<div class="cr-kpi-card"><div class="cr-kpi-label">Total Approved Limit</div><div class="cr-kpi-val">฿ '+fmt(totLimit)+'</div><div class="cr-kpi-note"><span class="material-symbols-outlined">trending_up</span>'+paidCount+'/'+crCount+' paid this month</div></div>'+
     '<div class="cr-kpi-card cr-gauge-card"><div class="cr-kpi-label">Utilization Rate</div><div class="cr-gauge" style="--pct:'+pct+'%"><strong>'+pct+'%</strong></div><div class="cr-gauge-sub">'+(pct<=40?'Healthy Status':pct<=70?'Watch Status':'High Usage')+'</div></div>'+
     '<div class="cr-kpi-card"><div class="cr-kpi-label">Available Credit</div><div class="cr-kpi-val green">฿ '+fmt(avail)+'</div><div class="cr-kpi-progress"><span style="width:'+availPct+'%"></span></div><div class="cr-kpi-sub" style="text-align:right;margin-top:8px;color:#c9c4d7;font-family:var(--font-label);font-size:12px;font-weight:800">'+availPct+'% Available</div></div>'+
@@ -1392,6 +1438,7 @@ async function submitCredit(){
   if(!validateTxnInput({date:dt,credit_name:cr&&cr.n,amount:amt})) return;
   var baseAt=new Date().toISOString();
   S.crStatus[activeCrId]={paid:true,amount:amt,baseRemaining:rem,baseAt:baseAt,matchedUsed:0,remaining:rem,date:dt};
+  S.credits.unshift({id:makeRowId(),date:dt,credit_name:cr.n,type:cr.t,amount:amt,remaining:rem,status:'จ่ายแล้ว',user_id:S.user&&S.user.id||'',createdAt:baseAt});
   recomputeMatchedCreditBalances();
   sv(); closeD('pay-drawer'); renderCR(); renderDash();
   showSuccessModal('฿ '+fmt2(amt),[
@@ -2218,7 +2265,7 @@ function renderV4Settings(){
   var avatar=document.querySelector('.set-avatar');
   if(avatar){
     if(S.avatarData) avatar.innerHTML='<img alt="Profile" src="'+S.avatarData+'">';
-    else avatar.textContent=memberInitials(profileName);
+    else avatar.textContent=profileName;
   }
   var sub=document.getElementById('set-subscription');
   if(sub) sub.innerHTML='<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'+subscriptionBadge()+'</div><div>สถานะ: '+(S.hasAccess?'ใช้งานได้':'ถูกล็อก')+'</div><div>Trial หมดอายุ: '+(S.profile&&S.profile.trial_end?new Date(S.profile.trial_end).toLocaleDateString('th-TH'):'-')+'</div>';
