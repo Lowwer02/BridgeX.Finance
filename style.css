@@ -540,7 +540,7 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
 .cr-logo.green{color:#4edea3}.cr-logo.amber{color:#ffb95f}
 .cr-line-name{font-family:var(--font-label);font-size:16px;font-weight:800;color:#e5e0ed;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cr-line-meta{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;font-weight:700;color:#c9c4d7;margin-top:4px}
-.cr-pay-state{display:flex;align-items:center;gap:7px;border-radius:999px;padding:8px 11px;font-family:var(--font-label);font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.04em}.cr-pay-state .material-symbols-outlined{font-size:18px}.cr-pay-state.paid{background:rgba(16,185,129,.13);color:#4edea3;border:1px solid rgba(78,222,163,.24)}.cr-pay-state.warn{background:rgba(255,185,95,.12);color:#ffb95f;border:1px solid rgba(255,185,95,.25)}
+.cr-pay-state{display:inline-flex;align-items:center;justify-content:center;gap:6px;max-width:max-content;white-space:nowrap;border-radius:999px;padding:6px 10px;font-family:var(--font-label);font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;justify-self:end}.cr-pay-state .material-symbols-outlined{font-size:17px}.cr-pay-state em{font-style:normal}.cr-pay-state.paid{background:var(--gbg);color:var(--gl);border:1px solid rgba(78,222,163,.24)}.cr-pay-state.warn{background:var(--abg);color:#ffb95f;border:1px solid rgba(255,185,95,.25)}
 .cr-line-balance{text-align:right}
 .cr-line-amt{font-family:var(--font-headline);font-size:28px;font-weight:800;color:#e5e0ed;white-space:nowrap}
 .cr-line-amt.due{color:#ffb4ab}
@@ -686,9 +686,14 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
   .dash-panel-head h2{font-size:28px}
   .dash-table-wrap{width:100%;max-width:100%;overflow-x:auto}
   .cr-page-head h1{font-size:36px}
+  .cr-shell,.cr-lines-panel,#debt-overview-card,#cr-list{width:100%;max-width:100%;min-width:0;box-sizing:border-box}
+  .cr-paid-summary{width:100%;max-width:100%;min-width:0;box-sizing:border-box;align-items:flex-start;flex-direction:column;justify-content:flex-start;gap:12px;padding:18px;white-space:normal;word-break:normal;overflow-wrap:break-word}
+  .cr-paid-summary div{width:100%;min-width:0;align-items:center}.cr-paid-summary p{white-space:normal;word-break:normal;overflow-wrap:break-word;line-height:1.35;letter-spacing:.04em}.cr-paid-summary strong{font-size:clamp(22px,7vw,32px);line-height:1.12;white-space:normal;max-width:100%;overflow-wrap:break-word}.cr-paid-summary small{white-space:normal}
   .cr-kpi-grid{grid-template-columns:1fr}
   .cr-detail-grid{grid-template-columns:1fr}
-  .cr-line-card{grid-template-columns:1fr}
+  .cr-line-card{grid-template-columns:1fr;width:100%;max-width:100%;min-width:0;box-sizing:border-box}
+  .cr-line-main{width:100%;min-width:0}.cr-line-name{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cr-pay-state{justify-self:start;align-self:flex-start}
   .cr-line-balance{text-align:left}
   .cr-line-actions{width:100%}
   .cr-line-actions button{flex:1}
@@ -789,6 +794,15 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
   #pg-hist{padding:20px 16px 48px;box-sizing:border-box}
   #pg-dash{width:100%;max-width:100%;margin-left:0;padding:22px 16px 52px;box-sizing:border-box;overflow-x:hidden}
   #pg-cr{padding:24px 16px 48px;box-sizing:border-box}
+  .cr-paid-summary{padding:16px;gap:10px;border-radius:12px}
+  .cr-paid-summary .material-symbols-outlined{width:36px;height:36px;font-size:20px;flex:0 0 36px}
+  .cr-paid-summary p{font-size:12px;text-transform:none;letter-spacing:0}
+  .cr-paid-summary strong{font-size:clamp(22px,7vw,32px)}
+  .cr-line-card{display:flex;flex-direction:column;align-items:stretch;gap:12px;padding:16px;width:100%;max-width:100%;min-width:0;box-sizing:border-box}
+  .cr-line-main{display:grid;grid-template-columns:52px minmax(0,1fr);gap:12px;align-items:center}
+  .cr-pay-state{padding:6px 10px;font-size:10px;align-self:flex-start;max-width:max-content}
+  .cr-pay-state .material-symbols-outlined{font-size:16px}
+  .cr-line-actions{flex-wrap:wrap}
   #pg-debt-planner{padding:20px 16px 48px;box-sizing:border-box}
   .debtp-hero,.debtp-impact,.debtp-controls-panel,.debtp-list-head{padding:16px}
   .debtp-hero h1{font-size:28px}
