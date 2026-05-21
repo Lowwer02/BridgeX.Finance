@@ -1008,6 +1008,7 @@ async function submitExp(){
     {icon:'account_balance_wallet',label:'ช่องทางจ่ายเงิน',value:ex.payment},
     {icon:'notes',label:'Note',value:ex.detail}
   ]);
+  checkBudgetWarning(ex);
   // Save to Supabase
   saveToSupabase('expenses',{id:rowId,date:ex.date,detail:ex.detail,category:ex.category,payment:ex.payment,amount:ex.amount,paid_by:ex.paidBy,created_at:ex.createdAt});
 }
@@ -1792,18 +1793,39 @@ function renderDashCategoryChart(filteredExpenses){
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#c9c4d7',boxWidth:10,font:{family:'Inter'}}}},cutout:'64%'}
   });
 }
+function categoryIdFromLabel(label){
+  var found=(S.cats||DEF_CATS).find(function(c){ return c.id===label||c.l===label; });
+  return found?found.id:String(label||'other');
+}
+function categoryLabelFromId(id){
+  var found=(S.cats||DEF_CATS).find(function(c){ return c.id===id; });
+  return found?found.l:String(id||'อื่นๆ');
+}
 function budgetProgressHtml(filteredExpenses){
-  var budgets=(S.profile&&S.profile.budgets)||{};
+  var budgets=(S.profile&&S.profile.monthly_budgets)||{};
   var mo=thisMo(), monthItems=filteredExpenses.filter(function(e){ return e.date&&e.date.slice(0,7)===mo; });
   var totals={};
-  monthItems.forEach(function(e){ var k=e.category||'อื่นๆ'; totals[k]=(totals[k]||0)+Number(e.amount||0); });
+  monthItems.forEach(function(e){ var k=e.catId||categoryIdFromLabel(e.category); totals[k]=(totals[k]||0)+Number(e.amount||0); });
   var cats=Object.keys(budgets).filter(function(k){ return Number(budgets[k]||0)>0; });
   if(!cats.length) return '<div class="budget-empty">ยังไม่ได้ตั้งค่างบประมาณรายเดือน</div>';
   return cats.map(function(k){
     var budget=Number(budgets[k]||0), used=Number(totals[k]||0), pct=budget?Math.round(used/budget*100):0;
     var tone=pct>=100?'danger':pct>=80?'warn':'ok';
-    return '<div class="budget-row '+tone+'"><div><strong>'+esc(k)+'</strong><span>฿ '+fmt(used)+' / ฿ '+fmt(budget)+'</span></div><div class="budget-track"><i style="width:'+Math.min(100,pct)+'%"></i></div><em>'+pct+'%</em></div>';
+    return '<div class="budget-row '+tone+'"><div><strong>'+esc(categoryLabelFromId(k))+'</strong><span>'+fmt(used)+' / '+fmt(budget)+' ฿</span></div><div class="budget-track"><i style="width:'+Math.min(100,pct)+'%"></i></div><em>'+pct+'%</em></div>';
   }).join('');
+}
+function checkBudgetWarning(ex){
+  var budgets=(S.profile&&S.profile.monthly_budgets)||{};
+  var catId=ex.catId||categoryIdFromLabel(ex.category);
+  var budget=Number(budgets[catId]||0);
+  if(!budget) return;
+  var mo=(ex.date||'').slice(0,7);
+  var used=S.expenses.filter(function(e){
+    return e.date&&e.date.slice(0,7)===mo&&(e.catId||categoryIdFromLabel(e.category))===catId;
+  }).reduce(function(s,e){ return s+Number(e.amount||0); },0);
+  var pct=Math.round(used/budget*100);
+  if(pct>=100) toast('ใช้งบ '+categoryLabelFromId(catId)+' เกินแล้ว ('+pct+'%)','err');
+  else if(pct>=80) toast('ใช้งบ '+categoryLabelFromId(catId)+' ถึง '+pct+'% แล้ว','info');
 }
 function renderDash(){
   var w=document.getElementById('dash'); w.innerHTML='';
@@ -1889,9 +1911,10 @@ function renderDash(){
     '<section class="dash-kpi"><span>Total Debt</span><strong>฿ '+fmt(debtTotal)+'</strong><div class="dash-mini-track"><i style="width:'+debtPct+'%"></i></div><small>ใช้วงเงิน '+debtPct+'%</small></section>'+
     '<section class="dash-kpi"><span>Projected Interest Savings</span><strong class="green">฿ '+fmt(projectedSave)+'</strong><small class="pos"><span class="material-symbols-outlined">auto_awesome</span> ด้วยแผนชำระเร่งด่วน</small></section>'+
     '<section class="dash-panel chart"><div class="dash-panel-head"><h2>สุขภาพทางการเงินของคุณ</h2><button type="button" onclick="goTab(\'hist\',document.querySelector(\'.tbtn[onclick*=hist]\'))">ดูรายละเอียด</button></div><div class="dash-chart">'+chartHtml+'</div><div class="dash-legend"><span><i class="income"></i>รายได้</span><span><i class="expense"></i>รายจ่าย</span></div></section>'+
-    '<section class="dash-panel category"><div class="dash-panel-head"><h2>Expenses by Category</h2><span>งบประมาณรายเดือน</span></div><div class="dash-doughnut-wrap"><canvas id="dash-category-chart"></canvas></div><div class="budget-progress">'+budgetProgressHtml(items)+'</div></section>'+
+    '<section class="dash-panel category"><div class="dash-panel-head"><h2>Expenses by Category</h2><span>หมวดหมู่รายจ่าย</span></div><div class="dash-doughnut-wrap"><canvas id="dash-category-chart"></canvas></div></section>'+
     '<section class="dash-panel calendar"><div class="dash-panel-head"><h2>ปฏิทินรายจ่ายรายวัน</h2><span>'+thaiMo(calMo)+'</span></div><div class="dash-cal-dow"><span>อา</span><span>จ</span><span>อ</span><span>พ</span><span>พฤ</span><span>ศ</span><span>ส</span></div><div class="dash-cal-grid">'+calHtml+'</div><div class="dash-cal-legend"><span>น้อย</span><i class="l0"></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i><span>มาก</span></div></section>'+
     '<section class="dash-panel history"><div class="dash-panel-head"><h2>Quick History</h2><button type="button" onclick="goTab(\'hist\',document.querySelector(\'.tbtn[onclick*=hist]\'))">ดูทั้งหมด <span class="material-symbols-outlined">arrow_forward</span></button></div><div class="dash-table-wrap"><table class="dash-table"><thead><tr><th>รายการ</th><th>หมวดหมู่</th><th>ผู้ทำรายการ</th><th>จำนวนเงิน</th></tr></thead><tbody>'+recentHtml+'</tbody></table></div></section>'+
+    '<section class="dash-panel budget"><div class="dash-panel-head"><h2>Budget Progress</h2><span>งบประมาณเดือนนี้</span></div><div class="budget-progress">'+budgetProgressHtml(items)+'</div></section>'+
   '</div>';
   renderDashCategoryChart(items);
   return;
@@ -2160,10 +2183,10 @@ function copyFamilyId(){
 }
 function renderBudgetSettings(){
   var w=document.getElementById('budget-settings'); if(!w) return;
-  var budgets=(S.profile&&S.profile.budgets)||{};
-  var cats=S.cats.slice(0,8);
+  var budgets=(S.profile&&S.profile.monthly_budgets)||{};
+  var cats=(S.cats&&S.cats.length?S.cats:DEF_CATS);
   w.innerHTML=cats.map(function(c){
-    return '<label class="budget-input-row"><span>'+esc(c.l)+'</span><input type="number" min="0" step="1" data-budget-cat="'+esc(c.l)+'" value="'+(Number(budgets[c.l]||0)||'')+'" placeholder="0"></label>';
+    return '<label class="budget-input-row"><span>'+esc(c.l)+'</span><input type="number" min="0" step="1" data-budget-cat="'+esc(c.id)+'" value="'+(Number(budgets[c.id]||0)||'')+'" placeholder="0"></label>';
   }).join('');
 }
 async function saveBudgets(){
@@ -2173,9 +2196,9 @@ async function saveBudgets(){
     var v=Number(inp.value||0);
     if(v>0) budgets[inp.dataset.budgetCat]=v;
   });
-  S.profile.budgets=budgets;
+  S.profile.monthly_budgets=budgets;
   try{
-    var res=await sb.from('profiles').update({budgets:budgets,updated_at:new Date().toISOString()}).eq('id',S.user.id);
+    var res=await sb.from('profiles').update({monthly_budgets:budgets,updated_at:new Date().toISOString()}).eq('id',S.user.id);
     if(res.error) throw res.error;
     toast('บันทึกงบประมาณแล้ว','ok');
     renderDash();
