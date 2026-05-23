@@ -1090,6 +1090,81 @@ function resetExpenseForm(){
   applyCurrentProfileToPayers();
 }
 
+function parseEMVAmount(qrText){
+  qrText=String(qrText||'');
+  var m=qrText.match(/5403(\d+\.?\d*)/);
+  if(m&&m[1]){
+    var a=parseFloat(m[1]);
+    return Number.isFinite(a)?a:null;
+  }
+  m=qrText.match(/54(\d{2})(\d[\d.]*)/);
+  if(m&&m[1]&&m[2]){
+    var len=parseInt(m[1],10);
+    var raw=m[2].slice(0,len);
+    var amt=parseFloat(raw);
+    return Number.isFinite(amt)?amt:null;
+  }
+  return null;
+}
+
+async function scanSlipImage(file){
+  var status=document.getElementById('slip-status');
+  var input=document.getElementById('slip-upload');
+  try{
+    var bmp=await createImageBitmap(file);
+    var canvas=typeof OffscreenCanvas!=='undefined'?new OffscreenCanvas(bmp.width,bmp.height):document.createElement('canvas');
+    canvas.width=bmp.width;
+    canvas.height=bmp.height;
+    var ctx=canvas.getContext('2d');
+    ctx.drawImage(bmp,0,0);
+    var imageData=ctx.getImageData(0,0,canvas.width,canvas.height);
+    if(typeof jsQR==='function'){
+      var result=jsQR(imageData.data,imageData.width,imageData.height);
+      if(result&&result.data){
+        var amount=parseEMVAmount(result.data);
+        if(amount!=null){
+          if(confirm('พบยอด ฿'+amount+' จาก QR ยืนยันหรือไม่?')){
+            document.getElementById('f-amt').value=amount;
+            toast('เติมยอด ฿'+amount+' แล้ว','ok');
+          }
+          return;
+        }
+      }
+    }
+    if(status) status.textContent='กำลัง OCR...';
+    var base64=await new Promise(function(resolve,reject){
+      var reader=new FileReader();
+      reader.onload=function(){
+        resolve(String(reader.result||'').replace(/^data:image\/[a-zA-Z0-9.+-]+;base64,/,''));
+      };
+      reader.onerror=function(){ reject(reader.error||new Error('อ่านไฟล์ไม่สำเร็จ')); };
+      reader.readAsDataURL(file);
+    });
+    const { data, error } = await sb.functions.invoke('scan-vision',{ body:{ image: base64 } });
+    if(error||!data||!data.success){
+      toast('ไม่พบยอดเงิน กรุณากรอกเอง','err');
+      return;
+    }
+    if(confirm('พบยอด ฿'+data.amount+' ยืนยันหรือไม่?')){
+      document.getElementById('f-amt').value=data.amount;
+      toast('เติมยอดสำเร็จ','ok');
+    }
+  }finally{
+    if(status) status.textContent='';
+    if(input) input.value='';
+  }
+}
+
+document.getElementById('slip-upload')
+  ?.addEventListener('change', function(e){
+    var f = e.target.files[0]; if(!f) return;
+    document.getElementById('slip-status').textContent = 'กำลังวิเคราะห์...';
+    setDot('spin','กำลังอ่านสลิป...');
+    scanSlipImage(f)
+      .catch(function(err){ toast('Error: '+err.message,'err'); })
+      .finally(function(){ setDot('ok','Synced'); });
+  });
+
 function renderAddSummary(){
   var totalEl=document.getElementById('add-sum-today'),bar=document.getElementById('add-sum-bar'),budget=document.getElementById('add-sum-budget'),list=document.getElementById('add-recent-list');
   if(!totalEl||!bar||!budget||!list) return;

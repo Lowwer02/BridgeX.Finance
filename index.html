@@ -11,6 +11,7 @@
 <!-- Supabase SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <link rel="stylesheet" href="style.css">
 </head>
 <body class="light">
@@ -166,6 +167,14 @@
       <div class="add-glass add-amount-card">
         <div class="amt-lbl">Amount</div>
         <div class="amt-row"><span class="amt-cur">฿ </span><input class="amt-inp" id="f-amt" type="number" placeholder="0.00" inputmode="decimal"></div>
+        <div class="slip-scan-row">
+          <input type="file" id="slip-upload" accept="image/*" hidden>
+          <button type="button" class="slip-btn" onclick="document.getElementById('slip-upload').click()">
+            <span class="material-symbols-outlined">document_scanner</span>
+            สแกนสลิป / ใบเสร็จ
+          </button>
+          <span class="slip-status" id="slip-status"></span>
+        </div>
         <div class="add-meta-row">
           <div class="fld inc-field add-date-field"><label>Date</label><input type="date" id="f-dt"></div>
           <div class="add-mode-toggle"><span class="on">Joint</span><span>Personal</span></div>
