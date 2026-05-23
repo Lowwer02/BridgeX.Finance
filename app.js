@@ -184,7 +184,11 @@ function validateTxnInput(row, opts){
 }
 function allCR(){ return BASE_CR.concat(S.customCr); }
 function getMyCredits(){
-  return allCR().filter(function(c){ return !!(S.crInfo&&S.crInfo[c.id]); });
+  return allCR().filter(function(c){
+    var info=S.crInfo&&S.crInfo[c.id];
+    if(!info||c._hidden) return false;
+    return getLinkedCreditId(c.id)===c.id;
+  });
 }
 function payIcon(label){
   if(label==='เงินสด') return 'payments';
@@ -219,11 +223,67 @@ function validCreatedTime(v){
   if(t>Date.now()+86400000) return 0;
   return t;
 }
+function profileIdByName(name){
+  name=String(name||'').trim();
+  if(!name) return '';
+  if(S.profile&&S.profile.full_name===name) return S.profile.id||S.user&&S.user.id||'';
+  var p=(S.familyMembers||[]).find(function(m){ return m&&m.full_name===name; });
+  return p&&p.id||'';
+}
+function creditNameById(crId){
+  var cr=allCR().find(function(c){ return c.id===crId; });
+  var info=S.crInfo&&S.crInfo[crId]||{};
+  return (info.creditName||info.credit_name||(cr&&cr.n)||'');
+}
+function getLinkedCreditId(crId){
+  var info=S.crInfo&&S.crInfo[crId]||{};
+  var cardType=info.cardType||info.card_type;
+  var linkedId=info.linkedCreditId||info.linked_credit_id;
+  if(cardType==='secondary'&&linkedId){
+    var linked=String(linkedId);
+    var primary=Object.keys(S.crInfo||{}).find(function(id){
+      var x=S.crInfo[id]||{};
+      return String(id)===linked||String(x.rowId||'')===linked;
+    });
+    return primary||linked;
+  }
+  return crId;
+}
+function getLinkedCreditIds(primaryId){
+  primaryId=getLinkedCreditId(primaryId);
+  var ids=[primaryId];
+  Object.keys(S.crInfo||{}).forEach(function(id){
+    if(id!==primaryId&&getLinkedCreditId(id)===primaryId) ids.push(id);
+  });
+  return ids;
+}
+function resolveCreditIdForExpense(payment,paidBy){
+  payment=String(payment||'');
+  var baseId=PAY2CR[payment]||PAY2CR[payment.replace(/^[^\s]+\s/,'')];
+  if(!baseId) return '';
+  var holderId=profileIdByName(paidBy);
+  var baseName=creditNameById(baseId)||payment;
+  var candidates=Object.keys(S.crInfo||{}).filter(function(id){
+    return id===baseId||creditNameById(id)===baseName;
+  });
+  if(holderId){
+    var owned=candidates.find(function(id){
+      return String((S.crInfo[id]||{}).cardHolderId||'')===String(holderId);
+    });
+    if(owned) return owned;
+  }
+  return baseId;
+}
 function creditExpenseUsage(crId,mo,baseAt){
-  var payLabels=Object.keys(PAY2CR).filter(function(k){ return PAY2CR[k]===crId; });
+  var primaryId=getLinkedCreditId(crId);
+  var linkedIds=getLinkedCreditIds(primaryId);
+  var linkedMap={};
+  linkedIds.forEach(function(id){ linkedMap[id]=1; });
   var baseTime=validCreatedTime(baseAt);
   return S.expenses.filter(function(e){
-    if(!e.date||e.date.slice(0,7)!==mo||payLabels.indexOf(e.payment)<0) return false;
+    if(!e.date||e.date.slice(0,7)!==mo) return false;
+    var expenseCrId=resolveCreditIdForExpense(e.payment,e.paidBy);
+    if(!expenseCrId||!linkedMap[expenseCrId]&&getLinkedCreditId(expenseCrId)!==primaryId) return false;
     if(!baseTime) return false;
     if(!e.createdAt) return false;
     return validCreatedTime(e.createdAt)>baseTime;
@@ -231,13 +291,13 @@ function creditExpenseUsage(crId,mo,baseAt){
 }
 function recomputeMatchedCreditBalances(){
   var mo=thisMo(),seen={};
-  Object.keys(PAY2CR).forEach(function(payLabel){
-    var crId=PAY2CR[payLabel];
+  Object.keys(S.crInfo||{}).concat(Object.keys(PAY2CR).map(function(k){ return PAY2CR[k]; })).forEach(function(crId){
+    crId=getLinkedCreditId(crId);
     if(seen[crId]) return; seen[crId]=1;
     var cr=allCR().find(function(c){ return c.id===crId; });
-    if(!cr||cr.t!=='revolving') return;
-    var st=S.crStatus[crId]||{paid:false,amount:0,remaining:null,date:''};
     var info=S.crInfo[crId]||{};
+    if(cr&&cr.t!=='revolving') return;
+    var st=S.crStatus[crId]||{paid:false,amount:0,remaining:null,date:''};
     var base = st.baseRemaining!=null ? st.baseRemaining : (st.remaining!=null ? st.remaining : (info.limit||0));
     if(!validCreatedTime(st.baseAt)) st.baseAt=mo+'-01T00:00:00.000Z';
     var used=creditExpenseUsage(crId,mo,st.baseAt);
@@ -769,12 +829,23 @@ async function loadFromSupabase(preloadedProfile){
       } else {
         found.t=r.type||found.t;
       }
-      if(!S.crInfo[found.id]||!S.crInfo[found.id].limit){
-        S.crInfo[found.id]={
+      var rowId=String(r.id||'');
+      var cardType=r.card_type||r.cardType||'primary';
+      var infoId=(cardType==='secondary'&&rowId)?rowId:found.id;
+      if(infoId!==found.id&&!allCR().some(function(c){ return c.id===infoId; })){
+        S.customCr.push({id:infoId,n:found.n,t:found.t,ico:found.ico,rate:found.rate,_hidden:cardType==='secondary'});
+      }
+      if(!S.crInfo[infoId]||!S.crInfo[infoId].limit){
+        S.crInfo[infoId]={
           limit:Number(r.credit_limit||r.limit||0), rate:Number(r.rate||found.rate||0),
           minPay:Number(r.min_pay||r.minPay||0),
           billCycle:r.bill_cycle||r.billCycle||'',
-          dueDate:r.due_date||r.dueDate||''
+          dueDate:r.due_date||r.dueDate||'',
+          creditName:r.credit_name||r.name||found.n,
+          rowId:rowId,
+          cardHolderId:r.card_holder_id||r.cardHolderId||'',
+          cardType:cardType,
+          linkedCreditId:r.linked_credit_id||r.linkedCreditId||''
         };
       }
     });
@@ -953,7 +1024,7 @@ function loadCreditOptions(){
     var cr=allCR().find(function(c){ return c.id===crId; });
     if(!cr||cr.t!=='revolving') return;
     if(!base.some(function(p){ return p.l===cr.n; })) base.push({id:'crpay_'+cr.id,l:cr.n});
-    PAY2CR[cr.n]=cr.id;
+    if(!cr._hidden) PAY2CR[cr.n]=cr.id;
   });
   S.pays=base;
   if(S.fc.pay && !S.pays.some(function(p){ return p.id===S.fc.pay; })) S.fc.pay='';
@@ -1045,12 +1116,14 @@ function renderAddSummary(){
 }
 
 function autoMatch(ex){
-  var crId=PAY2CR[ex.payment]||PAY2CR[ex.payment.replace(/^[^\s]+\s/,'')];
+  var crId=resolveCreditIdForExpense(ex.payment,ex.paidBy);
   if(!crId) return;
   if(!ex.date||ex.date.slice(0,7)!==thisMo()) return;
-  var st=S.crStatus[crId]||{paid:false,amount:0,remaining:0,date:''};
-  if(st.baseRemaining==null) st.baseRemaining = st.remaining||0;
-  if(!st.baseAt) st.baseAt = new Date().toISOString();
+  crId=getLinkedCreditId(crId);
+  var info=S.crInfo[crId]||{};
+  var st=S.crStatus[crId]||{paid:false,amount:0,remaining:null,date:''};
+  if(st.baseRemaining==null) st.baseRemaining = st.remaining!=null?st.remaining:(info.limit||0);
+  if(!st.baseAt) st.baseAt = thisMo()+'-01T00:00:00.000Z';
   st.matchedUsed = (st.matchedUsed||0)+ex.amount;
   st.remaining=Math.max(0,(parseFloat(st.baseRemaining)||0)-st.matchedUsed);
   S.crStatus[crId]=st;
@@ -1261,6 +1334,31 @@ function updateCreditProviderOptions(){
     : BASE_CR.filter(function(c){ return c.t==='revolving'; }).map(function(c){ return c.n; });
   providerEl.innerHTML=opts.map(function(n){ return '<option value="'+esc(n)+'">'+esc(n)+'</option>'; }).join('');
   if(opts.indexOf(cur)>=0) providerEl.value=cur;
+  populateLinkedPrimaryCreditOptions();
+  toggleLinkedPrimaryCredit();
+}
+function primaryCreditOptionsForSetup(){
+  return Object.keys(S.crInfo||{}).filter(function(id){
+    var info=S.crInfo[id]||{};
+    return getLinkedCreditId(id)===id&&(info.cardType||info.card_type||'primary')!=='secondary';
+  }).map(function(id){
+    var cr=allCR().find(function(c){ return c.id===id; })||{};
+    return {id:id,name:creditNameById(id)||(cr&&cr.n)||id};
+  });
+}
+function populateLinkedPrimaryCreditOptions(){
+  var el=document.getElementById('cs-linked-credit'); if(!el) return;
+  var cur=el.value;
+  var opts=primaryCreditOptionsForSetup();
+  el.innerHTML='<option value="">เลือก primary card</option>'+opts.map(function(o){ return '<option value="'+esc(o.id)+'">'+esc(o.name)+'</option>'; }).join('');
+  if(opts.some(function(o){ return o.id===cur; })) el.value=cur;
+}
+function toggleLinkedPrimaryCredit(){
+  var typeEl=document.getElementById('cs-card-type'), wrap=document.getElementById('cs-linked-wrap');
+  if(!typeEl||!wrap) return;
+  var isSecondary=typeEl.value==='secondary';
+  wrap.classList.toggle('on',isSecondary);
+  if(isSecondary) populateLinkedPrimaryCreditOptions();
 }
 function crInitials(name){
   name=String(name||'CR').replace(/[^\wก-๙+\/ ]/g,'').trim();
@@ -1337,6 +1435,7 @@ function openCreditSetupModal(type){
   var typeEl=document.getElementById('cs-type'), providerEl=document.getElementById('cs-provider');
   var limitEl=document.getElementById('cs-limit'), rateEl=document.getElementById('cs-rate'), minEl=document.getElementById('cs-min');
   var billEl=document.getElementById('cs-bill'), dueEl=document.getElementById('cs-due');
+  var cardTypeEl=document.getElementById('cs-card-type'), linkedEl=document.getElementById('cs-linked-credit');
   if(!modal||!typeEl||!providerEl||!limitEl||!rateEl||!minEl||!billEl||!dueEl){
     console.error('credit setup modal is missing required fields');
     return toast('ฟอร์มเพิ่มสินเชื่อโหลดไม่ครบ ลองรีเฟรชหน้าอีกครั้ง','err');
@@ -1344,6 +1443,9 @@ function openCreditSetupModal(type){
   typeEl.value=t;
   updateCreditProviderOptions();
   providerEl.value=providerEl.value||'KTC';
+  if(cardTypeEl) cardTypeEl.value='primary';
+  if(linkedEl) linkedEl.value='';
+  toggleLinkedPrimaryCredit();
   limitEl.value=''; rateEl.value=''; minEl.value=''; billEl.value=''; dueEl.value='';
   var title=modal.querySelector('.modal-title');
   if(title) title.textContent=t==='revolving'?'เพิ่มสินเชื่อหมุนเวียน':'เพิ่มสินเชื่อหลักประกัน';
@@ -1354,11 +1456,22 @@ async function saveFirstCredit(){
   try{
     var provider=document.getElementById('cs-provider').value;
     var type=document.getElementById('cs-type').value;
+    var cardType=(document.getElementById('cs-card-type')||{}).value||'primary';
+    var linkedCreditId=(document.getElementById('cs-linked-credit')||{}).value||'';
+    var cardHolderId=S.profile&&S.profile.id||S.user&&S.user.id||'';
     if(!provider) return toast('เลือกผู้ใช้บริการก่อน','err');
+    if(cardType==='secondary'&&!linkedCreditId) return toast('เลือก primary card ก่อน','err');
     var cr=allCR().find(function(c){ return c.n===provider; });
     if(!cr){
       cr={id:'cr_'+provider.toLowerCase().replace(/\W+/g,'_'),n:provider,t:type,ico:'CR',rate:0};
       S.customCr.push(cr);
+    }
+    if(cardType==='secondary'){
+      var localId='secondary_'+cr.id+'_'+(cardHolderId||Date.now());
+      if(!allCR().some(function(c){ return c.id===localId; })){
+        S.customCr.push({id:localId,n:cr.n,t:cr.t,ico:cr.ico,rate:cr.rate,_hidden:true});
+      }
+      cr=allCR().find(function(c){ return c.id===localId; })||cr;
     }
     cr.t=type;
     var info={
@@ -1366,13 +1479,17 @@ async function saveFirstCredit(){
       rate:parseFloat(document.getElementById('cs-rate').value)||0,
       minPay:parseFloat(document.getElementById('cs-min').value)||0,
       billCycle:document.getElementById('cs-bill').value,
-      dueDate:document.getElementById('cs-due').value
+      dueDate:document.getElementById('cs-due').value,
+      cardType:cardType,
+      cardHolderId:cardHolderId,
+      linkedCreditId:linkedCreditId
     };
     if(!info.limit) return toast('กรอกวงเงิน/ยอดหนี้ก่อน','err');
     S.crInfo[cr.id]=info;
     sv();
-    await saveToSupabase('credit_info',{credit_name:cr.n,type:cr.t,credit_limit:info.limit,rate:info.rate,min_pay:info.minPay,bill_cycle:info.billCycle,due_date:info.dueDate});
+    await saveToSupabase('credit_info',{credit_name:cr.n,type:cr.t,credit_limit:info.limit,rate:info.rate,min_pay:info.minPay,bill_cycle:info.billCycle,due_date:info.dueDate,card_type:cardType,card_holder_id:info.cardHolderId,linked_credit_id:linkedCreditId});
     closeD('credit-setup-modal');
+    await loadFromSupabase(S.profile);
     loadCreditOptions();
     renderCR();
     renderDash();

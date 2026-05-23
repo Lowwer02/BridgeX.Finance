@@ -579,6 +579,9 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
 .credit-setup-form .fld input,.credit-setup-form .fld select{height:58px;background:#201f27;border:1px solid #474554;border-radius:8px;color:#e5e0ed;font-family:var(--font-label);font-size:17px;font-weight:800;padding:0 18px}
 .credit-setup-form .fld input::placeholder{color:#928ea0}
 .credit-setup-form .fld input:focus,.credit-setup-form .fld select:focus{border-color:#c7bfff;box-shadow:0 0 0 3px rgba(199,191,255,.14)}
+.linked-credit-field{display:none}
+.linked-credit-field.on{display:block}
+.linked-credit-note{margin-top:9px;border:1px solid rgba(255,185,95,.22);background:rgba(245,158,11,.10);color:#ffb95f;border-radius:8px;padding:10px 12px;font-family:var(--font-label);font-size:12px;font-weight:800;line-height:1.45}
 .credit-setup-form .info-r{gap:18px}
 .credit-setup-save{height:50px;margin-top:14px;margin-bottom:0;background:#5638d6;color:#c4bbff;border-radius:8px;box-shadow:none;font-family:var(--font-label);font-size:15px;font-weight:900}
 .credit-setup-save:hover{background:#6040e2}
