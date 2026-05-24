@@ -960,54 +960,76 @@ function mkChips(arr,selId,wrapId,onPick){
     b.textContent=c.l; b.onclick=function(){ onPick(c.id); }; w.appendChild(b);
   });
 }
+var addCatIconMap={food:'restaurant',drink:'local_cafe',snack:'bakery_dining',cat:'pets',shop:'shopping_bag',act:'sports_esports',trans:'directions_car',place:'home',inv:'trending_up',health:'medical_services',bill:'receipt_long',edu:'school',donate:'volunteer_activism',travel:'flight',fam:'family_restroom',other:'more_horiz'};
+function cleanAddLabel(v){ return String(v||'').replace(/^[^\wก-๙]+/,'').trim()||v; }
+function addPayIcon(id){
+  id=String(id||'');
+  return id==='cash'?'payments':id==='xfer'?'account_balance':id.indexOf('crpay_')===0?'credit_card':'account_balance_wallet';
+}
 function renderCats(){
   var w=document.getElementById('cat-chips');
-  var sel=document.getElementById('mobile-cat-select');
-  if(sel){
-    sel.innerHTML='';
-    S.cats.forEach(function(c){
-      var o=document.createElement('option');
-      o.value=c.id;
-      o.textContent=String(c.l||'').replace(/^[^\wก-๙]+/,'').trim()||c.l;
-      sel.appendChild(o);
-    });
-    sel.value=S.fc.cat||'';
-    sel.onchange=function(){ S.fc.cat=this.value; renderCats(); };
-  }
+  renderMobilePickers();
   if(!w) return; w.innerHTML='';
-  var iconMap={food:'restaurant',drink:'local_cafe',snack:'bakery_dining',cat:'pets',shop:'shopping_bag',act:'sports_esports',trans:'directions_car',place:'home',inv:'trending_up',health:'medical_services',bill:'receipt_long',edu:'school',donate:'volunteer_activism',travel:'flight',fam:'family_restroom',other:'more_horiz'};
   S.cats.forEach(function(c){
     var b=document.createElement('button');
     b.className='chip'+(S.fc.cat===c.id?' on':'');
-    b.dataset.icon=iconMap[c.id]||'•';
-    b.textContent=String(c.l||'').replace(/^[^\wก-๙]+/,'').trim()||c.l;
+    b.dataset.icon=addCatIconMap[c.id]||'more_horiz';
+    b.textContent=cleanAddLabel(c.l);
     b.onclick=function(){ S.fc.cat=c.id; renderCats(); };
     w.appendChild(b);
   });
 }
 function renderPays(){
   var w=document.getElementById('pay-chips');
-  var sel=document.getElementById('mobile-pay-select');
-  if(sel){
-    sel.innerHTML='';
-    S.pays.forEach(function(p){
-      var o=document.createElement('option');
-      o.value=p.id;
-      o.textContent=p.l;
-      sel.appendChild(o);
-    });
-    sel.value=S.fc.pay||'';
-    sel.onchange=function(){ S.fc.pay=this.value; renderPays(); };
-  }
+  renderMobilePickers();
   if(!w) return; w.innerHTML='';
   S.pays.forEach(function(p){
     var b=document.createElement('button'); b.className='chip'+(S.fc.pay===p.id?' on':'');
-    var icon=p.id==='cash'?'payments':p.id==='xfer'?'account_balance':p.id.indexOf('crpay_')===0?'credit_card':'account_balance_wallet';
-    b.dataset.icon=icon;
+    b.dataset.icon=addPayIcon(p.id);
     b.textContent=p.l;
     b.onclick=function(){ S.fc.pay=p.id; renderPays(); };
     w.appendChild(b);
   });
+}
+function renderMobilePickers(){
+  var cat=S.cats.find(function(c){ return c.id===S.fc.cat; });
+  var pay=S.pays.find(function(p){ return p.id===S.fc.pay; });
+  var catLabel=document.getElementById('mobile-cat-label');
+  var payLabel=document.getElementById('mobile-pay-label');
+  if(catLabel) catLabel.textContent=cat?cleanAddLabel(cat.l):'เลือกหมวดหมู่';
+  if(payLabel) payLabel.textContent=pay?pay.l:'เลือกช่องทางชำระเงิน';
+}
+function openMobilePicker(type){
+  var modal=document.getElementById('mobile-picker-modal'), title=document.getElementById('mobile-picker-title'), list=document.getElementById('mobile-picker-list');
+  if(!modal||!title||!list) return;
+  var arr=type==='cat'?S.cats:S.pays;
+  title.textContent=type==='cat'?'เลือกหมวดหมู่':'เลือกช่องทางชำระเงิน';
+  list.innerHTML='';
+  arr.forEach(function(item){
+    var selected=type==='cat'?S.fc.cat===item.id:S.fc.pay===item.id;
+    var btn=document.createElement('button');
+    btn.type='button';
+    btn.className='mobile-picker-item'+(selected?' on':'');
+    btn.onclick=function(){ selectMobilePickerItem(type,item.id); };
+    btn.innerHTML='<span class="mobile-picker-icon material-symbols-outlined">'+(type==='cat'?(addCatIconMap[item.id]||'more_horiz'):addPayIcon(item.id))+'</span><strong>'+esc(type==='cat'?cleanAddLabel(item.l):item.l)+'</strong>';
+    list.appendChild(btn);
+  });
+  modal.dataset.type=type;
+  modal.classList.remove('hidden');
+  requestAnimationFrame(function(){ modal.classList.add('on'); });
+}
+function closeMobilePicker(){
+  var modal=document.getElementById('mobile-picker-modal');
+  if(!modal) return;
+  modal.classList.remove('on');
+  setTimeout(function(){ modal.classList.add('hidden'); },220);
+}
+function mobilePickerBg(e){
+  if(e&&e.target&&e.target.id==='mobile-picker-modal') closeMobilePicker();
+}
+function selectMobilePickerItem(type,id){
+  if(type==='cat'){ S.fc.cat=id; closeMobilePicker(); renderCats(); }
+  else { S.fc.pay=id; closeMobilePicker(); renderPays(); }
 }
 function renderIncc(){
   var w=document.getElementById('incc-chips'); if(!w) return; w.innerHTML='';
@@ -1215,15 +1237,9 @@ function fillScannedData(data,source){
   var hasAmount=data.amount!=null;
   var hasDate=!!data.date;
   if(!hasAmount&&!hasDate) return false;
-  var msg='พบ';
-  if(hasAmount) msg+='ยอด ฿'+data.amount;
-  if(hasDate) msg+=(hasAmount?' และ':'')+'วันที่ '+data.date;
-  msg+=' จาก '+(source||'สลิป')+' ยืนยันหรือไม่?';
-  if(confirm(msg)){
-    if(hasAmount) document.getElementById('f-amt').value=data.amount;
-    if(hasDate) document.getElementById('f-dt').value=data.date;
-    toast('เติมข้อมูลสำเร็จ','ok');
-  }
+  if(hasAmount) document.getElementById('f-amt').value=data.amount;
+  if(hasDate) document.getElementById('f-dt').value=data.date;
+  toast('เติมข้อมูลจากสลิปแล้ว','ok');
   return true;
 }
 function fileToBase64(file){
@@ -1276,7 +1292,7 @@ async function scanSlipImage(file){
           detectedDate=qrDate;
           document.getElementById('f-dt').value=qrDate;
         }
-        if(qrAmount!=null){
+        if(qrAmount!=null||qrDate){
           slipScanCache[key]={amount:qrAmount,date:qrDate};
           fillScannedData(slipScanCache[key],'QR');
           return;
@@ -1293,7 +1309,7 @@ async function scanSlipImage(file){
     console.log('[Slip] Tesseract amount',localData&&localData.amount);
     console.log('[Slip] Tesseract date',localData&&localData.date);
     if(localData&&localData.date) detectedDate=localData.date;
-    if(localData&&localData.amount!=null){
+    if(localData&&(localData.amount!=null||localData.date)){
       if(status) status.textContent='กำลังเติมข้อมูล...';
       slipScanCache[key]={amount:localData.amount,date:detectedDate};
       fillScannedData(slipScanCache[key],'OCR');
@@ -2317,11 +2333,11 @@ function renderDash(){
     '<section class="dash-kpi main"><div><span>Monthly Net Balance</span><strong>฿ '+fmt2(net)+'</strong><small class="'+(net>=0?'pos':'neg')+'"><span class="material-symbols-outlined">trending_up</span> รายรับ ฿ '+fmt(incMo)+' · รายจ่าย ฿ '+fmt(tot)+'</small></div></section>'+
     '<section class="dash-kpi"><span>Total Debt</span><strong>฿ '+fmt(debtTotal)+'</strong><div class="dash-mini-track"><i style="width:'+debtPct+'%"></i></div><small>ใช้วงเงิน '+debtPct+'%</small></section>'+
     '<section class="dash-kpi"><span>Projected Interest Savings</span><strong class="green">฿ '+fmt(projectedSave)+'</strong><small class="pos"><span class="material-symbols-outlined">auto_awesome</span> ด้วยแผนชำระเร่งด่วน</small></section>'+
+    '<section class="dash-panel budget"><div class="dash-panel-head"><h2>Budget Progress</h2><span>งบประมาณเดือนนี้</span></div><div class="budget-progress">'+budgetProgressHtml(items)+'</div></section>'+
     '<section class="dash-panel chart"><div class="dash-panel-head"><h2>สุขภาพทางการเงินของคุณ</h2><button type="button" onclick="goTab(\'hist\',document.querySelector(\'.tbtn[onclick*=hist]\'))">ดูรายละเอียด</button></div><div class="dash-chart">'+chartHtml+'</div><div class="dash-legend"><span><i class="income"></i>รายได้</span><span><i class="expense"></i>รายจ่าย</span></div></section>'+
     '<section class="dash-panel category"><div class="dash-panel-head"><h2>Expenses by Category</h2><span>หมวดหมู่รายจ่าย</span></div><div class="dash-doughnut-wrap"><canvas id="dash-category-chart"></canvas></div></section>'+
     '<section class="dash-panel calendar"><div class="dash-panel-head"><h2>ปฏิทินรายจ่ายรายวัน</h2><span>'+thaiMo(calMo)+'</span></div><div class="dash-cal-dow"><span>อา</span><span>จ</span><span>อ</span><span>พ</span><span>พฤ</span><span>ศ</span><span>ส</span></div><div class="dash-cal-grid">'+calHtml+'</div><div class="dash-cal-legend"><span>น้อย</span><i class="l0"></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i><span>มาก</span></div></section>'+
     '<section class="dash-panel history"><div class="dash-panel-head"><h2>Quick History</h2><button type="button" onclick="goTab(\'hist\',document.querySelector(\'.tbtn[onclick*=hist]\'))">ดูทั้งหมด <span class="material-symbols-outlined">arrow_forward</span></button></div><div class="dash-table-wrap"><table class="dash-table"><thead><tr><th>รายการ</th><th>หมวดหมู่</th><th>ผู้ทำรายการ</th><th>จำนวนเงิน</th></tr></thead><tbody>'+recentHtml+'</tbody></table></div></section>'+
-    '<section class="dash-panel budget"><div class="dash-panel-head"><h2>Budget Progress</h2><span>งบประมาณเดือนนี้</span></div><div class="budget-progress">'+budgetProgressHtml(items)+'</div></section>'+
   '</div>';
   renderDashCategoryChart(items);
   return;

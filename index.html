@@ -185,12 +185,20 @@
         <div class="add-glass add-panel">
           <div class="add-panel-title">Category</div>
           <div class="chips" id="cat-chips"></div>
-          <div class="mobile-select-wrap"><select id="mobile-cat-select" aria-label="Category"></select></div>
+          <button class="mobile-picker-trigger" id="mobile-cat-trigger" type="button" onclick="openMobilePicker('cat')">
+            <span class="material-symbols-outlined">grid_view</span>
+            <strong>เลือกหมวดหมู่</strong>
+            <em id="mobile-cat-label">เลือกหมวดหมู่</em>
+          </button>
         </div>
         <div class="add-glass add-panel">
           <div class="add-panel-title">Payment Method</div>
           <div class="chips" id="pay-chips"></div>
-          <div class="mobile-select-wrap"><select id="mobile-pay-select" aria-label="Payment Method"></select></div>
+          <button class="mobile-picker-trigger" id="mobile-pay-trigger" type="button" onclick="openMobilePicker('pay')">
+            <span class="material-symbols-outlined">account_balance_wallet</span>
+            <strong>เลือกช่องทางชำระเงิน</strong>
+            <em id="mobile-pay-label">เลือกช่องทางชำระเงิน</em>
+          </button>
           <div class="fld add-note-field"><label>Note</label><textarea id="f-det" placeholder="เช่น ข้าวมันไก่, ค่า Grab"></textarea></div>
         </div>
       </div>
@@ -508,6 +516,16 @@
       </div>
     </section>
     <div class="set-version">App Version 4.1.2 • DB: Supabase • Hosted on Vercel</div>
+  </div>
+</div>
+
+<div class="mobile-picker-modal hidden" id="mobile-picker-modal" onclick="mobilePickerBg(event)">
+  <div class="mobile-picker-sheet">
+    <div class="mobile-picker-head">
+      <h2 id="mobile-picker-title">เลือก</h2>
+      <button id="mobile-picker-close" type="button" onclick="closeMobilePicker()"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="mobile-picker-list" id="mobile-picker-list"></div>
   </div>
 </div>
 
