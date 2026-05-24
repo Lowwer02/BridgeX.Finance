@@ -1111,11 +1111,13 @@ var slipScanCache={};
 function slipFileKey(file){
   return [file&&file.name||'',file&&file.size||0,file&&file.lastModified||0].join('|');
 }
-function parseSlipTextAmount(text){
-  text=String(text||'').replace(/\s+/g,' ');
+function parseAmountFromText(text){
+  var thaiDigits={'๐':'0','๑':'1','๒':'2','๓':'3','๔':'4','๕':'5','๖':'6','๗':'7','๘':'8','๙':'9'};
+  text=String(text||'').replace(/[๐-๙]/g,function(d){ return thaiDigits[d]||d; }).replace(/\s+/g,' ');
   var patterns=[
-    /(?:จำนวนเงิน|ยอดสุทธิ|ยอดรวม|รวมทั้งสิ้น)[^\d]*(\d[\d,]*\.?\d{0,2})/i,
-    /(?:total|net amount|amount due)[^\d]*(\d[\d,]*\.?\d{0,2})/i,
+    /(?:จำนวนเงิน|จํานวนเงิน|ยอดเงิน|ยอดโอน|ยอดสุทธิ|ยอดรวม|รวมทั้งสิ้น)[^\d]*(\d[\d,]*\.?\d{0,2})/i,
+    /(?:total|net amount|amount due|amount)[^\d]*(\d[\d,]*\.?\d{0,2})/i,
+    /(?:฿|THB|บาท)[^\d]*(\d[\d,]*\.?\d{0,2})/i,
     /(\d{1,6}\.\d{2})/
   ];
   for(var i=0;i<patterns.length;i++){
@@ -1127,6 +1129,7 @@ function parseSlipTextAmount(text){
   }
   return null;
 }
+function parseSlipTextAmount(text){ return parseAmountFromText(text); }
 function fillScannedAmount(amount,msg){
   if(amount==null) return false;
   if(confirm('พบยอด ฿'+amount+' ยืนยันหรือไม่?')){
@@ -1148,7 +1151,9 @@ function fileToBase64(file){
 async function localOcrSlipAmount(file){
   if(typeof Tesseract==='undefined'||!Tesseract||typeof Tesseract.recognize!=='function') return null;
   var res=await Tesseract.recognize(file,'tha+eng');
-  return parseSlipTextAmount(res&&res.data&&res.data.text);
+  var text=res&&res.data&&res.data.text||'';
+  console.log('[Slip OCR Text]',text);
+  return parseAmountFromText(text);
 }
 
 async function scanSlipImage(file){
@@ -1162,7 +1167,7 @@ async function scanSlipImage(file){
       else toast('ไฟล์นี้เคยสแกนแล้ว ไม่พบยอดเงิน กรุณากรอกเอง','err');
       return;
     }
-    if(status) status.textContent='อ่าน QR...';
+    if(status) status.textContent='กำลังอ่าน QR...';
     var bmp=await createImageBitmap(file);
     var canvas=typeof OffscreenCanvas!=='undefined'?new OffscreenCanvas(bmp.width,bmp.height):document.createElement('canvas');
     canvas.width=bmp.width;
@@ -1172,30 +1177,39 @@ async function scanSlipImage(file){
     var imageData=ctx.getImageData(0,0,canvas.width,canvas.height);
     if(typeof jsQR==='function'){
       var result=jsQR(imageData.data,imageData.width,imageData.height);
+      console.log('[Slip] QR found',!!result);
       if(result&&result.data){
-        var amount=parseEMVAmount(result.data);
-        if(amount!=null){
-          slipScanCache[key]={amount:amount,message:'เติมยอด ฿'+amount+' แล้ว'};
-          fillScannedAmount(amount,'เติมยอด ฿'+amount+' แล้ว');
+        var qrAmount=parseEMVAmount(result.data);
+        console.log('[Slip] QR amount',qrAmount);
+        if(qrAmount!=null){
+          slipScanCache[key]={amount:qrAmount,message:'เติมยอด ฿'+qrAmount+' แล้ว'};
+          fillScannedAmount(qrAmount,'เติมยอด ฿'+qrAmount+' แล้ว');
           return;
         }
       }
+    }else{
+      console.log('[Slip] QR found',false);
     }
-    if(status) status.textContent='ไม่พบยอดใน QR กำลัง OCR...';
+    if(status) status.textContent='กำลัง OCR ด้วยเครื่อง...';
     var localAmount=await localOcrSlipAmount(file).catch(function(err){
       console.warn('local OCR failed:',err);
       return null;
     });
+    console.log('[Slip] Tesseract amount',localAmount);
     if(localAmount!=null){
       slipScanCache[key]={amount:localAmount,message:'เติมยอดจาก OCR แล้ว'};
-      fillScannedAmount(localAmount,'เติมยอดจาก OCR แล้ว');
+      if(confirm('พบยอด ฿'+localAmount+' จาก OCR ยืนยันหรือไม่?')){
+        document.getElementById('f-amt').value=localAmount;
+        toast('เติมยอดสำเร็จ','ok');
+      }
       return;
     }
     if(!confirm('ไม่พบยอดจาก QR ต้องการใช้ OCR ออนไลน์หรือไม่?')){
       slipScanCache[key]={amount:null};
       return;
     }
-    if(status) status.textContent='ใช้ OCR ออนไลน์...';
+    if(status) status.textContent='กำลัง OCR ออนไลน์...';
+    console.log('[Slip] Google Vision fallback');
     var base64=await fileToBase64(file);
     const { data, error } = await sb.functions.invoke('scan-vision',{ body:{ image: base64 } });
     if(error||!data||!data.success){
