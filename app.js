@@ -961,7 +961,20 @@ function mkChips(arr,selId,wrapId,onPick){
   });
 }
 function renderCats(){
-  var w=document.getElementById('cat-chips'); if(!w) return; w.innerHTML='';
+  var w=document.getElementById('cat-chips');
+  var sel=document.getElementById('mobile-cat-select');
+  if(sel){
+    sel.innerHTML='';
+    S.cats.forEach(function(c){
+      var o=document.createElement('option');
+      o.value=c.id;
+      o.textContent=String(c.l||'').replace(/^[^\wก-๙]+/,'').trim()||c.l;
+      sel.appendChild(o);
+    });
+    sel.value=S.fc.cat||'';
+    sel.onchange=function(){ S.fc.cat=this.value; renderCats(); };
+  }
+  if(!w) return; w.innerHTML='';
   var iconMap={food:'restaurant',drink:'local_cafe',snack:'bakery_dining',cat:'pets',shop:'shopping_bag',act:'sports_esports',trans:'directions_car',place:'home',inv:'trending_up',health:'medical_services',bill:'receipt_long',edu:'school',donate:'volunteer_activism',travel:'flight',fam:'family_restroom',other:'more_horiz'};
   S.cats.forEach(function(c){
     var b=document.createElement('button');
@@ -973,7 +986,20 @@ function renderCats(){
   });
 }
 function renderPays(){
-  var w=document.getElementById('pay-chips'); if(!w) return; w.innerHTML='';
+  var w=document.getElementById('pay-chips');
+  var sel=document.getElementById('mobile-pay-select');
+  if(sel){
+    sel.innerHTML='';
+    S.pays.forEach(function(p){
+      var o=document.createElement('option');
+      o.value=p.id;
+      o.textContent=p.l;
+      sel.appendChild(o);
+    });
+    sel.value=S.fc.pay||'';
+    sel.onchange=function(){ S.fc.pay=this.value; renderPays(); };
+  }
+  if(!w) return; w.innerHTML='';
   S.pays.forEach(function(p){
     var b=document.createElement('button'); b.className='chip'+(S.fc.pay===p.id?' on':'');
     var icon=p.id==='cash'?'payments':p.id==='xfer'?'account_balance':p.id.indexOf('crpay_')===0?'credit_card':'account_balance_wallet';
@@ -1111,9 +1137,12 @@ var slipScanCache={};
 function slipFileKey(file){
   return [file&&file.name||'',file&&file.size||0,file&&file.lastModified||0].join('|');
 }
-function parseAmountFromText(text){
+function normalizeSlipText(text){
   var thaiDigits={'๐':'0','๑':'1','๒':'2','๓':'3','๔':'4','๕':'5','๖':'6','๗':'7','๘':'8','๙':'9'};
-  text=String(text||'').replace(/[๐-๙]/g,function(d){ return thaiDigits[d]||d; }).replace(/\s+/g,' ');
+  return String(text||'').replace(/[๐-๙]/g,function(d){ return thaiDigits[d]||d; }).replace(/\s+/g,' ').trim();
+}
+function parseAmountFromText(text){
+  text=normalizeSlipText(text);
   var patterns=[
     /(?:จำนวนเงิน|จํานวนเงิน|ยอดเงิน|ยอดโอน|ยอดสุทธิ|ยอดรวม|รวมทั้งสิ้น)[^\d]*(\d[\d,]*\.?\d{0,2})/i,
     /(?:total|net amount|amount due|amount)[^\d]*(\d[\d,]*\.?\d{0,2})/i,
@@ -1129,12 +1158,71 @@ function parseAmountFromText(text){
   }
   return null;
 }
+function parseDateFromText(text){
+  text=normalizeSlipText(text);
+  var monthMap={
+    'ม.ค.':1,'มค':1,'มกราคม':1,
+    'ก.พ.':2,'กพ':2,'กุมภาพันธ์':2,
+    'มี.ค.':3,'มีค':3,'มีนาคม':3,
+    'เม.ย.':4,'เมย':4,'เมษายน':4,
+    'พ.ค.':5,'พค':5,'พฤษภาคม':5,
+    'มิ.ย.':6,'มิย':6,'มิถุนายน':6,
+    'ก.ค.':7,'กค':7,'กรกฎาคม':7,
+    'ส.ค.':8,'สค':8,'สิงหาคม':8,
+    'ก.ย.':9,'กย':9,'กันยายน':9,
+    'ต.ค.':10,'ตค':10,'ตุลาคม':10,
+    'พ.ย.':11,'พย':11,'พฤศจิกายน':11,
+    'ธ.ค.':12,'ธค':12,'ธันวาคม':12
+  };
+  function cleanMonth(s){ return String(s||'').replace(/\s+/g,'').replace(/\.?$/,''); }
+  function toDate(y,m,d){
+    y=Number(y); m=Number(m); d=Number(d);
+    if(y>2400) y-=543;
+    if(y<100) y+=2000;
+    var dt=new Date(y,m-1,d);
+    if(dt.getFullYear()!==y||dt.getMonth()!==m-1||dt.getDate()!==d) return null;
+    return y+'-'+String(m).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+  }
+  var labels=['วันที่ทำรายการ','โอนเงินสำเร็จ','วันเวลา','วันที่'];
+  var scopes=[text];
+  labels.forEach(function(label){
+    var idx=text.indexOf(label);
+    if(idx>=0) scopes.unshift(text.slice(idx,idx+90));
+  });
+  var monthPattern='(ม\\.ค\\.|มกราคม|ก\\.พ\\.|กุมภาพันธ์|มี\\.ค\\.|มีนาคม|เม\\.ย\\.|เมษายน|พ\\.ค\\.|พฤษภาคม|มิ\\.ย\\.|มิถุนายน|ก\\.ค\\.|กรกฎาคม|ส\\.ค\\.|สิงหาคม|ก\\.ย\\.|กันยายน|ต\\.ค\\.|ตุลาคม|พ\\.ย\\.|พฤศจิกายน|ธ\\.ค\\.|ธันวาคม|มค|กพ|มีค|เมย|พค|มิย|กค|สค|กย|ตค|พย|ธค)';
+  for(var i=0;i<scopes.length;i++){
+    var s=scopes[i];
+    var m=s.match(new RegExp('(\\d{1,2})\\s*'+monthPattern+'\\s*(\\d{4})','i'));
+    if(m){
+      var mo=monthMap[m[2]]||monthMap[cleanMonth(m[2])]||monthMap[cleanMonth(m[2]).replace(/\./g,'')];
+      var out=toDate(m[3],mo,m[1]);
+      if(out) return out;
+    }
+    m=s.match(/(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/);
+    if(m){
+      var out2=toDate(m[3],m[2],m[1]);
+      if(out2) return out2;
+    }
+  }
+  return null;
+}
 function parseSlipTextAmount(text){ return parseAmountFromText(text); }
-function fillScannedAmount(amount,msg){
-  if(amount==null) return false;
-  if(confirm('พบยอด ฿'+amount+' ยืนยันหรือไม่?')){
-    document.getElementById('f-amt').value=amount;
-    toast(msg||('เติมยอด ฿'+amount+' แล้ว'),'ok');
+function parseSlipDataFromText(text){
+  return {amount:parseAmountFromText(text),date:parseDateFromText(text)};
+}
+function fillScannedData(data,source){
+  data=data||{};
+  var hasAmount=data.amount!=null;
+  var hasDate=!!data.date;
+  if(!hasAmount&&!hasDate) return false;
+  var msg='พบ';
+  if(hasAmount) msg+='ยอด ฿'+data.amount;
+  if(hasDate) msg+=(hasAmount?' และ':'')+'วันที่ '+data.date;
+  msg+=' จาก '+(source||'สลิป')+' ยืนยันหรือไม่?';
+  if(confirm(msg)){
+    if(hasAmount) document.getElementById('f-amt').value=data.amount;
+    if(hasDate) document.getElementById('f-dt').value=data.date;
+    toast('เติมข้อมูลสำเร็จ','ok');
   }
   return true;
 }
@@ -1153,17 +1241,18 @@ async function localOcrSlipAmount(file){
   var res=await Tesseract.recognize(file,'tha+eng');
   var text=res&&res.data&&res.data.text||'';
   console.log('[Slip OCR Text]',text);
-  return parseAmountFromText(text);
+  return parseSlipDataFromText(text);
 }
 
 async function scanSlipImage(file){
   var status=document.getElementById('slip-status');
   var input=document.getElementById('slip-upload');
   var key=slipFileKey(file);
+  var detectedDate=null;
   try{
     if(slipScanCache[key]){
       var cached=slipScanCache[key];
-      if(cached.amount!=null) fillScannedAmount(cached.amount,cached.message||'เติมยอดจากผลสแกนเดิมแล้ว');
+      if(cached.amount!=null||cached.date) fillScannedData(cached,'ผลสแกนเดิม');
       else toast('ไฟล์นี้เคยสแกนแล้ว ไม่พบยอดเงิน กรุณากรอกเอง','err');
       return;
     }
@@ -1180,35 +1269,37 @@ async function scanSlipImage(file){
       console.log('[Slip] QR found',!!result);
       if(result&&result.data){
         var qrAmount=parseEMVAmount(result.data);
+        var qrDate=parseDateFromText(result.data);
         console.log('[Slip] QR amount',qrAmount);
+        console.log('[Slip] QR date',qrDate);
+        if(qrDate){
+          detectedDate=qrDate;
+          document.getElementById('f-dt').value=qrDate;
+        }
         if(qrAmount!=null){
-          slipScanCache[key]={amount:qrAmount,message:'เติมยอด ฿'+qrAmount+' แล้ว'};
-          fillScannedAmount(qrAmount,'เติมยอด ฿'+qrAmount+' แล้ว');
+          slipScanCache[key]={amount:qrAmount,date:qrDate};
+          fillScannedData(slipScanCache[key],'QR');
           return;
         }
       }
     }else{
       console.log('[Slip] QR found',false);
     }
-    if(status) status.textContent='กำลัง OCR ด้วยเครื่อง...';
-    var localAmount=await localOcrSlipAmount(file).catch(function(err){
+    if(status) status.textContent='กำลัง OCR...';
+    var localData=await localOcrSlipAmount(file).catch(function(err){
       console.warn('local OCR failed:',err);
       return null;
     });
-    console.log('[Slip] Tesseract amount',localAmount);
-    if(localAmount!=null){
-      slipScanCache[key]={amount:localAmount,message:'เติมยอดจาก OCR แล้ว'};
-      if(confirm('พบยอด ฿'+localAmount+' จาก OCR ยืนยันหรือไม่?')){
-        document.getElementById('f-amt').value=localAmount;
-        toast('เติมยอดสำเร็จ','ok');
-      }
+    console.log('[Slip] Tesseract amount',localData&&localData.amount);
+    console.log('[Slip] Tesseract date',localData&&localData.date);
+    if(localData&&localData.date) detectedDate=localData.date;
+    if(localData&&localData.amount!=null){
+      if(status) status.textContent='กำลังเติมข้อมูล...';
+      slipScanCache[key]={amount:localData.amount,date:detectedDate};
+      fillScannedData(slipScanCache[key],'OCR');
       return;
     }
-    if(!confirm('ไม่พบยอดจาก QR ต้องการใช้ OCR ออนไลน์หรือไม่?')){
-      slipScanCache[key]={amount:null};
-      return;
-    }
-    if(status) status.textContent='กำลัง OCR ออนไลน์...';
+    if(status) status.textContent='กำลัง OCR...';
     console.log('[Slip] Google Vision fallback');
     var base64=await fileToBase64(file);
     const { data, error } = await sb.functions.invoke('scan-vision',{ body:{ image: base64 } });
@@ -1217,8 +1308,15 @@ async function scanSlipImage(file){
       toast('ไม่พบยอดเงิน กรุณากรอกเอง','err');
       return;
     }
-    slipScanCache[key]={amount:data.amount,message:'เติมยอดสำเร็จ'};
-    fillScannedAmount(data.amount,'เติมยอดสำเร็จ');
+    var visionData={amount:data.amount!=null?Number(data.amount):null,date:data.date||parseDateFromText(data.text||'')||detectedDate};
+    if(visionData.amount==null&&!visionData.date){
+      slipScanCache[key]={amount:null};
+      toast('ไม่พบยอดเงิน กรุณากรอกเอง','err');
+      return;
+    }
+    if(status) status.textContent='กำลังเติมข้อมูล...';
+    slipScanCache[key]=visionData;
+    fillScannedData(visionData,'OCR ออนไลน์');
   }finally{
     if(status) status.textContent='';
     if(input) input.value='';

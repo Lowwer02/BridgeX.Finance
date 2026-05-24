@@ -1083,3 +1083,59 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
 .slip-status {
   font-size:12px; color:var(--sub); font-family:var(--font-label);
 }
+
+.mobile-select-wrap{display:none}
+.mobile-select-wrap select{
+  width:100%;
+  appearance:none;
+  -webkit-appearance:none;
+  background:var(--card2);
+  color:var(--tx);
+  border:1px solid var(--bdr);
+  border-radius:12px;
+  padding:12px 42px 12px 14px;
+  font-family:var(--font-label);
+  font-size:14px;
+  font-weight:800;
+  box-sizing:border-box;
+  outline:none;
+}
+.mobile-select-wrap{
+  position:relative;
+}
+.mobile-select-wrap::after{
+  content:'expand_more';
+  font-family:'Material Symbols Outlined';
+  position:absolute;
+  right:12px;
+  top:50%;
+  transform:translateY(-50%);
+  color:var(--mut);
+  pointer-events:none;
+  font-size:22px;
+  line-height:1;
+}
+
+@media (max-width:768px){
+  #pg-add .add-mode-toggle{display:none}
+  #pg-add .slip-scan-row{
+    justify-content:center;
+    width:100%;
+    text-align:center;
+    flex-wrap:wrap;
+  }
+  #pg-add .slip-btn{
+    justify-content:center;
+    min-width:min(100%,240px);
+  }
+  #pg-add #cat-chips,
+  #pg-add #pay-chips{
+    display:none;
+  }
+  #pg-add .mobile-select-wrap{
+    display:block;
+    width:100%;
+    max-width:100%;
+    box-sizing:border-box;
+  }
+}
