@@ -1107,10 +1107,62 @@ function parseEMVAmount(qrText){
   return null;
 }
 
+var slipScanCache={};
+function slipFileKey(file){
+  return [file&&file.name||'',file&&file.size||0,file&&file.lastModified||0].join('|');
+}
+function parseSlipTextAmount(text){
+  text=String(text||'').replace(/\s+/g,' ');
+  var patterns=[
+    /(?:จำนวนเงิน|ยอดสุทธิ|ยอดรวม|รวมทั้งสิ้น)[^\d]*(\d[\d,]*\.?\d{0,2})/i,
+    /(?:total|net amount|amount due)[^\d]*(\d[\d,]*\.?\d{0,2})/i,
+    /(\d{1,6}\.\d{2})/
+  ];
+  for(var i=0;i<patterns.length;i++){
+    var m=text.match(patterns[i]);
+    if(m&&m[1]){
+      var amt=parseFloat(String(m[1]).replace(/,/g,''));
+      if(Number.isFinite(amt)&&amt>0) return amt;
+    }
+  }
+  return null;
+}
+function fillScannedAmount(amount,msg){
+  if(amount==null) return false;
+  if(confirm('พบยอด ฿'+amount+' ยืนยันหรือไม่?')){
+    document.getElementById('f-amt').value=amount;
+    toast(msg||('เติมยอด ฿'+amount+' แล้ว'),'ok');
+  }
+  return true;
+}
+function fileToBase64(file){
+  return new Promise(function(resolve,reject){
+    var reader=new FileReader();
+    reader.onload=function(){
+      resolve(String(reader.result||'').replace(/^data:image\/[a-zA-Z0-9.+-]+;base64,/,''));
+    };
+    reader.onerror=function(){ reject(reader.error||new Error('อ่านไฟล์ไม่สำเร็จ')); };
+    reader.readAsDataURL(file);
+  });
+}
+async function localOcrSlipAmount(file){
+  if(typeof Tesseract==='undefined'||!Tesseract||typeof Tesseract.recognize!=='function') return null;
+  var res=await Tesseract.recognize(file,'tha+eng');
+  return parseSlipTextAmount(res&&res.data&&res.data.text);
+}
+
 async function scanSlipImage(file){
   var status=document.getElementById('slip-status');
   var input=document.getElementById('slip-upload');
+  var key=slipFileKey(file);
   try{
+    if(slipScanCache[key]){
+      var cached=slipScanCache[key];
+      if(cached.amount!=null) fillScannedAmount(cached.amount,cached.message||'เติมยอดจากผลสแกนเดิมแล้ว');
+      else toast('ไฟล์นี้เคยสแกนแล้ว ไม่พบยอดเงิน กรุณากรอกเอง','err');
+      return;
+    }
+    if(status) status.textContent='อ่าน QR...';
     var bmp=await createImageBitmap(file);
     var canvas=typeof OffscreenCanvas!=='undefined'?new OffscreenCanvas(bmp.width,bmp.height):document.createElement('canvas');
     canvas.width=bmp.width;
@@ -1123,32 +1175,36 @@ async function scanSlipImage(file){
       if(result&&result.data){
         var amount=parseEMVAmount(result.data);
         if(amount!=null){
-          if(confirm('พบยอด ฿'+amount+' จาก QR ยืนยันหรือไม่?')){
-            document.getElementById('f-amt').value=amount;
-            toast('เติมยอด ฿'+amount+' แล้ว','ok');
-          }
+          slipScanCache[key]={amount:amount,message:'เติมยอด ฿'+amount+' แล้ว'};
+          fillScannedAmount(amount,'เติมยอด ฿'+amount+' แล้ว');
           return;
         }
       }
     }
-    if(status) status.textContent='กำลัง OCR...';
-    var base64=await new Promise(function(resolve,reject){
-      var reader=new FileReader();
-      reader.onload=function(){
-        resolve(String(reader.result||'').replace(/^data:image\/[a-zA-Z0-9.+-]+;base64,/,''));
-      };
-      reader.onerror=function(){ reject(reader.error||new Error('อ่านไฟล์ไม่สำเร็จ')); };
-      reader.readAsDataURL(file);
+    if(status) status.textContent='ไม่พบยอดใน QR กำลัง OCR...';
+    var localAmount=await localOcrSlipAmount(file).catch(function(err){
+      console.warn('local OCR failed:',err);
+      return null;
     });
+    if(localAmount!=null){
+      slipScanCache[key]={amount:localAmount,message:'เติมยอดจาก OCR แล้ว'};
+      fillScannedAmount(localAmount,'เติมยอดจาก OCR แล้ว');
+      return;
+    }
+    if(!confirm('ไม่พบยอดจาก QR ต้องการใช้ OCR ออนไลน์หรือไม่?')){
+      slipScanCache[key]={amount:null};
+      return;
+    }
+    if(status) status.textContent='ใช้ OCR ออนไลน์...';
+    var base64=await fileToBase64(file);
     const { data, error } = await sb.functions.invoke('scan-vision',{ body:{ image: base64 } });
     if(error||!data||!data.success){
+      slipScanCache[key]={amount:null};
       toast('ไม่พบยอดเงิน กรุณากรอกเอง','err');
       return;
     }
-    if(confirm('พบยอด ฿'+data.amount+' ยืนยันหรือไม่?')){
-      document.getElementById('f-amt').value=data.amount;
-      toast('เติมยอดสำเร็จ','ok');
-    }
+    slipScanCache[key]={amount:data.amount,message:'เติมยอดสำเร็จ'};
+    fillScannedAmount(data.amount,'เติมยอดสำเร็จ');
   }finally{
     if(status) status.textContent='';
     if(input) input.value='';
