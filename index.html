@@ -120,23 +120,23 @@
 <aside class="app-sidebar">
   <div class="side-brand">BridgeX.Wallet</div>
   <nav class="side-nav">
-    <button class="tbtn" onclick="goTab('dash',this)"><span class="ico material-symbols-outlined">dashboard</span>Dashboard</button>
-    <button class="tbtn" onclick="goTab('debt-planner',this)"><span class="ico material-symbols-outlined">payments</span>Debt Planner</button>
-    <button class="tbtn" onclick="goTab('cr',this)"><span class="ico material-symbols-outlined">credit_card</span>Credit</button>
-    <button class="tbtn on" onclick="goTab('add',this)"><span class="ico material-symbols-outlined">add_circle</span>Add Transaction</button>
-    <button class="tbtn" onclick="goTab('hist',this)"><span class="ico material-symbols-outlined">history</span>History</button>
-    <button class="tbtn" onclick="goTab('inc',this)"><span class="ico material-symbols-outlined">account_balance_wallet</span>Income</button>
-    <button class="tbtn" onclick="goTab('set',this)"><span class="ico material-symbols-outlined">settings</span>Settings</button>
+    <button class="tbtn" onclick="goTab('dash',this)"><span class="ico material-symbols-outlined">dashboard</span><span data-i18n="dashboard">ภาพรวมการเงิน</span></button>
+    <button class="tbtn" onclick="goTab('debt-planner',this)"><span class="ico material-symbols-outlined">payments</span><span data-i18n="debtPlanner">แผนปลดหนี้</span></button>
+    <button class="tbtn" onclick="goTab('cr',this)"><span class="ico material-symbols-outlined">credit_card</span><span data-i18n="credit">บัตรและสินเชื่อ</span></button>
+    <button class="tbtn on" onclick="goTab('add',this)"><span class="ico material-symbols-outlined">add_circle</span><span data-i18n="addTransaction">จดรายจ่าย</span></button>
+    <button class="tbtn" onclick="goTab('hist',this)"><span class="ico material-symbols-outlined">history</span><span data-i18n="history">ประวัติย้อนหลัง</span></button>
+    <button class="tbtn" onclick="goTab('inc',this)"><span class="ico material-symbols-outlined">account_balance_wallet</span><span data-i18n="income">จดรายรับ</span></button>
+    <button class="tbtn" onclick="goTab('set',this)"><span class="ico material-symbols-outlined">settings</span><span data-i18n="settings">ตั้งค่า</span></button>
   </nav>
   <div class="side-bottom">
-    <button class="side-sync" onclick="syncNow()">Sync Bank Accounts</button>
-    <button class="side-link" type="button"><span class="material-symbols-outlined">help</span>Support</button>
-    <button class="side-link" type="button" onclick="doLogout()"><span class="material-symbols-outlined">logout</span>Sign Out</button>
+    <button class="side-sync" onclick="syncNow()" data-i18n="syncNow">อัปเดตข้อมูล</button>
+    <button class="side-link" type="button"><span class="material-symbols-outlined">help</span><span data-i18n="support">ช่วยเหลือ</span></button>
+    <button class="side-link" type="button" onclick="doLogout()"><span class="material-symbols-outlined">logout</span><span data-i18n="signOut">ออกจากระบบ</span></button>
     <div class="side-user">
       <div class="side-avatar">BX</div>
       <div>
         <div class="side-user-name" id="hdr-name">-</div>
-        <div class="side-user-sub" id="hdr-sub">Joint Wealth Mode</div>
+        <div class="side-user-sub" id="hdr-sub">แชร์บัญชีครอบครัว</div>
       </div>
     </div>
   </div>
@@ -147,7 +147,7 @@
 <div class="tb">
   <div class="tb-brand">
     <button class="hamb material-symbols-outlined" type="button" onclick="toggleSidebar()">menu</button>
-    <div class="tb-name" id="topbar-title">Add Transaction</div>
+    <div class="tb-name" id="topbar-title">จดรายจ่าย</div>
   </div>
   <div class="tb-right">
     <div class="top-search"><span>⌕</span><input type="text" placeholder="Search..."></div>
@@ -166,7 +166,7 @@
   <div class="add-shell">
     <div class="add-main">
       <div class="add-glass add-amount-card">
-        <div class="amt-lbl">Amount</div>
+        <div class="amt-lbl" data-i18n="amount">จำนวนเงิน</div>
         <div class="amt-row"><span class="amt-cur">฿ </span><input class="amt-inp" id="f-amt" type="number" placeholder="0.00" inputmode="decimal"></div>
         <div class="slip-scan-row">
           <input type="file" id="slip-upload" accept="image/*" hidden>
@@ -177,13 +177,13 @@
           <span class="slip-status" id="slip-status"></span>
         </div>
         <div class="add-meta-row">
-          <div class="fld inc-field add-date-field"><label>Date</label><input type="date" id="f-dt"></div>
+          <div class="fld inc-field add-date-field"><label data-i18n="date">วันที่</label><input type="date" id="f-dt"></div>
           <div class="add-mode-toggle"><span class="on">Joint</span><span>Personal</span></div>
         </div>
       </div>
       <div class="add-grid">
         <div class="add-glass add-panel">
-          <div class="add-panel-title">Category</div>
+          <div class="add-panel-title" data-i18n="category">หมวดหมู่</div>
           <div class="chips" id="cat-chips"></div>
           <button class="mobile-picker-trigger" id="mobile-cat-trigger" type="button" onclick="openMobilePicker('cat')">
             <span class="material-symbols-outlined">grid_view</span>
@@ -192,14 +192,14 @@
           </button>
         </div>
         <div class="add-glass add-panel">
-          <div class="add-panel-title">Payment Method</div>
+          <div class="add-panel-title" data-i18n="paymentMethod">จ่ายผ่าน</div>
           <div class="chips" id="pay-chips"></div>
           <button class="mobile-picker-trigger" id="mobile-pay-trigger" type="button" onclick="openMobilePicker('pay')">
             <span class="material-symbols-outlined">account_balance_wallet</span>
             <strong>เลือกช่องทางชำระเงิน</strong>
             <em id="mobile-pay-label">เลือกช่องทางชำระเงิน</em>
           </button>
-          <div class="fld add-note-field"><label>Note</label><textarea id="f-det" placeholder="เช่น ข้าวมันไก่, ค่า Grab"></textarea></div>
+          <div class="fld add-note-field"><label data-i18n="note">บันทึกช่วยจำ</label><textarea id="f-det" placeholder="เช่น ข้าวมันไก่, ค่า Grab"></textarea></div>
         </div>
       </div>
       <div class="card" style="display:none">
@@ -210,17 +210,17 @@
         </div>
       </div>
       <div class="add-actions">
-        <button class="btn-sm" onclick="resetExpenseForm()">Cancel</button>
-        <button class="btn-go" onclick="submitExp()">Save Transaction</button>
+        <button class="btn-sm" onclick="resetExpenseForm()" data-i18n="cancel">ยกเลิก</button>
+        <button class="btn-go" onclick="submitExp()" data-i18n="saveTransaction">บันทึกรายการ</button>
       </div>
     </div>
     <aside class="add-glass add-summary">
-      <h3>Today's Summary</h3>
-      <div class="sum-label">Total Spent Today</div>
+      <h3 data-i18n="todaySummary">สรุปรายการวันนี้</h3>
+      <div class="sum-label" data-i18n="totalSpentToday">ใช้จ่ายวันนี้</div>
       <div class="sum-amount" id="add-sum-today">฿ 0</div>
       <div class="sum-track"><div class="sum-fill" id="add-sum-bar"></div></div>
-      <div class="sum-budget" id="add-sum-budget">0% of daily budget</div>
-      <div class="recent-title">Recent Transactions</div>
+      <div class="sum-budget" id="add-sum-budget">0% ของงบวันนี้</div>
+      <div class="recent-title" data-i18n="recentTransactions">รายการล่าสุด</div>
       <div class="recent-list" id="add-recent-list"></div>
     </aside>
   </div>
@@ -238,21 +238,21 @@
         </div>
         <div class="dash-filter-stack hist-filter-stack">
           <div class="dash-filter-tier" id="hist-time-filters">
-            <span>ช่วงเวลา</span>
-            <button type="button" data-hist-time="this_month" onclick="setHistTimeFilter('this_month')">เดือนนี้</button>
-            <button type="button" data-hist-time="last_month" onclick="setHistTimeFilter('last_month')">เดือนก่อน</button>
-            <button type="button" data-hist-time="all_time" onclick="setHistTimeFilter('all_time')">ทั้งหมด</button>
+            <span data-i18n="period">ช่วงเวลา</span>
+            <button type="button" data-hist-time="this_month" onclick="setHistTimeFilter('this_month')" data-i18n="thisMonth">เดือนนี้</button>
+            <button type="button" data-hist-time="last_month" onclick="setHistTimeFilter('last_month')" data-i18n="lastMonth">เดือนก่อน</button>
+            <button type="button" data-hist-time="all_time" onclick="setHistTimeFilter('all_time')" data-i18n="all">ทั้งหมด</button>
           </div>
           <div class="dash-filter-tier" id="hist-filters">
-            <span>มุมมอง</span>
-            <button type="button" data-hist-user="joint" onclick="setHistUserFilter('joint')">รวม</button>
-            <button type="button" data-hist-user="me" onclick="setHistUserFilter('me')">ฉัน</button>
+            <span data-i18n="view">มุมมอง</span>
+            <button type="button" data-hist-user="joint" onclick="setHistUserFilter('joint')" data-i18n="joint">รวม</button>
+            <button type="button" data-hist-user="me" onclick="setHistUserFilter('me')" data-i18n="me">ฉัน</button>
           </div>
         </div>
       </aside>
       <section class="hist-table-card">
         <div class="hist-table-head">
-          <h2>รายการล่าสุด</h2>
+          <h2 data-i18n="recentTransactions">รายการล่าสุด</h2>
           <button type="button" onclick="exportCSV('expense')"><span class="material-symbols-outlined">download</span> Export CSV</button>
         </div>
         <div id="hist-list"></div>
@@ -298,15 +298,15 @@
 <div class="pg" id="pg-cr">
   <div class="cr-shell">
     <div class="frow cr-filter-row">
-      <div class="fchip on" onclick="setCRF('overview',this)">ภาพรวม</div>
-      <div class="fchip" onclick="setCRF('revolving',this)">สินเชื่อหมุนเวียน</div>
-      <div class="fchip" onclick="setCRF('fixed',this)">สินเชื่อหลักประกัน</div>
+      <div class="fchip on" onclick="setCRF('overview',this)" data-i18n="overview">ภาพรวม</div>
+      <div class="fchip" onclick="setCRF('revolving',this)" data-i18n="revolving">สินเชื่อหมุนเวียน</div>
+      <div class="fchip" onclick="setCRF('fixed',this)" data-i18n="secured">สินเชื่อหลักประกัน</div>
     </div>
     <div id="debt-overview-card"></div>
     <div class="cr-detail-grid">
       <section class="cr-lines-panel">
         <div class="cr-lines-head">
-          <h2>Active Lines</h2>
+          <h2 data-i18n="activeLines">รายการสินเชื่อ</h2>
           <button type="button" onclick="openCreditSetupModal('revolving')"><span class="material-symbols-outlined">add</span> เพิ่มสินเชื่อ</button>
         </div>
         <div id="cr-list"></div>
@@ -349,18 +349,18 @@
 <!-- DASHBOARD -->
 <div class="pg" id="pg-dash">
   <header class="dash-page-head">
-    <h1>สรุปภาพรวมความมั่งคั่ง</h1>
-    <p>ข้อมูลล่าสุด ณ วันนี้ ดูแลสุขภาพทางการเงินของคุณอย่างมืออาชีพ</p>
+    <h1 data-i18n="dashboardHeading">สรุปภาพรวมการเงิน</h1>
+    <p data-i18n="dashboardIntro">ดูข้อมูลล่าสุดและติดตามสุขภาพการเงินของคุณได้ง่าย ๆ</p>
   </header>
   <div class="dash-filter-stack" id="dash-filters">
     <div class="dash-filter-tier">
-      <span>ช่วงเวลา</span>
-      <button type="button" data-dash-time="this_month" onclick="setDashTimeFilter('this_month')">เดือนนี้</button>
-      <button type="button" data-dash-time="last_month" onclick="setDashTimeFilter('last_month')">เดือนก่อน</button>
-      <button type="button" data-dash-time="all_time" onclick="setDashTimeFilter('all_time')">ทั้งหมด</button>
+      <span data-i18n="period">ช่วงเวลา</span>
+      <button type="button" data-dash-time="this_month" onclick="setDashTimeFilter('this_month')" data-i18n="thisMonth">เดือนนี้</button>
+      <button type="button" data-dash-time="last_month" onclick="setDashTimeFilter('last_month')" data-i18n="lastMonth">เดือนก่อน</button>
+      <button type="button" data-dash-time="all_time" onclick="setDashTimeFilter('all_time')" data-i18n="all">ทั้งหมด</button>
     </div>
     <div class="dash-filter-tier" id="dash-entity-filters">
-      <span>มุมมอง</span>
+      <span data-i18n="view">มุมมอง</span>
     </div>
   </div>
   <div id="dash"></div>
@@ -372,7 +372,7 @@
     <div class="inc-main">
       <div class="inc-entry-card inc-glass">
         <div class="inc-amount-zone">
-          <label>Amount Received</label>
+          <label data-i18n="amount">จำนวนเงิน</label>
           <div class="inc-amount-input">
             <span>฿ </span>
             <input class="amt-inp" id="i-amt" type="number" placeholder="0.00" inputmode="decimal">
@@ -384,23 +384,23 @@
         </div>
         <div class="inc-meta-zone">
           <div class="fld inc-field">
-            <label>Date</label>
+            <label data-i18n="date">วันที่</label>
             <input type="date" id="i-dt">
           </div>
           <div class="inc-field">
-            <label>Deposit To</label>
+            <label data-i18n="depositTo">รับเงินเข้าบัญชี</label>
             <div class="inc-select-list" id="inch-chips"></div>
           </div>
         </div>
       </div>
       <div class="inc-form-grid">
         <div class="inc-glass inc-panel">
-          <div class="inc-card-title">Income Source</div>
+          <div class="inc-card-title" data-i18n="incomeSource">ที่มาของรายรับ</div>
           <div class="inc-category-grid" id="incc-chips"></div>
         </div>
         <div class="inc-glass inc-panel">
           <div class="fld inc-field">
-            <label>Note</label>
+            <label data-i18n="note">บันทึกช่วยจำ</label>
             <textarea id="i-det" placeholder="เช่น เงินเดือน, โบนัส..."></textarea>
           </div>
           <div class="payers inc-payers inc-receiver-field" id="py-chips">
@@ -410,8 +410,8 @@
         </div>
       </div>
       <div class="inc-actions">
-        <button class="btn-sm" type="button" onclick="document.getElementById('i-amt').value='';document.getElementById('i-det').value='';document.getElementById('i-dt').value=today()">Cancel</button>
-        <button class="btn-go green" onclick="submitInc()">Save Income</button>
+        <button class="btn-sm" type="button" onclick="document.getElementById('i-amt').value='';document.getElementById('i-det').value='';document.getElementById('i-dt').value=today()" data-i18n="cancel">ยกเลิก</button>
+        <button class="btn-go green" onclick="submitInc()" data-i18n="saveIncome">บันทึกรายรับ</button>
       </div>
     </div>
     <aside class="inc-side" id="inc-sum"></aside>
@@ -422,10 +422,10 @@
 <div class="pg" id="pg-set">
   <header class="set-head">
     <div>
-      <h1>ตั้งค่า (Settings)</h1>
-      <p>Manage your preferences, security, and joint wealth configurations.</p>
+      <h1 data-i18n="settings">ตั้งค่า</h1>
+      <p data-i18n="settingsIntro">จัดการบัญชี ความปลอดภัย และการแชร์ข้อมูลครอบครัว</p>
     </div>
-    <button class="set-export-top" type="button" onclick="exportCSV('expense')"><span class="material-symbols-outlined">download</span> Export Data</button>
+    <button class="set-export-top" type="button" onclick="exportCSV('expense')"><span class="material-symbols-outlined">download</span><span data-i18n="exportData">ดาวน์โหลดข้อมูล</span></button>
   </header>
   <div class="set-grid">
     <section class="set-card set-profile-card">
@@ -440,18 +440,18 @@
           <span class="set-pill green">JOINT MODE</span>
           <p id="set-user">-</p>
         </div>
-        <div class="set-field-grid">
-          <div class="set-field"><label>Primary Contact</label><input type="text" value="BridgeX Member" readonly></div>
-          <div class="set-field"><label>Connection</label><input type="text" value="Supabase Connected" readonly></div>
+      <div class="set-field-grid">
+          <div class="set-field"><label data-i18n="primaryContact">ข้อมูลติดต่อหลัก</label><input type="text" value="BridgeX Member" readonly></div>
+          <div class="set-field"><label data-i18n="connection">การเชื่อมต่อ</label><input type="text" value="Supabase Connected" readonly></div>
         </div>
         <div class="set-action-row">
-          <button type="button" onclick="syncNow()">Sync Now</button>
-          <button type="button" onclick="doLogout()">Sign Out</button>
+          <button type="button" onclick="syncNow()" data-i18n="syncNow">อัปเดตข้อมูล</button>
+          <button type="button" onclick="doLogout()" data-i18n="signOut">ออกจากระบบ</button>
         </div>
       </div>
     </section>
     <section class="set-card set-plan-card">
-      <div class="set-card-head"><span>CURRENT PLAN</span><span class="material-symbols-outlined">workspace_premium</span></div>
+      <div class="set-card-head"><span data-i18n="currentPlan">แพ็กเกจปัจจุบัน</span><span class="material-symbols-outlined">workspace_premium</span></div>
       <h2>Pro 109B</h2>
       <div id="set-subscription" class="set-subscription">-</div>
       <ul>
@@ -459,13 +459,13 @@
         <li><span class="material-symbols-outlined">check_circle</span> Priority Tax Export</li>
         <li><span class="material-symbols-outlined">check_circle</span> Dedicated Advisor</li>
       </ul>
-      <button type="button" onclick="goTab('set',document.querySelector('.tbtn[onclick*=set]'))">Manage Subscription</button>
+      <button type="button" onclick="goTab('set',document.querySelector('.tbtn[onclick*=set]'))" data-i18n="managePlan">จัดการแพ็กเกจ</button>
     </section>
     <section class="set-card set-family-card">
       <div class="set-section-head">
         <div>
-          <h2><span class="material-symbols-outlined">diversity_3</span> Joint Wealth Mode</h2>
-          <p>Manage shared portfolios and member access levels.</p>
+          <h2><span class="material-symbols-outlined">diversity_3</span> <span data-i18n="jointWealthMode">แชร์บัญชีครอบครัว</span></h2>
+          <p data-i18n="familyHelp">จัดการสมาชิกและข้อมูลการเงินที่แชร์ร่วมกัน</p>
         </div>
         <div class="set-family-id">
           <label>Family ID:</label>
@@ -478,25 +478,25 @@
           <div id="set-members-list"></div>
           <div class="set-join-row">
             <input type="text" id="join-family-id" placeholder="วาง family_id ที่ต้องการเข้าร่วม">
-            <button type="button" onclick="joinFamily()"><span class="material-symbols-outlined">add</span> Add Member</button>
+            <button type="button" onclick="joinFamily()"><span class="material-symbols-outlined">add</span> <span data-i18n="addMember">เพิ่มสมาชิก</span></button>
           </div>
         </div>
         <div class="set-sync-options">
-          <div><strong>Real-Time Sync</strong><small>Share balances instantly</small><span class="set-toggle on"><i></i></span></div>
-          <div><strong>Transaction Alerts</strong><small>Notify all on &gt;$10k</small><span class="set-toggle"><i></i></span></div>
+          <div><strong data-i18n="realtimeSync">อัปเดตข้อมูลทันที</strong><small>Share balances instantly</small><span class="set-toggle on"><i></i></span></div>
+          <div><strong data-i18n="transactionAlerts">แจ้งเตือนรายการ</strong><small>Notify all on &gt;$10k</small><span class="set-toggle"><i></i></span></div>
         </div>
       </div>
     </section>
     <section class="set-card set-pref-card">
-      <h2><span class="material-symbols-outlined">tune</span> Preferences</h2>
-      <div class="set-pref-row"><div><strong>Theme</strong><small>Application appearance</small></div><div class="set-segment"><button type="button" onclick="toggleTheme()">Dark</button><button type="button" onclick="toggleTheme()">Light</button></div></div>
-      <div class="set-pref-row"><div><strong>Base Currency</strong><small>Default for analytics</small></div><select><option>THB (฿)</option><option>USD ($)</option></select></div>
-      <div class="set-pref-row"><div><strong>Language</strong></div><select><option>Thai</option><option>English</option></select></div>
+      <h2><span class="material-symbols-outlined">tune</span> <span data-i18n="preferences">การตั้งค่าทั่วไป</span></h2>
+      <div class="set-pref-row"><div><strong data-i18n="theme">ธีม</strong><small data-i18n="appearance">รูปแบบหน้าจอ</small></div><div class="set-segment"><button type="button" onclick="toggleTheme()">Dark</button><button type="button" onclick="toggleTheme()">Light</button></div></div>
+      <div class="set-pref-row"><div><strong data-i18n="baseCurrency">สกุลเงินหลัก</strong><small>Default for analytics</small></div><select><option>THB (฿)</option><option>USD ($)</option></select></div>
+      <div class="set-pref-row"><div><strong data-i18n="language">ภาษา</strong></div><select id="language-select" onchange="setLanguage(this.value)"><option value="th">ไทย</option><option value="en">English</option></select></div>
       <div class="set-budget-wrap"><h3>ตั้งค่างบประมาณรายเดือน</h3><div id="budget-settings"></div><button type="button" onclick="saveBudgets()">บันทึกงบประมาณ</button></div>
       <div class="set-stats-wrap"><h3>สถิติข้อมูล</h3><div id="set-stats"></div></div>
     </section>
     <section class="set-card set-security-card">
-      <h2><span class="material-symbols-outlined">shield</span> Security &amp; Data</h2>
+      <h2><span class="material-symbols-outlined">shield</span> <span data-i18n="dataSecurity">ความปลอดภัยของข้อมูล</span></h2>
       <div class="set-secure-box">
         <span class="material-symbols-outlined">verified_user</span>
         <div><strong>PDPA Compliant</strong><p>Your data is encrypted at rest. We do not share telemetry with third parties.</p></div>

@@ -5,6 +5,96 @@ const SUPA_URL  = 'https://ahnbgcnydlquvondssoy.supabase.co';
 const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFobmJnY255ZGxxdXZvbmRzc295Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxODYxNDksImV4cCI6MjA5Mzc2MjE0OX0.G0jZjEFxgLBO_kJAG0IxVzpf5QnsV32Ja8p_ZHlMF-M';
 const sb = supabase.createClient(SUPA_URL, SUPA_ANON);
 
+const I18N = {
+  th: {
+    dashboard:'ภาพรวมการเงิน', debtPlanner:'แผนปลดหนี้', credit:'บัตรและสินเชื่อ',
+    addTransaction:'จดรายจ่าย', income:'จดรายรับ', history:'ประวัติย้อนหลัง', settings:'ตั้งค่า',
+    monthlyNetBalance:'เงินเหลือใช้เดือนนี้', totalDebt:'หนี้สินรวม', projectedInterestSavings:'ประหยัดดอกเบี้ยได้',
+    recentTransactions:'รายการล่าสุด', amount:'จำนวนเงิน', category:'หมวดหมู่', paymentMethod:'จ่ายผ่าน',
+    depositTo:'รับเงินเข้าบัญชี', note:'บันทึกช่วยจำ', saveTransaction:'บันทึกรายการ',
+    saveIncome:'บันทึกรายรับ', incomeSource:'ที่มาของรายรับ', date:'วันที่', cancel:'ยกเลิก',
+    totalApprovedLimit:'วงเงินทั้งหมด', utilizationRate:'ใช้งบวงเงินไปแล้ว', availableCredit:'วงเงินคงเหลือ',
+    jointWealthMode:'แชร์บัญชีครอบครัว', syncNow:'อัปเดตข้อมูล', exportData:'ดาวน์โหลดข้อมูล',
+    todaySummary:'สรุปรายการวันนี้', totalSpentToday:'ใช้จ่ายวันนี้', activeLines:'รายการสินเชื่อ',
+    support:'ช่วยเหลือ', signOut:'ออกจากระบบ', settingsIntro:'จัดการบัญชี ความปลอดภัย และการแชร์ข้อมูลครอบครัว',
+    familyHelp:'จัดการสมาชิกและข้อมูลการเงินที่แชร์ร่วมกัน', preferences:'การตั้งค่าทั่วไป',
+    theme:'ธีม', appearance:'รูปแบบหน้าจอ', language:'ภาษา', selectCategory:'เลือกหมวดหมู่',
+    selectPayment:'เลือกช่องทางจ่ายเงิน', paid:'จ่ายแล้ว', due:'ยังไม่จ่าย', currentBalance:'ยอดคงเหลือ',
+    editInfo:'แก้ไขข้อมูล', payBill:'ชำระเงิน', paidThisMonth:'ชำระเดือนนี้',
+    healthyStatus:'ใช้งานพอดี', watchStatus:'ใกล้เต็มวงเงิน', highUsage:'ใช้วงเงินสูง',
+    budgetProgress:'ติดตามงบประมาณ', budgetThisMonth:'งบเดือนนี้', financialHealth:'สุขภาพทางการเงินของคุณ',
+    viewDetails:'ดูรายละเอียด', expenseByCategory:'รายจ่ายตามหมวดหมู่', viewAll:'ดูทั้งหมด',
+    monthlyIncomeGoal:'เป้ารายรับเดือนนี้', recentInflows:'รายรับล่าสุด', achieved:'สำเร็จแล้ว', remaining:'เหลืออีก',
+    incomeLabel:'รายรับ', expenseLabel:'รายจ่าย', useLimit:'ใช้วงเงิน', dailyBudget:'ของงบวันนี้',
+    dailyCalendar:'ปฏิทินรายจ่ายรายวัน', less:'น้อย', more:'มาก', member:'สมาชิกครอบครัว',
+    fullAccess:'เข้าถึงได้ทั้งหมด', adminOwner:'ผู้ดูแลบัญชี', creditPaidMonth:'ชำระสินเชื่อเดือนนี้'
+    ,dashboardHeading:'สรุปภาพรวมการเงิน', dashboardIntro:'ดูข้อมูลล่าสุดและติดตามสุขภาพการเงินของคุณได้ง่าย ๆ',
+    currentPlan:'แพ็กเกจปัจจุบัน', managePlan:'จัดการแพ็กเกจ', primaryContact:'ข้อมูลติดต่อหลัก',
+    connection:'การเชื่อมต่อ', addMember:'เพิ่มสมาชิก', realtimeSync:'อัปเดตข้อมูลทันที',
+    transactionAlerts:'แจ้งเตือนรายการ', baseCurrency:'สกุลเงินหลัก', dataSecurity:'ความปลอดภัยของข้อมูล',
+    period:'ช่วงเวลา', view:'มุมมอง', thisMonth:'เดือนนี้', lastMonth:'เดือนก่อน', all:'ทั้งหมด',
+    joint:'รวม', jointFamily:'รวมครอบครัว', me:'ฉัน', overview:'ภาพรวม', revolving:'สินเชื่อหมุนเวียน', secured:'สินเชื่อหลักประกัน'
+  },
+  en: {
+    dashboard:'Dashboard', debtPlanner:'Debt Planner', credit:'Credit', addTransaction:'Add Transaction',
+    income:'Income', history:'History', settings:'Settings', monthlyNetBalance:'Monthly Net Balance',
+    totalDebt:'Total Debt', projectedInterestSavings:'Projected Interest Savings', recentTransactions:'Recent Transactions',
+    amount:'Amount', category:'Category', paymentMethod:'Payment Method', depositTo:'Deposit To', note:'Note',
+    saveTransaction:'Save Transaction', saveIncome:'Save Income', incomeSource:'Income Source', date:'Date', cancel:'Cancel',
+    totalApprovedLimit:'Total Approved Limit', utilizationRate:'Utilization Rate', availableCredit:'Available Credit',
+    jointWealthMode:'Joint Wealth Mode', syncNow:'Sync Now', exportData:'Export Data', todaySummary:"Today's Summary",
+    totalSpentToday:'Total Spent Today', activeLines:'Active Lines', support:'Support', signOut:'Sign Out',
+    settingsIntro:'Manage your preferences, security, and joint wealth configurations.',
+    familyHelp:'Manage shared portfolios and member access levels.', preferences:'Preferences', theme:'Theme',
+    appearance:'Application appearance', language:'Language', selectCategory:'Select Category',
+    selectPayment:'Select Payment Method', paid:'Paid', due:'Due', currentBalance:'Current Balance',
+    editInfo:'Edit Info', payBill:'Pay Bill', paidThisMonth:'paid this month', healthyStatus:'Healthy Status',
+    watchStatus:'Watch Status', highUsage:'High Usage', budgetProgress:'Budget Progress', budgetThisMonth:'Monthly Budget',
+    financialHealth:'Your Financial Health', viewDetails:'View Details', expenseByCategory:'Expenses by Category',
+    viewAll:'View All', monthlyIncomeGoal:'Monthly Income Goal', recentInflows:'Recent Inflows', achieved:'Achieved', remaining:'Remaining',
+    incomeLabel:'Income', expenseLabel:'Expense', useLimit:'Credit used', dailyBudget:'of daily budget',
+    dailyCalendar:'Daily Expense Calendar', less:'Less', more:'More', member:'Family Member',
+    fullAccess:'Full Access', adminOwner:'Admin (Owner)', creditPaidMonth:'Credit paid this month'
+    ,dashboardHeading:'Wealth Overview', dashboardIntro:'See your latest figures and track your financial health.',
+    currentPlan:'Current Plan', managePlan:'Manage Subscription', primaryContact:'Primary Contact',
+    connection:'Connection', addMember:'Add Member', realtimeSync:'Real-Time Sync',
+    transactionAlerts:'Transaction Alerts', baseCurrency:'Base Currency', dataSecurity:'Security & Data',
+    period:'Period', view:'View', thisMonth:'This Month', lastMonth:'Last Month', all:'All',
+    joint:'Joint', jointFamily:'Family', me:'Me', overview:'Overview', revolving:'Revolving', secured:'Secured'
+  }
+};
+function getLang(){
+  var lang=localStorage.getItem('bxLanguage')||(S.profile&&(S.profile.language||S.profile.lang));
+  return lang==='en'?'en':'th';
+}
+function t(key){ return (I18N[getLang()]&&I18N[getLang()][key])||I18N.th[key]||key; }
+function applyLanguage(){
+  document.documentElement.lang=getLang();
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var val=t(el.dataset.i18n);
+    if(val) el.textContent=val;
+  });
+  var select=document.getElementById('language-select');
+  if(select) select.value=getLang();
+}
+function setLanguage(lang){
+  localStorage.setItem('bxLanguage',lang==='en'?'en':'th');
+  applyLanguage();
+  var active=document.querySelector('.pg.on');
+  if(active&&active.id==='pg-dash') renderDash();
+  if(active&&active.id==='pg-cr') renderCR();
+  if(active&&active.id==='pg-inc') renderIncSum();
+  renderMobilePickers();
+  var btn=document.querySelector('.tbtn.on');
+  var id=active&&active.id?active.id.replace('pg-',''):'add';
+  var titleEl=document.getElementById('topbar-title');
+  if(titleEl) titleEl.textContent=tabTitle(id);
+}
+function tabTitle(id){
+  var titles={add:'addTransaction',inc:'income',hist:'history',dash:'dashboard',cr:'credit','debt-planner':'debtPlanner',set:'settings'};
+  return t(titles[id]||'addTransaction');
+}
+
 // ═══════════════════════════════════════════════════════
 // DEFAULT DATA
 // ═══════════════════════════════════════════════════════
@@ -560,6 +650,7 @@ var _lastSessionUid  = null;    // legacy alias
 
 window.addEventListener('DOMContentLoaded', async function(){
   try{
+    applyLanguage();
     ['f-dt','i-dt','dr-dt'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=today(); });
     updateAuthButtons();
     sb.auth.onAuthStateChange(async function(event,session){
@@ -928,9 +1019,8 @@ async function saveToSupabase(table, data){
 // TABS
 // ═══════════════════════════════════════════════════════
 function goTab(id,btn){
-  var titles={add:'Add Transaction',inc:'Income',hist:'History',dash:'Dashboard',cr:'Credits','debt-planner':'Debt Planner',set:'Settings'};
   var titleEl=document.getElementById('topbar-title');
-  if(titleEl) titleEl.textContent=titles[id]||'BridgeX.Finance';
+  if(titleEl) titleEl.textContent=tabTitle(id);
   document.querySelectorAll('.pg').forEach(function(p){ p.classList.remove('on'); });
   document.querySelectorAll('.tbtn').forEach(function(b){ b.classList.remove('on'); });
   document.getElementById('pg-'+id).classList.add('on');
@@ -943,6 +1033,7 @@ function goTab(id,btn){
   if(id==='inc')  renderIncSum();
   if(id==='set')  renderSetStats();
   if(id==='add')  renderAddSummary();
+  applyLanguage();
 }
 
 function toggleSidebar(force){
@@ -996,14 +1087,14 @@ function renderMobilePickers(){
   var pay=S.pays.find(function(p){ return p.id===S.fc.pay; });
   var catLabel=document.getElementById('mobile-cat-label');
   var payLabel=document.getElementById('mobile-pay-label');
-  if(catLabel) catLabel.textContent=cat?cleanAddLabel(cat.l):'เลือกหมวดหมู่';
-  if(payLabel) payLabel.textContent=pay?pay.l:'เลือกช่องทางชำระเงิน';
+  if(catLabel) catLabel.textContent=cat?cleanAddLabel(cat.l):t('selectCategory');
+  if(payLabel) payLabel.textContent=pay?pay.l:t('selectPayment');
 }
 function openMobilePicker(type){
   var modal=document.getElementById('mobile-picker-modal'), title=document.getElementById('mobile-picker-title'), list=document.getElementById('mobile-picker-list');
   if(!modal||!title||!list) return;
   var arr=type==='cat'?S.cats:S.pays;
-  title.textContent=type==='cat'?'เลือกหมวดหมู่':'เลือกช่องทางชำระเงิน';
+  title.textContent=type==='cat'?t('selectCategory'):t('selectPayment');
   list.innerHTML='';
   arr.forEach(function(item){
     var selected=type==='cat'?S.fc.cat===item.id:S.fc.pay===item.id;
@@ -1359,7 +1450,7 @@ function renderAddSummary(){
   var pct=Math.min(100,Math.round(total/dailyBudget*100));
   totalEl.textContent='฿ '+fmt2(total);
   bar.style.width=pct+'%';
-  budget.textContent=pct+'% of daily budget';
+  budget.textContent=pct+'% '+t('dailyBudget');
   var recent=S.expenses.slice().sort(function(a,b){ return String(b.date||'').localeCompare(String(a.date||'')); }).slice(0,3);
   if(!recent.length){
     list.innerHTML='<div style="font-size:13px;color:#c9c4d7;line-height:1.6">ยังไม่มีรายการล่าสุด</div>';
@@ -1642,10 +1733,10 @@ function renderCreditLine(cr){
   var rate=info.rate||cr.rate||0;
   var tone=cr.id.indexOf('kbank')===0||cr.id.indexOf('ttb')===0||cr.id==='gsb'?'green':cr.id.indexOf('aeon')===0||cr.id.indexOf('krungsri')===0?'amber':'';
   return '<div class="cr-line-card">'+
-    '<div class="cr-line-main"><div class="cr-logo '+tone+'">'+esc(crInitials(cr.n))+'</div><div><div class="cr-line-name">'+esc(cr.n)+'</div><div class="cr-line-meta"><span>Due: '+esc(due)+'</span><span>Rate: '+esc(rate)+'%</span></div></div></div>'+
-    '<div class="cr-pay-state '+(isPaid?'paid':'warn')+'"><span class="material-symbols-outlined">'+(isPaid?'check_circle':'warning')+'</span><em>'+(isPaid?'Paid':'Due')+'</em></div>'+
-    '<div class="cr-line-balance"><div class="cr-line-amt '+(!isPaid&&bal>0?'due':'')+'">฿ '+fmt(bal)+'</div><div class="cr-line-label">Current Balance</div></div>'+
-    '<div class="cr-line-actions"><button class="edit" onclick="openInfo(\''+cr.id+'\')">Edit Info</button><button class="pay" onclick="openPay(\''+cr.id+'\')" '+(bal<=0&&isPaid?'disabled':'')+'>Pay Bill</button></div>'+
+    '<div class="cr-line-main"><div class="cr-logo '+tone+'">'+esc(crInitials(cr.n))+'</div><div><div class="cr-line-name">'+esc(cr.n)+'</div><div class="cr-line-meta"><span>'+(getLang()==='th'?'ครบกำหนด: ':'Due: ')+esc(due)+'</span><span>'+(getLang()==='th'?'ดอกเบี้ย: ':'Rate: ')+esc(rate)+'%</span></div></div></div>'+
+    '<div class="cr-pay-state '+(isPaid?'paid':'warn')+'"><span class="material-symbols-outlined">'+(isPaid?'check_circle':'warning')+'</span><em>'+t(isPaid?'paid':'due')+'</em></div>'+
+    '<div class="cr-line-balance"><div class="cr-line-amt '+(!isPaid&&bal>0?'due':'')+'">฿ '+fmt(bal)+'</div><div class="cr-line-label">'+t('currentBalance')+'</div></div>'+
+    '<div class="cr-line-actions"><button class="edit" onclick="openInfo(\''+cr.id+'\')">'+t('editInfo')+'</button><button class="pay" onclick="openPay(\''+cr.id+'\')" '+(bal<=0&&isPaid?'disabled':'')+'>'+t('payBill')+'</button></div>'+
     '</div>';
 }
 function renderBillCalendar(){
@@ -1686,6 +1777,7 @@ function renderCR(){
   list.className='cr-lines';
   if(!grp.length){ list.innerHTML='<div class="cr-setup-empty">ไม่มีรายการตามตัวกรองนี้</div>'; return; }
   list.innerHTML=grp.map(renderCreditLine).join('');
+  applyLanguage();
 }
 
 function openCreditSetupModal(type){
@@ -1781,11 +1873,11 @@ function renderDebtOverview(){
   });
   var pct=totLimit>0?Math.min(100,Math.max(0,Math.round(totUsed/totLimit*100))):0;
   var avail=Math.max(0,totLimit-totUsed),availPct=totLimit>0?Math.max(0,Math.round(avail/totLimit*100)):0;
-  w.innerHTML='<div class="cr-paid-summary"><div><span class="material-symbols-outlined">verified</span><p>ยอดสินเชื่อที่ชำระเดือนนี้</p></div><strong>฿ '+fmt(monthPaid)+'</strong><small>'+thaiMo(mo)+'</small></div>'+
+  w.innerHTML='<div class="cr-paid-summary"><div><span class="material-symbols-outlined">verified</span><p>'+t('creditPaidMonth')+'</p></div><strong>฿ '+fmt(monthPaid)+'</strong><small>'+thaiMo(mo)+'</small></div>'+
     '<div class="cr-kpi-grid">'+
-    '<div class="cr-kpi-card"><div class="cr-kpi-label">Total Approved Limit</div><div class="cr-kpi-val">฿ '+fmt(totLimit)+'</div><div class="cr-kpi-note"><span class="material-symbols-outlined">trending_up</span>'+paidCount+'/'+crCount+' paid this month</div></div>'+
-    '<div class="cr-kpi-card cr-gauge-card"><div class="cr-kpi-label">Utilization Rate</div><div class="cr-gauge" style="--pct:'+pct+'%"><strong>'+pct+'%</strong></div><div class="cr-gauge-sub">'+(pct<=40?'Healthy Status':pct<=70?'Watch Status':'High Usage')+'</div></div>'+
-    '<div class="cr-kpi-card"><div class="cr-kpi-label">Available Credit</div><div class="cr-kpi-val green">฿ '+fmt(avail)+'</div><div class="cr-kpi-progress"><span style="width:'+availPct+'%"></span></div><div class="cr-kpi-sub" style="text-align:right;margin-top:8px;color:#c9c4d7;font-family:var(--font-label);font-size:12px;font-weight:800">'+availPct+'% Available</div></div>'+
+    '<div class="cr-kpi-card"><div class="cr-kpi-label">'+t('totalApprovedLimit')+'</div><div class="cr-kpi-val">฿ '+fmt(totLimit)+'</div><div class="cr-kpi-note"><span class="material-symbols-outlined">trending_up</span>'+paidCount+'/'+crCount+' '+t('paidThisMonth')+'</div></div>'+
+    '<div class="cr-kpi-card cr-gauge-card"><div class="cr-kpi-label">'+t('utilizationRate')+'</div><div class="cr-gauge" style="--pct:'+pct+'%"><strong>'+pct+'%</strong></div><div class="cr-gauge-sub">'+t(pct<=40?'healthyStatus':pct<=70?'watchStatus':'highUsage')+'</div></div>'+
+    '<div class="cr-kpi-card"><div class="cr-kpi-label">'+t('availableCredit')+'</div><div class="cr-kpi-val green">฿ '+fmt(avail)+'</div><div class="cr-kpi-progress"><span style="width:'+availPct+'%"></span></div><div class="cr-kpi-sub" style="text-align:right;margin-top:8px;color:#c9c4d7;font-family:var(--font-label);font-size:12px;font-weight:800">'+availPct+'% '+t('availableCredit')+'</div></div>'+
     '</div>';
 }
 
@@ -2130,13 +2222,13 @@ function renderIncSum(){
   }
   w.innerHTML=
     '<div class="inc-goal-card inc-glass">'+
-      '<div class="inc-side-title">Monthly Income Goal <span class="material-symbols-outlined">flag</span></div>'+
+      '<div class="inc-side-title">'+t('monthlyIncomeGoal')+' <span class="material-symbols-outlined">flag</span></div>'+
       '<div class="inc-goal-amt">฿ '+fmt(incTotal)+' <span>/ ฿ '+fmt(goal)+'</span></div>'+
       '<div class="inc-progress"><div class="inc-progress-fill" style="width:'+pct+'%"></div></div>'+
-      '<div class="inc-goal-foot"><span>'+pct+'% Achieved</span><span>฿ '+fmt(remain)+' Remaining</span></div>'+
+      '<div class="inc-goal-foot"><span>'+pct+'% '+t('achieved')+'</span><span>฿ '+fmt(remain)+' '+t('remaining')+'</span></div>'+
     '</div>'+
     '<div class="inc-recent-card inc-glass">'+
-      '<div class="inc-side-title inc-recent-head">Recent Inflows <span>View All</span></div>'+
+      '<div class="inc-side-title inc-recent-head">'+t('recentInflows')+' <span>'+t('viewAll')+'</span></div>'+
       '<div class="inc-recent-list"></div>'+
     '</div>';
   var list=w.querySelector('.inc-recent-list');
@@ -2154,6 +2246,7 @@ function renderIncSum(){
       '</div><div class="inc-recent-amt">+ ฿ '+fmt(i.amount)+'</div>';
     list.appendChild(row);
   });
+  applyLanguage();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -2184,10 +2277,10 @@ function renderDashFilters(){
   document.querySelectorAll('[data-dash-time]').forEach(function(b){ b.classList.toggle('on',b.dataset.dashTime===currentDashTimeFilter); });
   var wrap=document.getElementById('dash-entity-filters'); if(!wrap) return;
   var members=dashEntityMembers();
-  var html='<span>มุมมอง</span><button type="button" data-dash-user="joint" onclick="setDashUserFilter(\'joint\')">รวมครอบครัว</button>';
+  var html='<span>'+t('view')+'</span><button type="button" data-dash-user="joint" onclick="setDashUserFilter(\'joint\')">'+t('jointFamily')+'</button>';
   members.forEach(function(m){
     var val=(S.user&&m.id===S.user.id)?'me':m.id;
-    var label=(S.user&&m.id===S.user.id)?'ฉัน':m.name;
+    var label=(S.user&&m.id===S.user.id)?t('me'):m.name;
     html+='<button type="button" data-dash-user="'+esc(val)+'" onclick="setDashUserFilter(\''+esc(val)+'\')">'+esc(label)+'</button>';
   });
   wrap.innerHTML=html;
@@ -2330,15 +2423,16 @@ function renderDash(){
     return '<tr><td><div class="dash-qitem"><span class="material-symbols-outlined">'+r.icon+'</span><div><strong>'+esc(r.detail||'-')+'</strong><small>'+dashDate(r.date)+'</small></div></div></td><td>'+esc(r.cat||'-')+'</td><td><span class="dash-person">'+esc((r.person||'SYS').slice(0,3))+'</span></td><td class="dash-amt '+(r.type==='inc'?'pos':'')+'">'+(r.type==='inc'?'+':'-')+' ฿ '+fmt2(r.amount)+'</td></tr>';
   }).join(''):'<tr><td colspan="4" class="dash-empty">ยังไม่มีรายการ</td></tr>';
   w.innerHTML='<div class="dash-v2">'+
-    '<section class="dash-kpi main"><div><span>Monthly Net Balance</span><strong>฿ '+fmt2(net)+'</strong><small class="'+(net>=0?'pos':'neg')+'"><span class="material-symbols-outlined">trending_up</span> รายรับ ฿ '+fmt(incMo)+' · รายจ่าย ฿ '+fmt(tot)+'</small></div></section>'+
-    '<section class="dash-kpi"><span>Total Debt</span><strong>฿ '+fmt(debtTotal)+'</strong><div class="dash-mini-track"><i style="width:'+debtPct+'%"></i></div><small>ใช้วงเงิน '+debtPct+'%</small></section>'+
-    '<section class="dash-kpi"><span>Projected Interest Savings</span><strong class="green">฿ '+fmt(projectedSave)+'</strong><small class="pos"><span class="material-symbols-outlined">auto_awesome</span> ด้วยแผนชำระเร่งด่วน</small></section>'+
-    '<section class="dash-panel budget"><div class="dash-panel-head"><h2>Budget Progress</h2><span>งบประมาณเดือนนี้</span></div><div class="budget-progress">'+budgetProgressHtml(items)+'</div></section>'+
-    '<section class="dash-panel chart"><div class="dash-panel-head"><h2>สุขภาพทางการเงินของคุณ</h2><button type="button" onclick="goTab(\'hist\',document.querySelector(\'.tbtn[onclick*=hist]\'))">ดูรายละเอียด</button></div><div class="dash-chart">'+chartHtml+'</div><div class="dash-legend"><span><i class="income"></i>รายได้</span><span><i class="expense"></i>รายจ่าย</span></div></section>'+
-    '<section class="dash-panel category"><div class="dash-panel-head"><h2>Expenses by Category</h2><span>หมวดหมู่รายจ่าย</span></div><div class="dash-doughnut-wrap"><canvas id="dash-category-chart"></canvas></div></section>'+
-    '<section class="dash-panel calendar"><div class="dash-panel-head"><h2>ปฏิทินรายจ่ายรายวัน</h2><span>'+thaiMo(calMo)+'</span></div><div class="dash-cal-dow"><span>อา</span><span>จ</span><span>อ</span><span>พ</span><span>พฤ</span><span>ศ</span><span>ส</span></div><div class="dash-cal-grid">'+calHtml+'</div><div class="dash-cal-legend"><span>น้อย</span><i class="l0"></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i><span>มาก</span></div></section>'+
-    '<section class="dash-panel history"><div class="dash-panel-head"><h2>Quick History</h2><button type="button" onclick="goTab(\'hist\',document.querySelector(\'.tbtn[onclick*=hist]\'))">ดูทั้งหมด <span class="material-symbols-outlined">arrow_forward</span></button></div><div class="dash-table-wrap"><table class="dash-table"><thead><tr><th>รายการ</th><th>หมวดหมู่</th><th>ผู้ทำรายการ</th><th>จำนวนเงิน</th></tr></thead><tbody>'+recentHtml+'</tbody></table></div></section>'+
+    '<section class="dash-kpi main"><div><span>'+t('monthlyNetBalance')+'</span><strong>฿ '+fmt2(net)+'</strong><small class="'+(net>=0?'pos':'neg')+'"><span class="material-symbols-outlined">trending_up</span> '+t('incomeLabel')+' ฿ '+fmt(incMo)+' · '+t('expenseLabel')+' ฿ '+fmt(tot)+'</small></div></section>'+
+    '<section class="dash-kpi"><span>'+t('totalDebt')+'</span><strong>฿ '+fmt(debtTotal)+'</strong><div class="dash-mini-track"><i style="width:'+debtPct+'%"></i></div><small>'+t('useLimit')+' '+debtPct+'%</small></section>'+
+    '<section class="dash-kpi"><span>'+t('projectedInterestSavings')+'</span><strong class="green">฿ '+fmt(projectedSave)+'</strong><small class="pos"><span class="material-symbols-outlined">auto_awesome</span> '+(getLang()==='th'?'ด้วยแผนชำระเร่งด่วน':'with an accelerated plan')+'</small></section>'+
+    '<section class="dash-panel budget"><div class="dash-panel-head"><h2>'+t('budgetProgress')+'</h2><span>'+t('budgetThisMonth')+'</span></div><div class="budget-progress">'+budgetProgressHtml(items)+'</div></section>'+
+    '<section class="dash-panel chart"><div class="dash-panel-head"><h2>'+t('financialHealth')+'</h2><button type="button" onclick="goTab(\'hist\',document.querySelector(\'.tbtn[onclick*=hist]\'))">'+t('viewDetails')+'</button></div><div class="dash-chart">'+chartHtml+'</div><div class="dash-legend"><span><i class="income"></i>รายได้</span><span><i class="expense"></i>รายจ่าย</span></div></section>'+
+    '<section class="dash-panel category"><div class="dash-panel-head"><h2>'+t('expenseByCategory')+'</h2><span>'+t('category')+'</span></div><div class="dash-doughnut-wrap"><canvas id="dash-category-chart"></canvas></div></section>'+
+    '<section class="dash-panel calendar"><div class="dash-panel-head"><h2>'+t('dailyCalendar')+'</h2><span>'+thaiMo(calMo)+'</span></div><div class="dash-cal-dow"><span>อา</span><span>จ</span><span>อ</span><span>พ</span><span>พฤ</span><span>ศ</span><span>ส</span></div><div class="dash-cal-grid">'+calHtml+'</div><div class="dash-cal-legend"><span>'+t('less')+'</span><i class="l0"></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i><span>'+t('more')+'</span></div></section>'+
+    '<section class="dash-panel history"><div class="dash-panel-head"><h2>'+t('recentTransactions')+'</h2><button type="button" onclick="goTab(\'hist\',document.querySelector(\'.tbtn[onclick*=hist]\'))">'+t('viewAll')+' <span class="material-symbols-outlined">arrow_forward</span></button></div><div class="dash-table-wrap"><table class="dash-table"><thead><tr><th>รายการ</th><th>'+t('category')+'</th><th>ผู้ทำรายการ</th><th>'+t('amount')+'</th></tr></thead><tbody>'+recentHtml+'</tbody></table></div></section>'+
   '</div>';
+  applyLanguage();
   renderDashCategoryChart(items);
   return;
 
@@ -2631,6 +2725,7 @@ async function saveBudgets(){
   }
 }
 function renderV4Settings(){
+  applyLanguage();
   updateHeader();
   renderBudgetSettings();
   var profileName=S.profile&&S.profile.full_name?S.profile.full_name:(S.user&&S.user.email?S.user.email:'BridgeX Member');
@@ -2653,7 +2748,7 @@ function renderV4Settings(){
     if(S.profile&&S.profile.full_name&&!members.some(function(m){ return m.id===S.profile.id||m.full_name===S.profile.full_name; })) members.unshift(S.profile);
     membersEl.innerHTML=members.length?members.map(function(m,idx){
       var name=m.full_name||m.name||m.email||m.id||'Member';
-      return '<div class="set-member"><span>'+esc(memberInitials(name))+'</span><div><strong>'+esc(name)+'</strong><small>'+(idx===0?'Admin (Owner)':'Family Member')+'</small></div><em>Full Access</em></div>';
+      return '<div class="set-member"><span>'+esc(memberInitials(name))+'</span><div><strong>'+esc(name)+'</strong><small>'+t(idx===0?'adminOwner':'member')+'</small></div><em>'+t('fullAccess')+'</em></div>';
     }).join(''):'<div class="set-member"><span>BX</span><div><strong>ยังไม่มีสมาชิก</strong><small>เชื่อมครอบครัวเพื่อแสดงสมาชิก</small></div></div>';
   }
   var isPro=S.profile&&S.profile.sub_tier==='pro_109';
