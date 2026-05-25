@@ -27,7 +27,9 @@ const I18N = {
     monthlyIncomeGoal:'เป้ารายรับเดือนนี้', recentInflows:'รายรับล่าสุด', achieved:'สำเร็จแล้ว', remaining:'เหลืออีก',
     incomeLabel:'รายรับ', expenseLabel:'รายจ่าย', useLimit:'ใช้วงเงิน', dailyBudget:'ของงบวันนี้',
     dailyCalendar:'ปฏิทินรายจ่ายรายวัน', less:'น้อย', more:'มาก', member:'สมาชิกครอบครัว',
-    fullAccess:'เข้าถึงได้ทั้งหมด', adminOwner:'ผู้ดูแลบัญชี', creditPaidMonth:'ชำระสินเชื่อเดือนนี้'
+    fullAccess:'เข้าถึงได้ทั้งหมด', adminOwner:'ผู้ดูแลบัญชี', creditPaidMonth:'ชำระสินเชื่อเดือนนี้',
+    selectIncomeCategory:'เลือกหมวดรายรับ', selectIncomeChannel:'เลือกรับเงินเข้าบัญชี',
+    selectCreditType:'เลือกประเภทสินเชื่อ', selectProvider:'เลือกผู้ให้บริการ', selectPrimaryCard:'เลือกบัตรหลัก'
     ,dashboardHeading:'สรุปภาพรวมการเงิน', dashboardIntro:'ดูข้อมูลล่าสุดและติดตามสุขภาพการเงินของคุณได้ง่าย ๆ',
     currentPlan:'แพ็กเกจปัจจุบัน', managePlan:'จัดการแพ็กเกจ', primaryContact:'ข้อมูลติดต่อหลัก',
     connection:'การเชื่อมต่อ', addMember:'เพิ่มสมาชิก', realtimeSync:'อัปเดตข้อมูลทันที',
@@ -54,7 +56,9 @@ const I18N = {
     viewAll:'View All', monthlyIncomeGoal:'Monthly Income Goal', recentInflows:'Recent Inflows', achieved:'Achieved', remaining:'Remaining',
     incomeLabel:'Income', expenseLabel:'Expense', useLimit:'Credit used', dailyBudget:'of daily budget',
     dailyCalendar:'Daily Expense Calendar', less:'Less', more:'More', member:'Family Member',
-    fullAccess:'Full Access', adminOwner:'Admin (Owner)', creditPaidMonth:'Credit paid this month'
+    fullAccess:'Full Access', adminOwner:'Admin (Owner)', creditPaidMonth:'Credit paid this month',
+    selectIncomeCategory:'Select Income Category', selectIncomeChannel:'Select Deposit Account',
+    selectCreditType:'Select Credit Type', selectProvider:'Select Provider', selectPrimaryCard:'Select Primary Card'
     ,dashboardHeading:'Wealth Overview', dashboardIntro:'See your latest figures and track your financial health.',
     currentPlan:'Current Plan', managePlan:'Manage Subscription', primaryContact:'Primary Contact',
     connection:'Connection', addMember:'Add Member', realtimeSync:'Real-Time Sync',
@@ -1085,26 +1089,62 @@ function renderPays(){
 function renderMobilePickers(){
   var cat=S.cats.find(function(c){ return c.id===S.fc.cat; });
   var pay=S.pays.find(function(p){ return p.id===S.fc.pay; });
+  var incc=S.incc.find(function(c){ return c.id===S.fi.cat; });
+  var inch=S.inch.find(function(c){ return c.id===S.fi.ch; });
   var catLabel=document.getElementById('mobile-cat-label');
   var payLabel=document.getElementById('mobile-pay-label');
+  var inccLabel=document.getElementById('mobile-incc-label');
+  var inchLabel=document.getElementById('mobile-inch-label');
   if(catLabel) catLabel.textContent=cat?cleanAddLabel(cat.l):t('selectCategory');
   if(payLabel) payLabel.textContent=pay?pay.l:t('selectPayment');
+  if(inccLabel) inccLabel.textContent=incc?cleanAddLabel(incc.l):t('selectIncomeCategory');
+  if(inchLabel) inchLabel.textContent=inch?cleanAddLabel(inch.l):t('selectIncomeChannel');
+  var typeEl=document.getElementById('cs-type'), providerEl=document.getElementById('cs-provider'), linkedEl=document.getElementById('cs-linked-credit');
+  var typeLabel=document.getElementById('mobile-cr-type-label'), providerLabel=document.getElementById('mobile-cr-provider-label'), linkedLabel=document.getElementById('mobile-cr-linked-label');
+  if(typeLabel&&typeEl) typeLabel.textContent=typeEl.options[typeEl.selectedIndex]&&typeEl.options[typeEl.selectedIndex].text||t('selectCreditType');
+  if(providerLabel&&providerEl) providerLabel.textContent=providerEl.value||t('selectProvider');
+  if(linkedLabel&&linkedEl) linkedLabel.textContent=linkedEl.options[linkedEl.selectedIndex]&&linkedEl.value?linkedEl.options[linkedEl.selectedIndex].text:t('selectPrimaryCard');
 }
 function openMobilePicker(type){
   var modal=document.getElementById('mobile-picker-modal'), title=document.getElementById('mobile-picker-title'), list=document.getElementById('mobile-picker-list');
   if(!modal||!title||!list) return;
-  var arr=type==='cat'?S.cats:S.pays;
-  title.textContent=type==='cat'?t('selectCategory'):t('selectPayment');
+  var iconMap={sal:'work',bon:'redeem',free:'business_center',inv:'trending_up',oth:'more_horiz'};
+  var arr=[], selectedId='', pickerTitle='';
+  if(type==='cat'){ arr=S.cats; selectedId=S.fc.cat; pickerTitle=t('selectCategory'); }
+  else if(type==='pay'){ arr=S.pays; selectedId=S.fc.pay; pickerTitle=t('selectPayment'); }
+  else if(type==='inc-cat'){ arr=S.incc; selectedId=S.fi.cat; pickerTitle=t('selectIncomeCategory'); }
+  else if(type==='inc-ch'){ arr=S.inch; selectedId=S.fi.ch; pickerTitle=t('selectIncomeChannel'); }
+  else if(type==='cr-type'){
+    var typeEl=document.getElementById('cs-type');
+    arr=[{id:'revolving',l:'สินเชื่อหมุนเวียน'},{id:'fixed',l:'สินเชื่อหลักประกัน'}];
+    selectedId=typeEl&&typeEl.value; pickerTitle=t('selectCreditType');
+  }else if(type==='cr-provider'){
+    var providerEl=document.getElementById('cs-provider');
+    arr=providerEl?Array.from(providerEl.options).map(function(o){ return {id:o.value,l:o.text}; }):[];
+    selectedId=providerEl&&providerEl.value; pickerTitle=t('selectProvider');
+  }else if(type==='cr-linked'){
+    var linkedEl=document.getElementById('cs-linked-credit');
+    arr=linkedEl?Array.from(linkedEl.options).filter(function(o){ return !!o.value; }).map(function(o){ return {id:o.value,l:o.text}; }):[];
+    selectedId=linkedEl&&linkedEl.value; pickerTitle=t('selectPrimaryCard');
+  }
+  title.textContent=pickerTitle;
   list.innerHTML='';
   arr.forEach(function(item){
-    var selected=type==='cat'?S.fc.cat===item.id:S.fc.pay===item.id;
+    var selected=selectedId===item.id;
     var btn=document.createElement('button');
     btn.type='button';
     btn.className='mobile-picker-item'+(selected?' on':'');
     btn.onclick=function(){ selectMobilePickerItem(type,item.id); };
-    btn.innerHTML='<span class="mobile-picker-icon material-symbols-outlined">'+(type==='cat'?(addCatIconMap[item.id]||'more_horiz'):addPayIcon(item.id))+'</span><strong>'+esc(type==='cat'?cleanAddLabel(item.l):item.l)+'</strong>';
+    var icon=type==='cat'?(addCatIconMap[item.id]||'more_horiz'):
+      type==='pay'?addPayIcon(item.id):
+      type==='inc-cat'?(iconMap[item.id]||'more_horiz'):
+      type==='inc-ch'?(item.id==='cash'?'payments':item.id==='prompt'?'qr_code_2':'account_balance_wallet'):
+      type==='cr-type'?(item.id==='fixed'?'account_balance':'credit_card'):
+      type==='cr-linked'?'link':'credit_card';
+    btn.innerHTML='<span class="mobile-picker-icon material-symbols-outlined">'+icon+'</span><strong>'+esc(cleanAddLabel(item.l))+'</strong>';
     list.appendChild(btn);
   });
+  if(!arr.length) list.innerHTML='<div class="mobile-picker-empty">ยังไม่มีรายการให้เลือก</div>';
   modal.dataset.type=type;
   modal.classList.remove('hidden');
   requestAnimationFrame(function(){ modal.classList.add('on'); });
@@ -1120,7 +1160,22 @@ function mobilePickerBg(e){
 }
 function selectMobilePickerItem(type,id){
   if(type==='cat'){ S.fc.cat=id; closeMobilePicker(); renderCats(); }
-  else { S.fc.pay=id; closeMobilePicker(); renderPays(); }
+  else if(type==='pay'){ S.fc.pay=id; closeMobilePicker(); renderPays(); }
+  else if(type==='inc-cat'){ S.fi.cat=id; closeMobilePicker(); renderIncc(); }
+  else if(type==='inc-ch'){ S.fi.ch=id; closeMobilePicker(); renderInch(); }
+  else if(type==='cr-type'){
+    document.getElementById('cs-type').value=id;
+    updateCreditProviderOptions();
+    closeMobilePicker();
+  }else if(type==='cr-provider'){
+    document.getElementById('cs-provider').value=id;
+    renderMobilePickers();
+    closeMobilePicker();
+  }else if(type==='cr-linked'){
+    document.getElementById('cs-linked-credit').value=id;
+    renderMobilePickers();
+    closeMobilePicker();
+  }
 }
 function renderIncc(){
   var w=document.getElementById('incc-chips'); if(!w) return; w.innerHTML='';
@@ -1133,6 +1188,7 @@ function renderIncc(){
     b.onclick=function(){ S.fi.cat=c.id; renderIncc(); };
     w.appendChild(b);
   });
+  renderMobilePickers();
 }
 function renderInch(){
   var w=document.getElementById('inch-chips'); if(!w) return; w.innerHTML='';
@@ -1144,6 +1200,7 @@ function renderInch(){
     b.onclick=function(){ S.fi.ch=c.id; renderInch(); };
     w.appendChild(b);
   });
+  renderMobilePickers();
 }
 function selP(n){ if(S.profile&&S.profile.full_name){ S.fc.payer=S.profile.full_name; return; } S.fc.payer=n; document.getElementById('py-j').classList.toggle('on',n==='เจ'); document.getElementById('py-f').classList.toggle('on',n==='แฟง'); }
 function selIP(n){ if(S.profile&&S.profile.full_name){ S.fi.rcv=S.profile.full_name; return; } S.fi.rcv=n; document.getElementById('ip-j').classList.toggle('on',n==='เจ'); document.getElementById('ip-f').classList.toggle('on',n==='แฟง'); }
@@ -1686,6 +1743,7 @@ function updateCreditProviderOptions(){
   if(opts.indexOf(cur)>=0) providerEl.value=cur;
   populateLinkedPrimaryCreditOptions();
   toggleLinkedPrimaryCredit();
+  renderMobilePickers();
 }
 function primaryCreditOptionsForSetup(){
   return Object.keys(S.crInfo||{}).filter(function(id){
@@ -1702,6 +1760,7 @@ function populateLinkedPrimaryCreditOptions(){
   var opts=primaryCreditOptionsForSetup();
   el.innerHTML='<option value="">เลือก primary card</option>'+opts.map(function(o){ return '<option value="'+esc(o.id)+'">'+esc(o.name)+'</option>'; }).join('');
   if(opts.some(function(o){ return o.id===cur; })) el.value=cur;
+  renderMobilePickers();
 }
 function toggleLinkedPrimaryCredit(){
   var typeEl=document.getElementById('cs-card-type'), wrap=document.getElementById('cs-linked-wrap');
@@ -1709,6 +1768,7 @@ function toggleLinkedPrimaryCredit(){
   var isSecondary=typeEl.value==='secondary';
   wrap.classList.toggle('on',isSecondary);
   if(isSecondary) populateLinkedPrimaryCreditOptions();
+  renderMobilePickers();
 }
 function crInitials(name){
   name=String(name||'CR').replace(/[^\wก-๙+\/ ]/g,'').trim();
@@ -2349,10 +2409,14 @@ function renderDash(){
   var now=new Date(), mo=thisMo();
   var items=filterDashRows(S.expenses);
   var incomeItems=filterDashRows(S.incomes);
+  var creditPaymentItems=filterDashRows(S.credits||[]);
   var entityUser=currentDashUserFilter==='me'&&S.user?S.user.id:currentDashUserFilter;
   var entityExpenses=currentDashUserFilter==='joint'?S.expenses.slice():S.expenses.filter(function(e){ return String(e.user_id||'')===String(entityUser); });
   var entityIncomes=currentDashUserFilter==='joint'?S.incomes.slice():S.incomes.filter(function(i){ return String(i.user_id||'')===String(entityUser); });
-  var tot=items.reduce(function(s,e){ return s+e.amount; },0);
+  var entityCredits=currentDashUserFilter==='joint'?(S.credits||[]).slice():(S.credits||[]).filter(function(c){ return String(c.user_id||'')===String(entityUser); });
+  var expenseTotal=items.reduce(function(s,e){ return s+Number(e.amount||0); },0);
+  var creditPaymentTotal=creditPaymentItems.reduce(function(s,c){ return s+Number(c.amount||0); },0);
+  var tot=expenseTotal+creditPaymentTotal;
   var personTotals={};
   (S.familyMembers||[]).forEach(function(m){
     var name=m&&m.full_name?m.full_name:(m&&m.name?m.name:'');
@@ -2396,6 +2460,7 @@ function renderDash(){
   var maxChart=1;
   var chart=months.map(function(m){
     var exp=entityExpenses.filter(function(e){ return e.date&&e.date.slice(0,7)===m; }).reduce(function(s,e){ return s+Number(e.amount||0); },0);
+    exp+=entityCredits.filter(function(c){ return c.date&&c.date.slice(0,7)===m; }).reduce(function(s,c){ return s+Number(c.amount||0); },0);
     var inc=entityIncomes.filter(function(i){ return i.date&&i.date.slice(0,7)===m; }).reduce(function(s,i){ return s+Number(i.amount||0); },0);
     maxChart=Math.max(maxChart,exp,inc);
     return {m:m,exp:exp,inc:inc};

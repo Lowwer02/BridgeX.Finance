@@ -94,12 +94,13 @@
       <div class="modal-sub">กรอกข้อมูลสินเชื่อเพื่อเริ่มติดตามวงเงิน ยอดหนี้ และวันครบกำหนด</div>
     </div>
     <div class="credit-setup-form">
-    <div class="fld"><label>ประเภท</label><select id="cs-type" onchange="updateCreditProviderOptions()"><option value="revolving">สินเชื่อหมุนเวียน</option><option value="fixed">สินเชื่อหลักประกัน</option></select></div>
-    <div class="fld"><label>ผู้ใช้บริการ</label><select id="cs-provider"></select></div>
+    <div class="fld"><label>ประเภท</label><select class="mobile-picker-native" id="cs-type" onchange="updateCreditProviderOptions()"><option value="revolving">สินเชื่อหมุนเวียน</option><option value="fixed">สินเชื่อหลักประกัน</option></select><button class="mobile-picker-trigger" id="mobile-cr-type-trigger" type="button" onclick="openMobilePicker('cr-type')"><span class="material-symbols-outlined">category</span><strong>เลือกประเภทสินเชื่อ</strong><em id="mobile-cr-type-label">สินเชื่อหมุนเวียน</em></button></div>
+    <div class="fld"><label>ผู้ให้บริการ</label><select class="mobile-picker-native" id="cs-provider"></select><button class="mobile-picker-trigger" id="mobile-cr-provider-trigger" type="button" onclick="openMobilePicker('cr-provider')"><span class="material-symbols-outlined">credit_card</span><strong>เลือกผู้ให้บริการ</strong><em id="mobile-cr-provider-label">-</em></button></div>
     <div class="fld"><label>ชนิดบัตร</label><select id="cs-card-type" onchange="toggleLinkedPrimaryCredit()"><option value="primary">Primary card</option><option value="secondary">Secondary card</option></select></div>
     <div class="fld linked-credit-field" id="cs-linked-wrap">
       <label>Primary card ที่ใช้วงเงินร่วมกัน</label>
-      <select id="cs-linked-credit"></select>
+      <select class="mobile-picker-native" id="cs-linked-credit"></select>
+      <button class="mobile-picker-trigger" id="mobile-cr-linked-trigger" type="button" onclick="openMobilePicker('cr-linked')"><span class="material-symbols-outlined">link</span><strong>เลือกบัตรหลัก</strong><em id="mobile-cr-linked-label">เลือก primary card</em></button>
       <div class="linked-credit-note">Secondary card จะใช้วงเงินเดียวกับ primary (balance รวมกัน)</div>
     </div>
     <div class="fld"><label>วงเงิน / ยอดหนี้</label><input type="number" id="cs-limit" placeholder="0"></div>
@@ -390,6 +391,11 @@
           <div class="inc-field">
             <label data-i18n="depositTo">รับเงินเข้าบัญชี</label>
             <div class="inc-select-list" id="inch-chips"></div>
+            <button class="mobile-picker-trigger" id="mobile-inch-trigger" type="button" onclick="openMobilePicker('inc-ch')">
+              <span class="material-symbols-outlined">account_balance_wallet</span>
+              <strong>เลือกรับเงินเข้าบัญชี</strong>
+              <em id="mobile-inch-label">เลือกรับเงินเข้าบัญชี</em>
+            </button>
           </div>
         </div>
       </div>
@@ -397,6 +403,11 @@
         <div class="inc-glass inc-panel">
           <div class="inc-card-title" data-i18n="incomeSource">ที่มาของรายรับ</div>
           <div class="inc-category-grid" id="incc-chips"></div>
+          <button class="mobile-picker-trigger" id="mobile-incc-trigger" type="button" onclick="openMobilePicker('inc-cat')">
+            <span class="material-symbols-outlined">work</span>
+            <strong>เลือกหมวดรายรับ</strong>
+            <em id="mobile-incc-label">เลือกหมวดรายรับ</em>
+          </button>
         </div>
         <div class="inc-glass inc-panel">
           <div class="fld inc-field">

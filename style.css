@@ -1221,6 +1221,14 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
   overflow:hidden;
   overflow-wrap:anywhere;
 }
+.mobile-picker-empty{
+  grid-column:1/-1;
+  padding:24px 12px;
+  text-align:center;
+  color:var(--mut);
+  font-family:var(--font-label);
+  font-size:14px;
+}
 
 @media (max-width:768px){
   #pg-add .add-mode-toggle{display:none}
@@ -1238,7 +1246,9 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
   #pg-add #pay-chips{
     display:none;
   }
-  #pg-add .mobile-picker-trigger{
+  #pg-add .mobile-picker-trigger,
+  #pg-inc .mobile-picker-trigger,
+  #credit-setup-modal .mobile-picker-trigger{
     display:flex;
     align-items:center;
     width:100%;
@@ -1255,7 +1265,9 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
     font-family:var(--font-label);
     box-sizing:border-box;
   }
-  #pg-add .mobile-picker-trigger>span{
+  #pg-add .mobile-picker-trigger>span,
+  #pg-inc .mobile-picker-trigger>span,
+  #credit-setup-modal .mobile-picker-trigger>span{
     width:40px;
     height:40px;
     border-radius:12px;
@@ -1266,13 +1278,17 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
     flex:0 0 auto;
     font-size:25px;
   }
-  #pg-add .mobile-picker-trigger strong{
+  #pg-add .mobile-picker-trigger strong,
+  #pg-inc .mobile-picker-trigger strong,
+  #credit-setup-modal .mobile-picker-trigger strong{
     font-size:15px;
     line-height:1.2;
     color:var(--tx);
     flex:1;
   }
-  #pg-add .mobile-picker-trigger em{
+  #pg-add .mobile-picker-trigger em,
+  #pg-inc .mobile-picker-trigger em,
+  #credit-setup-modal .mobile-picker-trigger em{
     max-width:42%;
     color:var(--mut);
     font-style:normal;
@@ -1288,6 +1304,21 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
     width:100%;
     max-width:100%;
     box-sizing:border-box;
+  }
+  #pg-inc #incc-chips,
+  #pg-inc #inch-chips{
+    display:none;
+  }
+  #pg-inc .mobile-picker-trigger{
+    margin-top:10px;
+  }
+  #credit-setup-modal select.mobile-picker-native{
+    display:none;
+  }
+  #credit-setup-modal .mobile-picker-trigger{
+    min-height:60px;
+    padding:10px 13px;
+    margin-top:4px;
   }
 }
 @media (max-width:390px){
