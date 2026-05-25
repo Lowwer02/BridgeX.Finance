@@ -500,7 +500,7 @@
     </section>
     <section class="set-card set-pref-card">
       <h2><span class="material-symbols-outlined">tune</span> <span data-i18n="preferences">การตั้งค่าทั่วไป</span></h2>
-      <div class="set-pref-row"><div><strong data-i18n="theme">ธีม</strong><small data-i18n="appearance">รูปแบบหน้าจอ</small></div><div class="set-segment"><button type="button" onclick="toggleTheme()">Dark</button><button type="button" onclick="toggleTheme()">Light</button></div></div>
+      <div class="set-pref-row"><div><strong data-i18n="theme">ธีม</strong><small data-i18n="appearance">รูปแบบหน้าจอ</small></div><div class="set-segment"><button type="button" data-theme-choice="dark" onclick="setTheme('dark')">Dark</button><button type="button" data-theme-choice="light" onclick="setTheme('light')">Light</button></div></div>
       <div class="set-pref-row"><div><strong data-i18n="baseCurrency">สกุลเงินหลัก</strong><small>Default for analytics</small></div><select><option>THB (฿)</option><option>USD ($)</option></select></div>
       <div class="set-pref-row"><div><strong data-i18n="language">ภาษา</strong></div><select id="language-select" onchange="setLanguage(this.value)"><option value="th">ไทย</option><option value="en">English</option></select></div>
       <div class="set-budget-wrap"><h3>ตั้งค่างบประมาณรายเดือน</h3><div id="budget-settings"></div><button type="button" onclick="saveBudgets()">บันทึกงบประมาณ</button></div>

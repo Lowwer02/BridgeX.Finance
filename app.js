@@ -2939,19 +2939,29 @@ function clearLocal(type){
 }
 
 // ─── Theme Toggle (Fix 3) ─────────────────────────────────
-function toggleTheme(){
-  var isLight=document.body.classList.contains('light');
-  document.body.classList.toggle('light',!isLight);
-  localStorage.setItem('theme',!isLight?'light':'dark');
+function applyTheme(theme){
+  var isLight=theme==='light';
+  document.body.classList.toggle('light',isLight);
+  document.body.classList.toggle('theme-light',isLight);
+  document.body.dataset.theme=isLight?'light':'dark';
+  var btn=document.getElementById('theme-btn');
+  if(btn) btn.textContent=isLight?'☀️':'🌙';
+  document.querySelectorAll('[data-theme-choice]').forEach(function(choice){
+    choice.classList.toggle('on',choice.dataset.themeChoice===(isLight?'light':'dark'));
+  });
+}
+function setTheme(theme){
+  theme=theme==='light'?'light':'dark';
+  localStorage.setItem('theme',theme);
   localStorage.setItem('themeManual','1');
-  document.getElementById('theme-btn').textContent=!isLight?'☀️':'🌙';
+  applyTheme(theme);
+}
+function toggleTheme(){
+  setTheme(document.body.classList.contains('theme-light')?'dark':'light');
 }
 function initTheme(){
   var saved=localStorage.getItem('themeManual')==='1'?(localStorage.getItem('theme')||'light'):'light';
-  var isLight=saved==='light';
-  document.body.classList.toggle('light',isLight);
-  var btn=document.getElementById('theme-btn');
-  if(btn) btn.textContent=isLight?'☀️':'🌙';
+  applyTheme(saved==='light'?'light':'dark');
 }
 // Call initTheme early
 (function(){ initTheme(); })();
