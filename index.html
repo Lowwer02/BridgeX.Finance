@@ -320,6 +320,16 @@
   </div>
   <div id="debt-mode-credit"></div>
   <div id="debt-mode-plan" style="display:none"></div>
+  <div class="debt-sheet-overlay" id="debt-order-sheet" onclick="closeDebtOrderSheet(event)">
+    <section class="debt-bottom-sheet" onclick="event.stopPropagation()">
+      <div class="sheet-handle"></div>
+      <header class="debt-sheet-head">
+        <h2>ลำดับการชำระหนี้รายเดือน</h2>
+        <button type="button" onclick="closeDebtOrderSheet()"><span class="material-symbols-outlined">close</span></button>
+      </header>
+      <div class="debt-sheet-list" id="debt-order-sheet-list"></div>
+    </section>
+  </div>
 </div>
 
 <!-- CREDIT + SMART DEBT -->
@@ -555,7 +565,7 @@
   </button>
   <button class="tbtn" onclick="goTab('debt',this)">
     <span class="ico material-symbols-outlined">credit_card</span>
-    <span>หนี้</span>
+    <span>สินเชื่อ</span>
   </button>
   <button class="tbtn add-fab active" onclick="goTab('add',this)">
     <span class="ico material-symbols-outlined">add_circle</span>

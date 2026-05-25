@@ -1051,7 +1051,7 @@ function goTab(id,btn){
   if(id==='hist') renderHist();
   if(id==='dash') renderDash();
   if(id==='cr')   renderCR();
-  if(id==='debt') toggleDebtMode('credit');
+  if(id==='debt') toggleDebtMode(window.matchMedia('(max-width:768px)').matches?'plan':'credit');
   if(id==='debt-planner') renderSmartDebt();
   if(id==='inc')  renderIncSum();
   if(id==='set')  renderSetStats();
@@ -1362,6 +1362,17 @@ function toggleDebtMode(mode){
   document.getElementById('tog-plan').classList.toggle('on',mode==='plan');
   if(mode==='credit') renderCR();
   if(mode==='plan') renderSmartDebt();
+}
+
+function openDebtOrderSheet(){
+  var sheet=document.getElementById('debt-order-sheet');
+  if(sheet) sheet.classList.add('on');
+}
+
+function closeDebtOrderSheet(e){
+  var sheet=document.getElementById('debt-order-sheet');
+  if(!sheet) return;
+  if(!e||e.target===sheet) sheet.classList.remove('on');
 }
 
 function parseEMVAmount(qrText){
@@ -2250,6 +2261,9 @@ function updateSmartResults(){
   var withExtra=simMonths(extra);
   var noExtra=simMonths(0);
   var isDebtPage=list.id==='debt-plan-list';
+  var mobileDebtView=isDebtPage&&window.matchMedia('(max-width:768px)').matches&&!!list.closest('#debt-mode-plan');
+  var debtSheetList=document.getElementById('debt-order-sheet-list');
+  if(mobileDebtView&&debtSheetList) debtSheetList.innerHTML='';
   if(isDebtPage){
     var savedInt=(withExtra.interest!=null&&noExtra.interest!=null)?Math.max(0,noExtra.interest-withExtra.interest):0;
     var savedMo=(withExtra.months!=null&&noExtra.months!=null)?Math.max(0,noExtra.months-withExtra.months):0;
@@ -2310,6 +2324,28 @@ function updateSmartResults(){
     }
     var moLeft=calcMoLeft(d.remaining,d.minPay+extraForThis,d.rate);
     var isTop=idx===0;
+    if(mobileDebtView&&debtSheetList){
+      var monthPay=d.minPay+extraForThis;
+      if(isTop){
+        var focus=document.createElement('section');
+        focus.className='debt-focus-card';
+        focus.innerHTML='<div class="focus-tag"><span class="material-symbols-outlined">bolt</span> แนะนำเดือนนี้</div>'+
+          '<div class="focus-title">หนี้อันดับ 1 ที่ต้องเร่งโปะเดือนนี้</div>'+
+          '<div class="focus-name">'+esc(d.cr.n)+'</div>'+
+          '<div class="focus-amount">฿ '+fmt(monthPay)+'<small>/ เดือน</small></div>'+
+          '<button type="button" onclick="openDebtOrderSheet()">ดูลำดับการชำระหนี้ทั้งหมด <span class="material-symbols-outlined">arrow_forward</span></button>';
+        resultsWrap.appendChild(focus);
+      }
+      var premiumRow=document.createElement('article');
+      premiumRow.className='debt-premium-card'+(isTop?' priority':'');
+      premiumRow.innerHTML='<div class="debt-rank-badge">'+(idx+1)+'</div>'+
+        '<span class="material-symbols-outlined debt-card-icon">'+debtMaterialIcon(d.cr)+'</span>'+
+        '<div class="debt-card-copy"><strong>'+esc(d.cr.n)+'</strong><small>'+(extraForThis>0?'จ่ายขั้นต่ำ + โปะพิเศษ':'จ่ายขั้นต่ำตามแผน')+'</small></div>'+
+        '<div class="debt-card-pay"><strong>฿ '+fmt(monthPay)+'</strong><small>/ เดือน</small></div>'+
+        '<span class="material-symbols-outlined debt-card-status">'+(isTop?'verified':'schedule')+'</span>';
+      debtSheetList.appendChild(premiumRow);
+      return;
+    }
     var row=document.createElement('div'); row.className='debt-plan-row'+(isTop?' highlight':'');
     var rankDiv=document.createElement('div'); rankDiv.className='dp-rank'+(isTop?' top':''); rankDiv.textContent=idx+1;
     var body=document.createElement('div'); body.className='dp-body';
