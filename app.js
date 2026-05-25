@@ -1146,12 +1146,14 @@ function openMobilePicker(type){
   });
   if(!arr.length) list.innerHTML='<div class="mobile-picker-empty">ยังไม่มีรายการให้เลือก</div>';
   modal.dataset.type=type;
+  document.body.classList.add('mobile-picker-open');
   modal.classList.remove('hidden');
   requestAnimationFrame(function(){ modal.classList.add('on'); });
 }
 function closeMobilePicker(){
   var modal=document.getElementById('mobile-picker-modal');
   if(!modal) return;
+  document.body.classList.remove('mobile-picker-open');
   modal.classList.remove('on');
   setTimeout(function(){ modal.classList.add('hidden'); },220);
 }
