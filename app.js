@@ -1039,6 +1039,12 @@ function goTab(id,btn){
   if(titleEl) titleEl.textContent=titles[requestedId]||tabTitle(id);
   document.querySelectorAll('.pg').forEach(function(p){ p.classList.remove('on'); });
   document.querySelectorAll('.tbtn').forEach(function(b){ b.classList.remove('on'); });
+  document.querySelectorAll('.bn .tbtn').forEach(function(b){ b.classList.remove('active'); });
+  var bottomId=(requestedId==='cr'||requestedId==='debt'||requestedId==='debt-planner')?'debt':
+    (requestedId==='inc'||requestedId==='add')?'add':
+    (requestedId==='hist'||requestedId==='set')?'set':requestedId;
+  var bottomBtn=document.querySelector(".bn .tbtn[onclick*=\"goTab('"+bottomId+"'\"]");
+  if(bottomBtn) bottomBtn.classList.add('active');
   document.getElementById('pg-'+id).classList.add('on');
   if(btn) btn.classList.add('on');
   toggleSidebar(false);
@@ -1311,6 +1317,7 @@ function toggleAddMode(mode){
     goTab('inc',document.querySelector('.app-sidebar .tbtn[onclick*="inc"]'));
     return;
   }
+  document.getElementById('pg-add').classList.toggle('income-mode',mode==='income');
   var shell=income.querySelector('.inc-shell')||incomePage.querySelector('.inc-shell');
   if(mode==='income'&&shell&&!income.contains(shell)) income.appendChild(shell);
   if(mode==='expense'&&shell&&income.contains(shell)) incomePage.appendChild(shell);
