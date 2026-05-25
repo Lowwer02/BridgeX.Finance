@@ -164,6 +164,11 @@
 
 <!-- ADD EXPENSE -->
 <div class="pg on" id="pg-add">
+  <header class="add-mobile-head">
+    <button class="material-symbols-outlined" type="button" onclick="toggleSidebar()">menu</button>
+    <h1>บันทึกรายการ</h1>
+    <span class="add-mobile-mark">BX</span>
+  </header>
   <div class="add-type-toggle">
     <button id="tog-exp" class="tog-btn on" onclick="toggleAddMode('expense')">รายจ่าย</button>
     <button id="tog-inc" class="tog-btn" onclick="toggleAddMode('income')">รายรับ</button>
@@ -172,13 +177,16 @@
   <div class="add-shell">
     <div class="add-main">
       <div class="add-glass add-amount-card">
+        <div class="add-mobile-amount">
         <div class="amt-lbl" data-i18n="amount">จำนวนเงิน</div>
         <div class="amt-row"><span class="amt-cur">฿ </span><input class="amt-inp" id="f-amt" type="number" placeholder="0.00" inputmode="decimal"></div>
+        </div>
         <div class="slip-scan-row">
           <input type="file" id="slip-upload" accept="image/*" hidden>
           <button type="button" class="slip-btn" onclick="document.getElementById('slip-upload').click()">
             <span class="material-symbols-outlined">document_scanner</span>
-            สแกนสลิป / ใบเสร็จ
+            <span class="slip-copy"><strong>สแกนสลิป / ใบเสร็จ</strong><small>แตะเพื่ออ่านยอดเงินและวันที่อัตโนมัติ</small></span>
+            <span class="material-symbols-outlined slip-chevron">chevron_right</span>
           </button>
           <span class="slip-status" id="slip-status"></span>
         </div>
@@ -198,6 +206,7 @@
           </button>
         </div>
         <div class="add-glass add-panel">
+          <div class="add-mobile-field add-payment-field">
           <div class="add-panel-title" data-i18n="paymentMethod">จ่ายผ่าน</div>
           <div class="chips" id="pay-chips"></div>
           <button class="mobile-picker-trigger" id="mobile-pay-trigger" type="button" onclick="openMobilePicker('pay')">
@@ -205,6 +214,7 @@
             <strong>เลือกช่องทางชำระเงิน</strong>
             <em id="mobile-pay-label">เลือกช่องทางชำระเงิน</em>
           </button>
+          </div>
           <div class="fld add-note-field"><label data-i18n="note">บันทึกช่วยจำ</label><textarea id="f-det" placeholder="เช่น ข้าวมันไก่, ค่า Grab"></textarea></div>
         </div>
       </div>
