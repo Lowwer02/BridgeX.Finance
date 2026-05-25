@@ -1024,8 +1024,19 @@ async function saveToSupabase(table, data){
 // TABS
 // ═══════════════════════════════════════════════════════
 function goTab(id,btn){
+  var requestedId=id;
+  var titles={};
+  titles['debt']='บัตรและสินเชื่อ';
+  if(id==='cr') restoreDebtSourceContent('cr');
+  if(id==='debt-planner') restoreDebtSourceContent('debt-planner');
+  if(id==='inc'){
+    var modeIncome=document.getElementById('mode-income');
+    var incomeShell=modeIncome&&modeIncome.querySelector('.inc-shell');
+    if(incomeShell) document.getElementById('pg-inc').appendChild(incomeShell);
+  }
+  if(id==='add') toggleAddMode('expense');
   var titleEl=document.getElementById('topbar-title');
-  if(titleEl) titleEl.textContent=tabTitle(id);
+  if(titleEl) titleEl.textContent=titles[requestedId]||tabTitle(id);
   document.querySelectorAll('.pg').forEach(function(p){ p.classList.remove('on'); });
   document.querySelectorAll('.tbtn').forEach(function(b){ b.classList.remove('on'); });
   document.getElementById('pg-'+id).classList.add('on');
@@ -1034,6 +1045,7 @@ function goTab(id,btn){
   if(id==='hist') renderHist();
   if(id==='dash') renderDash();
   if(id==='cr')   renderCR();
+  if(id==='debt') toggleDebtMode('credit');
   if(id==='debt-planner') renderSmartDebt();
   if(id==='inc')  renderIncSum();
   if(id==='set')  renderSetStats();
@@ -1287,6 +1299,62 @@ function resetExpenseForm(){
   renderCats();
   renderPays();
   applyCurrentProfileToPayers();
+}
+
+function toggleAddMode(mode){
+  var expense=document.getElementById('mode-expense');
+  var income=document.getElementById('mode-income');
+  var incomePage=document.getElementById('pg-inc');
+  if(!expense||!income||!incomePage) return;
+  var isMobile=window.matchMedia('(max-width:900px)').matches;
+  if(mode==='income'&&!isMobile){
+    goTab('inc',document.querySelector('.app-sidebar .tbtn[onclick*="inc"]'));
+    return;
+  }
+  var shell=income.querySelector('.inc-shell')||incomePage.querySelector('.inc-shell');
+  if(mode==='income'&&shell&&!income.contains(shell)) income.appendChild(shell);
+  if(mode==='expense'&&shell&&income.contains(shell)) incomePage.appendChild(shell);
+  expense.style.display=mode==='expense'?'':'none';
+  income.style.display=mode==='income'?'':'none';
+  document.getElementById('tog-exp').classList.toggle('on',mode==='expense');
+  document.getElementById('tog-inc').classList.toggle('on',mode==='income');
+}
+
+function restoreDebtSourceContent(target){
+  var creditMount=document.getElementById('debt-mode-credit');
+  var planMount=document.getElementById('debt-mode-plan');
+  var creditPage=document.getElementById('pg-cr');
+  var planPage=document.getElementById('pg-debt-planner');
+  if(target==='cr'&&creditMount&&creditPage){
+    Array.from(creditMount.children).forEach(function(node){ creditPage.appendChild(node); });
+  }
+  if(target==='debt-planner'&&planMount&&planPage){
+    Array.from(planMount.children).forEach(function(node){ planPage.appendChild(node); });
+  }
+}
+
+function toggleDebtMode(mode){
+  var credit=document.getElementById('debt-mode-credit');
+  var plan=document.getElementById('debt-mode-plan');
+  var creditPage=document.getElementById('pg-cr');
+  var planPage=document.getElementById('pg-debt-planner');
+  if(!credit||!plan||!creditPage||!planPage) return;
+  if(mode==='credit'){
+    ['.cr-shell','#pay-drawer','#info-drawer'].forEach(function(selector){
+      var node=credit.querySelector(selector)||creditPage.querySelector(selector);
+      if(node&&!credit.contains(node)) credit.appendChild(node);
+    });
+  }
+  if(mode==='plan'){
+    var shell=plan.querySelector('.debtp-shell')||planPage.querySelector('.debtp-shell');
+    if(shell&&!plan.contains(shell)) plan.appendChild(shell);
+  }
+  credit.style.display=mode==='credit'?'':'none';
+  plan.style.display=mode==='plan'?'':'none';
+  document.getElementById('tog-cr').classList.toggle('on',mode==='credit');
+  document.getElementById('tog-plan').classList.toggle('on',mode==='plan');
+  if(mode==='credit') renderCR();
+  if(mode==='plan') renderSmartDebt();
 }
 
 function parseEMVAmount(qrText){

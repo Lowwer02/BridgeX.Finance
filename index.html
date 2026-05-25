@@ -164,6 +164,11 @@
 
 <!-- ADD EXPENSE -->
 <div class="pg on" id="pg-add">
+  <div class="add-type-toggle">
+    <button id="tog-exp" class="tog-btn on" onclick="toggleAddMode('expense')">รายจ่าย</button>
+    <button id="tog-inc" class="tog-btn" onclick="toggleAddMode('income')">รายรับ</button>
+  </div>
+  <div id="mode-expense">
   <div class="add-shell">
     <div class="add-main">
       <div class="add-glass add-amount-card">
@@ -225,6 +230,8 @@
       <div class="recent-list" id="add-recent-list"></div>
     </aside>
   </div>
+  </div>
+  <div id="mode-income" style="display:none"></div>
 </div>
 
 <!-- HISTORY -->
@@ -293,6 +300,16 @@
       </section>
     </div>
   </div>
+</div>
+
+<!-- MOBILE DEBT HUB -->
+<div class="pg" id="pg-debt">
+  <div class="debt-type-toggle">
+    <button id="tog-cr" class="tog-btn on" onclick="toggleDebtMode('credit')">สินเชื่อ</button>
+    <button id="tog-plan" class="tog-btn" onclick="toggleDebtMode('plan')">แผนปลดหนี้</button>
+  </div>
+  <div id="debt-mode-credit"></div>
+  <div id="debt-mode-plan" style="display:none"></div>
 </div>
 
 <!-- CREDIT + SMART DEBT -->
@@ -438,95 +455,55 @@
     </div>
     <button class="set-export-top" type="button" onclick="exportCSV('expense')"><span class="material-symbols-outlined">download</span><span data-i18n="exportData">ดาวน์โหลดข้อมูล</span></button>
   </header>
-  <div class="set-grid">
-    <section class="set-card set-profile-card">
-      <div class="set-avatar-wrap">
-        <div class="set-avatar">BX</div>
-        <button class="set-avatar-edit" type="button" onclick="pickSettingsAvatar()">EDIT</button>
-        <input id="set-avatar-file" type="file" accept="image/*" hidden onchange="saveSettingsAvatar(this)">
+  <div class="set-hub">
+    <div class="set-hub-profile">
+      <div class="set-avatar">BX</div>
+      <div>
+        <div class="set-hub-name" id="set-user">-</div>
+        <div id="set-subscription">-</div>
       </div>
-      <div class="set-profile-body">
-        <h2 id="set-profile-name">-</h2>
-        <div class="set-profile-meta">
-          <span class="set-pill green">JOINT MODE</span>
-          <p id="set-user">-</p>
-        </div>
-      <div class="set-field-grid">
-          <div class="set-field"><label data-i18n="primaryContact">ข้อมูลติดต่อหลัก</label><input type="text" value="BridgeX Member" readonly></div>
-          <div class="set-field"><label data-i18n="connection">การเชื่อมต่อ</label><input type="text" value="Supabase Connected" readonly></div>
-        </div>
-        <div class="set-action-row">
-          <button type="button" onclick="syncNow()" data-i18n="syncNow">อัปเดตข้อมูล</button>
-          <button type="button" onclick="doLogout()" data-i18n="signOut">ออกจากระบบ</button>
-        </div>
-      </div>
-    </section>
-    <section class="set-card set-plan-card">
-      <div class="set-card-head"><span data-i18n="currentPlan">แพ็กเกจปัจจุบัน</span><span class="material-symbols-outlined">workspace_premium</span></div>
-      <h2>Pro 109B</h2>
-      <div id="set-subscription" class="set-subscription">-</div>
-      <ul>
-        <li><span class="material-symbols-outlined">check_circle</span> Unlimited Joint Members</li>
-        <li><span class="material-symbols-outlined">check_circle</span> Priority Tax Export</li>
-        <li><span class="material-symbols-outlined">check_circle</span> Dedicated Advisor</li>
-      </ul>
-      <button type="button" onclick="goTab('set',document.querySelector('.tbtn[onclick*=set]'))" data-i18n="managePlan">จัดการแพ็กเกจ</button>
-    </section>
-    <section class="set-card set-family-card">
-      <div class="set-section-head">
-        <div>
-          <h2><span class="material-symbols-outlined">diversity_3</span> <span data-i18n="jointWealthMode">แชร์บัญชีครอบครัว</span></h2>
-          <p data-i18n="familyHelp">จัดการสมาชิกและข้อมูลการเงินที่แชร์ร่วมกัน</p>
-        </div>
-        <div class="set-family-id">
-          <label>Family ID:</label>
-          <input type="text" id="family-id-view" readonly>
-          <button class="set-copy-btn" type="button" onclick="copyFamilyId()"><span class="material-symbols-outlined">content_copy</span></button>
-        </div>
-      </div>
-      <div class="set-family-body">
-        <div class="set-members">
-          <div id="set-members-list"></div>
-          <div class="set-join-row">
-            <input type="text" id="join-family-id" placeholder="วาง family_id ที่ต้องการเข้าร่วม">
-            <button type="button" onclick="joinFamily()"><span class="material-symbols-outlined">add</span> <span data-i18n="addMember">เพิ่มสมาชิก</span></button>
-          </div>
-        </div>
-        <div class="set-sync-options">
-          <div><strong data-i18n="realtimeSync">อัปเดตข้อมูลทันที</strong><small>Share balances instantly</small><span class="set-toggle on"><i></i></span></div>
-          <div><strong data-i18n="transactionAlerts">แจ้งเตือนรายการ</strong><small>Notify all on &gt;$10k</small><span class="set-toggle"><i></i></span></div>
-        </div>
-      </div>
-    </section>
-    <section class="set-card set-pref-card">
-      <h2><span class="material-symbols-outlined">tune</span> <span data-i18n="preferences">การตั้งค่าทั่วไป</span></h2>
-      <div class="set-pref-row"><div><strong data-i18n="theme">ธีม</strong><small data-i18n="appearance">รูปแบบหน้าจอ</small></div><div class="set-segment"><button type="button" data-theme-choice="dark" onclick="setTheme('dark')">Dark</button><button type="button" data-theme-choice="light" onclick="setTheme('light')">Light</button></div></div>
-      <div class="set-pref-row"><div><strong data-i18n="baseCurrency">สกุลเงินหลัก</strong><small>Default for analytics</small></div><select><option>THB (฿)</option><option>USD ($)</option></select></div>
-      <div class="set-pref-row"><div><strong data-i18n="language">ภาษา</strong></div><select id="language-select" onchange="setLanguage(this.value)"><option value="th">ไทย</option><option value="en">English</option></select></div>
-      <div class="set-budget-wrap"><h3>ตั้งค่างบประมาณรายเดือน</h3><div id="budget-settings"></div><button type="button" onclick="saveBudgets()">บันทึกงบประมาณ</button></div>
-      <div class="set-stats-wrap"><h3>สถิติข้อมูล</h3><div id="set-stats"></div></div>
-    </section>
-    <section class="set-card set-security-card">
-      <h2><span class="material-symbols-outlined">shield</span> <span data-i18n="dataSecurity">ความปลอดภัยของข้อมูล</span></h2>
-      <div class="set-secure-box">
-        <span class="material-symbols-outlined">verified_user</span>
-        <div><strong>PDPA Compliant</strong><p>Your data is encrypted at rest. We do not share telemetry with third parties.</p></div>
-      </div>
-      <button class="set-danger" type="button" onclick="deleteAccountAndData()"><span class="material-symbols-outlined">delete_forever</span> Delete Account Permanently</button>
-      <div class="set-cache-actions">
-        <button type="button" onclick="clearLocal('expense')">ล้าง cache รายจ่าย</button>
-        <button type="button" onclick="clearLocal('all')">ล้าง cache ทั้งหมด</button>
-      </div>
-    </section>
-    <section class="set-card set-export-card">
-      <h2><span class="material-symbols-outlined">download</span> ส่งออกข้อมูล (Data Export)</h2>
-      <div class="set-export-grid">
-        <button type="button" id="export-expense" onclick="exportCSV('expense')"><span class="material-symbols-outlined">receipt_long</span><strong>รายจ่าย (Expenses)</strong><small>ส่งออกเป็น CSV</small><em class="badge pro">Pro 109฿</em></button>
-        <button type="button" id="export-income" onclick="exportCSV('income')"><span class="material-symbols-outlined">account_balance</span><strong>รายได้ (Income)</strong><small>ส่งออกเป็น CSV</small><em class="badge pro">Pro 109฿</em></button>
-        <button type="button" id="export-credit" onclick="exportCSV('credit')"><span class="material-symbols-outlined">credit_card</span><strong>บัตรเครดิต (Credit)</strong><small>ส่งออกเป็น CSV</small><em class="badge pro">Pro 109฿</em></button>
-      </div>
-    </section>
-    <div class="set-version">App Version 4.1.2 • DB: Supabase • Hosted on Vercel</div>
+    </div>
+
+    <div class="set-hub-section">
+      <div class="set-hub-label">รายการ</div>
+      <button class="set-hub-item" onclick="goTab('hist',document.querySelector('.tbtn[onclick*=hist]'))">
+        <span class="material-symbols-outlined">history</span> ประวัติย้อนหลัง
+        <span class="set-hub-chev">›</span>
+      </button>
+      <button class="set-hub-item" onclick="exportCSV('expense')">
+        <span class="material-symbols-outlined">download</span> ส่งออกข้อมูล CSV
+        <span class="set-hub-chev">›</span>
+      </button>
+    </div>
+
+    <div class="set-hub-section">
+      <div class="set-hub-label">ตั้งค่าการใช้งาน</div>
+      <button class="set-hub-item" onclick="">
+        <span class="material-symbols-outlined">person</span> บัญชี
+        <span class="set-hub-chev">›</span>
+      </button>
+      <button class="set-hub-item" onclick="">
+        <span class="material-symbols-outlined">category</span> จัดการหมวดหมู่
+        <span class="set-hub-chev">›</span>
+      </button>
+      <button class="set-hub-item" onclick="">
+        <span class="material-symbols-outlined">credit_card</span> จัดการบัตรเครดิต
+        <span class="set-hub-chev">›</span>
+      </button>
+    </div>
+
+    <div class="set-hub-section">
+      <div class="set-hub-label">อื่นๆ</div>
+      <button class="set-hub-item" onclick="toggleTheme()">
+        <span class="material-symbols-outlined">dark_mode</span> ธีม
+        <span class="set-hub-chev">›</span>
+      </button>
+      <button class="set-hub-item danger" onclick="doLogout()">
+        <span class="material-symbols-outlined">logout</span> ออกจากระบบ
+      </button>
+    </div>
+
+    <div class="set-version">App Version 4.1.2</div>
   </div>
 </div>
 
@@ -561,6 +538,24 @@
 </div>
 
 <div class="toast" id="toast"></div>
+<div class="bn">
+  <button class="tbtn" onclick="goTab('dash',this)">
+    <span class="ico material-symbols-outlined">dashboard</span>
+    <span>ภาพรวม</span>
+  </button>
+  <button class="tbtn" onclick="goTab('debt',this)">
+    <span class="ico material-symbols-outlined">credit_card</span>
+    <span>หนี้</span>
+  </button>
+  <button class="tbtn add-fab" onclick="goTab('add',this)">
+    <span class="ico material-symbols-outlined">add_circle</span>
+    <span>บันทึก</span>
+  </button>
+  <button class="tbtn" onclick="goTab('set',this)">
+    <span class="ico material-symbols-outlined">menu</span>
+    <span>เมนู</span>
+  </button>
+</div>
 <script src="app.js" defer></script>
 </body>
 </html>

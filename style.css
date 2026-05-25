@@ -87,7 +87,22 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 
 /* ── Navigation Buttons ── */
-.bn{display:none}
+.bn{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  height:64px;
+  background:rgba(19,18,27,.95);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  border-top:1px solid rgba(255,255,255,.08);
+  display:none;
+  flex-direction:row;
+  align-items:center;
+  justify-content:space-around;
+  z-index:400;
+}
 .tbtn{border:none;background:none;padding:10px 0 14px;font-family:var(--font-label);font-size:9.5px;font-weight:600;color:var(--mut);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:color .18s}
 .tbtn .ico{font-size:20px;line-height:1}
 .tbtn.on{color:var(--p)}
@@ -626,11 +641,14 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
 #debt-plan-list .dp-icon{width:44px;height:44px;border-radius:12px;background:#201f27;border:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;color:#c7bfff;font-size:24px;flex-shrink:0}
 #debt-plan-list .dp-fixed-badge{font-size:10px;padding:2px 7px;border-radius:20px;background:rgba(77,158,245,.14);color:#9ec7ff;border:1px solid rgba(77,158,245,.28);margin-left:8px}
 @media (max-width:900px){
-  .app-sidebar{display:flex;transform:translateX(-105%);transition:transform .24s ease;z-index:380}
+  .app-sidebar{display:none !important;transform:translateX(-105%);transition:transform .24s ease;z-index:380}
   body.sidebar-open .app-sidebar{transform:translateX(0)}
   .sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:370}
   body.sidebar-open .sidebar-backdrop{display:block}
-  .tb{margin-left:0;height:74px;padding:0 20px}
+  .tb{margin-left:0 !important;height:74px;padding:0 20px}
+  .bn{display:flex !important}
+  body{padding-bottom:72px}
+  .pg{margin-left:0 !important}
   .hamb{display:block}
   .tb-logo{display:none}
   .tb-name{font-size:28px}
@@ -1827,3 +1845,12 @@ body.theme-light .auth-form .fld input{
 body.theme-light .auth-box .btn-go{background:var(--p);color:#fff}
 body.theme-light .auth-box .btn-sm,
 body.theme-light .google-btn{border-color:var(--bdr)}
+
+.set-hub { max-width: 480px; margin: 0 auto; padding: 0 0 32px; }
+.set-hub-profile { display:flex; align-items:center; gap:14px; padding:20px 16px 24px; border-bottom:1px solid var(--bdr); }
+.set-hub-section { margin-top:28px; }
+.set-hub-label { font-size:11px; font-weight:700; color:var(--mut); text-transform:uppercase; letter-spacing:.1em; padding:0 16px 8px; }
+.set-hub-item { width:100%; display:flex; align-items:center; gap:12px; padding:16px; background:transparent; border:none; border-bottom:1px solid var(--bdr); color:var(--tx); font-size:15px; font-weight:500; cursor:pointer; text-align:left; }
+.set-hub-item .material-symbols-outlined { font-size:22px; color:var(--sub); }
+.set-hub-chev { margin-left:auto; color:var(--mut); font-size:20px; }
+.set-hub-item.danger { color:var(--rl); border-bottom:none; margin-top:8px; }
