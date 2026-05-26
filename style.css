@@ -2022,7 +2022,7 @@ body.theme-light .auth-box .btn-go{background:var(--p);color:#fff}
 body.theme-light .auth-box .btn-sm,
 body.theme-light .google-btn{border-color:var(--bdr)}
 
-.set-hub { max-width: 480px; margin: 0 auto; padding: 0 0 32px; }
+.set-hub { display:none !important; max-width: 480px; margin: 0 auto; padding: 0 0 32px; }
 .set-hub-profile { display:flex; align-items:center; gap:14px; padding:20px 16px 24px; border-bottom:1px solid var(--bdr); }
 .set-hub-section { margin-top:28px; }
 .set-hub-label { font-size:11px; font-weight:700; color:var(--mut); text-transform:uppercase; letter-spacing:.1em; padding:0 16px 8px; }
@@ -2030,6 +2030,15 @@ body.theme-light .google-btn{border-color:var(--bdr)}
 .set-hub-item .material-symbols-outlined { font-size:22px; color:var(--sub); }
 .set-hub-chev { margin-left:auto; color:var(--mut); font-size:20px; }
 .set-hub-item.danger { color:var(--rl); border-bottom:none; margin-top:8px; }
+
+@media (max-width:768px){
+  #pg-set .set-grid{display:none !important}
+  #pg-set .set-hub{display:block !important}
+}
+@media (min-width:769px){
+  #pg-set .set-grid{display:grid !important}
+  #pg-set .set-hub{display:none !important}
+}
 
 /* Mobile Add Transaction shell */
 .add-mobile-head,.add-type-toggle{display:none}

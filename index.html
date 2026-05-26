@@ -535,12 +535,141 @@
     </div>
     <button class="set-export-top" type="button" onclick="exportCSV('expense')"><span class="material-symbols-outlined">download</span><span data-i18n="exportData">ดาวน์โหลดข้อมูล</span></button>
   </header>
+  <div class="set-grid">
+    <section class="set-card set-profile-card">
+      <div class="set-avatar-wrap">
+        <div class="set-avatar">BX</div>
+        <button class="set-avatar-edit" type="button" onclick="pickSettingsAvatar()">EDIT</button>
+        <input id="set-avatar-file" type="file" accept="image/*" hidden onchange="saveSettingsAvatar(this)">
+      </div>
+      <div class="set-profile-body">
+        <h2 id="set-profile-name">-</h2>
+        <div class="set-profile-meta">
+          <span class="set-pill">JOINT MODE</span>
+          <p id="set-user">-</p>
+        </div>
+        <div class="set-field-grid">
+          <label class="set-field">
+            <span data-i18n="primaryContact">ข้อมูลติดต่อหลัก</span>
+            <input type="text" value="+66" readonly>
+          </label>
+          <label class="set-field">
+            <span data-i18n="connection">การเชื่อมต่อ</span>
+            <input type="text" value="BridgeX.Wallet" readonly>
+          </label>
+        </div>
+        <div class="set-action-row">
+          <button type="button">เปลี่ยนรหัสผ่าน</button>
+          <button type="button">ตั้งค่า 2FA</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="set-card set-plan-card">
+      <div class="set-card-head">
+        <span data-i18n="currentPlan">แพ็กเกจปัจจุบัน</span>
+        <span class="material-symbols-outlined">workspace_premium</span>
+      </div>
+      <h2>Pro 109฿</h2>
+      <div class="set-subscription" id="set-subscription">-</div>
+      <ul>
+        <li><span class="material-symbols-outlined">check_circle</span> สมาชิกครอบครัวไม่จำกัด</li>
+        <li><span class="material-symbols-outlined">check_circle</span> ดาวน์โหลดข้อมูล CSV</li>
+        <li><span class="material-symbols-outlined">check_circle</span> วางแผนหนี้อัจฉริยะ</li>
+      </ul>
+      <button type="button" data-i18n="managePlan">จัดการแพ็กเกจ</button>
+    </section>
+
+    <section class="set-card set-family-card">
+      <div class="set-section-head">
+        <div>
+          <h2><span class="material-symbols-outlined">diversity_3</span><span data-i18n="jointWealthMode">แชร์บัญชีครอบครัว</span></h2>
+          <p data-i18n="familyHelp">จัดการสมาชิกและข้อมูลการเงินที่แชร์ร่วมกัน</p>
+        </div>
+        <div class="set-family-id">
+          <label>Family ID</label>
+          <input id="family-id-view" type="text" readonly value="">
+          <button class="set-copy-btn" type="button" onclick="copyFamilyId()" aria-label="คัดลอก Family ID"><span class="material-symbols-outlined">content_copy</span></button>
+        </div>
+      </div>
+      <div class="set-family-body">
+        <div>
+          <div class="set-members" id="set-members-list"></div>
+          <div class="set-join-row">
+            <input id="join-family-id" type="text" placeholder="กรอก Family ID">
+            <button type="button" onclick="joinFamily()"><span class="material-symbols-outlined">group_add</span><span data-i18n="addMember">เพิ่มสมาชิก</span></button>
+          </div>
+        </div>
+        <div class="set-sync-options">
+          <div>
+            <div><strong data-i18n="realtimeSync">อัปเดตข้อมูลทันที</strong><small>แชร์ยอดคงเหลือระหว่างสมาชิก</small></div>
+            <span class="set-toggle on"><i></i></span>
+          </div>
+          <div>
+            <div><strong data-i18n="transactionAlerts">แจ้งเตือนรายการ</strong><small>แจ้งเมื่อมีรายการยอดสูง</small></div>
+            <span class="set-toggle"><i></i></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="set-card set-pref-card">
+      <h2><span class="material-symbols-outlined">tune</span><span data-i18n="preferences">การตั้งค่าทั่วไป</span></h2>
+      <div class="set-pref-row">
+        <div><strong data-i18n="theme">ธีม</strong><small data-i18n="appearance">รูปแบบหน้าจอ</small></div>
+        <div class="set-segment">
+          <button type="button" data-theme-choice="dark" onclick="setTheme('dark')">Dark</button>
+          <button type="button" data-theme-choice="light" onclick="setTheme('light')">Light</button>
+        </div>
+      </div>
+      <div class="set-pref-row">
+        <div><strong data-i18n="baseCurrency">สกุลเงินหลัก</strong><small>ค่าเริ่มต้นสำหรับรายงาน</small></div>
+        <select aria-label="สกุลเงินหลัก"><option>THB (฿)</option><option>USD ($)</option></select>
+      </div>
+      <div class="set-pref-row">
+        <div><strong data-i18n="language">ภาษา</strong><small>ภาษาที่แสดงในแอป</small></div>
+        <select id="language-select" onchange="setLanguage(this.value)"><option value="th">ไทย</option><option value="en">English</option></select>
+      </div>
+      <div class="set-stats-wrap">
+        <h3>สรุปการใช้งาน</h3>
+        <div id="set-stats"></div>
+      </div>
+      <div class="set-budget-wrap">
+        <h3>งบประมาณรายเดือน</h3>
+        <div id="budget-settings"></div>
+        <button type="button" onclick="saveBudgets()">บันทึกงบประมาณ</button>
+      </div>
+    </section>
+
+    <section class="set-card set-security-card">
+      <h2><span class="material-symbols-outlined">shield</span><span data-i18n="dataSecurity">ความปลอดภัยของข้อมูล</span></h2>
+      <div class="set-secure-box">
+        <span class="material-symbols-outlined">verified_user</span>
+        <div><strong>PDPA Compliant</strong><p>ข้อมูลของคุณถูกเข้ารหัสและไม่ถูกแชร์กับบุคคลภายนอก</p></div>
+      </div>
+      <div class="set-cache-actions">
+        <button type="button" onclick="clearLocal('expense')">ล้างแคชรายจ่าย</button>
+        <button type="button" onclick="clearLocal('all')">ล้างแคชทั้งหมด</button>
+      </div>
+      <button class="set-danger" type="button" onclick="deleteAccountAndData()"><span class="material-symbols-outlined">delete_forever</span>ลบบัญชีถาวร</button>
+    </section>
+
+    <section class="set-card set-export-card">
+      <h2><span class="material-symbols-outlined">download</span><span data-i18n="exportData">ดาวน์โหลดข้อมูล</span></h2>
+      <div class="set-export-grid">
+        <button id="export-expense" type="button" onclick="exportCSV('expense')"><span class="material-symbols-outlined">receipt_long</span><strong>รายจ่าย</strong><small>ส่งออกเป็น CSV</small></button>
+        <button id="export-income" type="button" onclick="exportCSV('income')"><span class="material-symbols-outlined">account_balance_wallet</span><strong>รายรับ</strong><small>ส่งออกเป็น CSV</small></button>
+        <button id="export-credit" type="button" onclick="exportCSV('credit')"><span class="material-symbols-outlined">credit_card</span><strong>บัตรและสินเชื่อ</strong><small>ส่งออกเป็น CSV</small></button>
+      </div>
+    </section>
+    <div class="set-version">App Version 4.1.2 • DB: Supabase • Hosted on Vercel</div>
+  </div>
   <div class="set-hub">
     <div class="set-hub-profile">
       <div class="set-avatar">BX</div>
       <div>
-        <div class="set-hub-name" id="set-user">-</div>
-        <div id="set-subscription">-</div>
+        <div class="set-hub-name">บัญชี BridgeX</div>
+        <div>เมนูและการตั้งค่า</div>
       </div>
     </div>
 
