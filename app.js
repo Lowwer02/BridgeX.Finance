@@ -1975,7 +1975,7 @@ function renderCreditLine(cr){
     '<div class="cr-line-main"><div class="cr-logo" style="background-color:'+esc(logo.color)+'">'+esc(logo.label)+'</div><div><div class="cr-line-name">'+esc(cr.n)+'</div><div class="cr-line-meta"><span>'+(getLang()==='th'?'ครบกำหนด: ':'Due: ')+esc(due)+'</span><span>'+(getLang()==='th'?'ดอกเบี้ย: ':'Rate: ')+esc(rate)+'%</span></div></div></div>'+
     '<div class="cr-pay-state '+(isPaid?'paid':'warn')+'"><span class="material-symbols-outlined">'+(isPaid?'check_circle':'warning')+'</span><em>'+t(isPaid?'paid':'due')+'</em></div>'+
     '<div class="cr-line-balance"><div class="cr-line-amt '+(!isPaid&&bal>0?'due':'')+'">฿ '+fmt(bal)+'</div><div class="cr-line-label">'+t('currentBalance')+'</div></div>'+
-    '<div class="cr-line-actions"><button class="edit" onclick="openInfo(\''+cr.id+'\')">'+t('editInfo')+'</button><button class="pay" onclick="openPay(\''+cr.id+'\')" '+(bal<=0&&isPaid?'disabled':'')+'>'+t('payBill')+'</button></div>'+
+    '<div class="cr-line-actions"><button class="edit" onclick="openInfo(\''+cr.id+'\')">'+t('editInfo')+'</button><button class="pay" onclick="openPay(\''+cr.id+'\')">'+t('payBill')+'</button></div>'+
     '</div>';
 }
 function renderBillCalendar(){
@@ -2141,8 +2141,9 @@ async function submitCredit(){
   var amt=parseFloat(document.getElementById('dr-amt').value);
   var rem=parseFloat(document.getElementById('dr-rem').value)||0;
   var dt=document.getElementById('dr-dt').value;
-  if(!amt||amt<=0) return toast('ใส่จำนวนเงินด้วย','err');
   var cr=allCR().find(function(c){ return c.id===activeCrId; });
+  if(!cr||!S.crInfo[activeCrId]) return toast('ไม่พบข้อมูลสินเชื่อ กรุณาลองใหม่','err');
+  if(!Number.isFinite(amt)||amt<=0) return toast('ใส่จำนวนเงินด้วย','err');
   if(!validateTxnInput({date:dt,credit_name:cr&&cr.n,amount:amt})) return;
   var baseAt=new Date().toISOString();
   S.crStatus[activeCrId]={paid:true,amount:amt,baseRemaining:rem,baseAt:baseAt,matchedUsed:0,remaining:rem,date:dt};
