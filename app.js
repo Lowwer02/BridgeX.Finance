@@ -1429,6 +1429,14 @@ function toggleDebtMode(mode){
   if(mode==='plan') renderSmartDebt();
 }
 
+function updateMobileDebtBento(values){
+  var ids={total:'mobile-debt-total',monthly:'mobile-debt-monthly',interest:'mobile-debt-interest',faster:'mobile-debt-faster'};
+  Object.keys(values||{}).forEach(function(key){
+    var el=document.getElementById(ids[key]);
+    if(el) el.textContent=values[key];
+  });
+}
+
 function openDebtOrderSheet(){
   var sheet=document.getElementById('debt-order-sheet');
   if(sheet) sheet.classList.add('on');
@@ -2104,6 +2112,7 @@ function renderDebtOverview(){
   });
   var pct=totLimit>0?Math.min(100,Math.max(0,Math.round(totUsed/totLimit*100))):0;
   var avail=Math.max(0,totLimit-totUsed),availPct=totLimit>0?Math.max(0,Math.round(avail/totLimit*100)):0;
+  updateMobileDebtBento({total:'฿ '+fmt(totUsed),monthly:'฿ '+fmt(monthPaid)});
   w.innerHTML='<div class="cr-paid-summary"><div><span class="material-symbols-outlined">verified</span><p>'+t('creditPaidMonth')+'</p></div><strong>฿ '+fmt(monthPaid)+'</strong><small>'+thaiMo(mo)+'</small></div>'+
     '<div class="cr-kpi-grid">'+
     '<div class="cr-kpi-card"><div class="cr-kpi-label">'+t('totalApprovedLimit')+'</div><div class="cr-kpi-val">฿ '+fmt(totLimit)+'</div><div class="cr-kpi-note"><span class="material-symbols-outlined">trending_up</span>'+paidCount+'/'+crCount+' '+t('paidThisMonth')+'</div></div>'+
@@ -2202,6 +2211,7 @@ function renderSmartDebt(){
   }).filter(function(d){ return d.remaining>0; });
 
   if(!debtList.length){
+    updateMobileDebtBento({total:'-',monthly:'-',interest:'-',faster:'-'});
     list.innerHTML='<div class="empty"><p>ไม่มีข้อมูลหนี้สำหรับวางแผน<br>กรอกข้อมูลสินเชื่อก่อนนะ</p></div>';
     return;
   }
@@ -2336,6 +2346,12 @@ function updateSmartResults(){
     if(savedEl) savedEl.textContent=savedMo?Math.floor(savedMo/12)+' ปี '+(savedMo%12)+' เดือน':'0 เดือน';
     var saveEl=document.getElementById('debtp-save-amt');
     if(saveEl) saveEl.textContent='฿ '+fmt(savedInt);
+    updateMobileDebtBento({
+      total:'฿ '+fmt(totalRem),
+      monthly:'฿ '+fmt(totalMinPay+extra),
+      interest:'฿ '+fmt(savedInt),
+      faster:savedMo?Math.floor(savedMo/12)+' ปี '+(savedMo%12)+' เดือน':'0 เดือน'
+    });
     var impact=document.getElementById('debtp-impact');
     if(impact){
       impact.innerHTML='<div class="debtp-impact-grid">'+
@@ -2396,7 +2412,7 @@ function updateSmartResults(){
         var focus=document.createElement('section');
         focus.className='debt-focus-card';
         focus.innerHTML='<div class="focus-tag"><span class="material-symbols-outlined">bolt</span> แนะนำเดือนนี้</div>'+
-          '<div class="focus-title">หนี้อันดับ 1 ที่ต้องเร่งโปะเดือนนี้</div>'+
+          '<div class="focus-title">หนี้ที่ควรเร่งโปะเดือนนี้</div>'+
           '<div class="focus-name">'+esc(d.cr.n)+'</div>'+
           '<div class="focus-amount">฿ '+fmt(monthPay)+'<small>/ เดือน</small></div>'+
           '<button type="button" onclick="openDebtOrderSheet()">ดูลำดับการชำระหนี้ทั้งหมด <span class="material-symbols-outlined">arrow_forward</span></button>';
