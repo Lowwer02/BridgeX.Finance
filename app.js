@@ -3142,6 +3142,16 @@ function renderAccountFamilyMobile(){
   }
   renderFamilyMembersList('account-family-members-list');
 }
+async function joinFamilyMobile(){
+  var mobileInput=document.getElementById('account-family-join-id');
+  var desktopInput=document.getElementById('join-family-id');
+  var fid=mobileInput?mobileInput.value.trim():'';
+  if(!fid) return toast('กรอก family_id ก่อน','err');
+  if(!desktopInput) return toast('ไม่พบช่องเชื่อมครอบครัว','err');
+  desktopInput.value=fid;
+  await joinFamily();
+  if(!desktopInput.value) mobileInput.value='';
+}
 function renderBudgetSettings(){
   var w=document.getElementById('budget-settings'); if(!w) return;
   var budgets=(S.profile&&S.profile.monthly_budgets)||{};
