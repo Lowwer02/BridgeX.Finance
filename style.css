@@ -552,8 +552,9 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
 .cr-lines{display:flex;flex-direction:column;gap:16px}
 .cr-line-card{background:rgba(25,25,35,.72);border:1px solid rgba(255,255,255,.10);border-radius:12px;padding:20px;display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;gap:18px;align-items:center;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
 .cr-line-main{display:flex;align-items:center;gap:16px;min-width:0}
-.cr-logo{width:52px;height:52px;border-radius:8px;background:#13121b;border:1px solid rgba(255,255,255,.10);display:flex;align-items:center;justify-content:center;color:#c7bfff;font-family:var(--font-headline);font-size:16px;font-weight:800;flex-shrink:0}
-.cr-logo.green{color:#4edea3}.cr-logo.amber{color:#ffb95f}
+.cr-logo{width:42px;height:42px;min-width:42px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;color:#fff !important;font-family:var(--font-headline);font-size:12px;font-weight:800;letter-spacing:.02em;text-shadow:0 1px 2px rgba(0,0,0,.45);box-shadow:0 8px 18px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.14);overflow:hidden;flex-shrink:0}
+.cr-logo.green,.cr-logo.amber{color:#fff !important}
+.dash-cr-logo{width:38px;height:38px;min-width:38px;border-radius:9px}
 .cr-line-name{font-family:var(--font-label);font-size:16px;font-weight:800;color:#e5e0ed;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cr-line-meta{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;font-weight:700;color:#c9c4d7;margin-top:4px}
 .cr-pay-state{display:inline-flex;align-items:center;justify-content:center;gap:6px;max-width:max-content;white-space:nowrap;border-radius:999px;padding:6px 10px;font-family:var(--font-label);font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;justify-self:end}.cr-pay-state .material-symbols-outlined{font-size:17px}.cr-pay-state em{font-style:normal}.cr-pay-state.paid{background:var(--gbg);color:var(--gl);border:1px solid rgba(78,222,163,.24)}.cr-pay-state.warn{background:var(--abg);color:#ffb95f;border:1px solid rgba(255,185,95,.25)}
@@ -2758,5 +2759,18 @@ body.theme-light .google-btn{border-color:var(--bdr)}
     color:#fff;
     font-size:30px;
     transform:none;
+  }
+  .cr-logo{
+    width:38px;
+    height:38px;
+    min-width:38px;
+    border-radius:9px;
+    font-size:11px;
+  }
+  .debt-credit-logo{
+    width:39px;
+    height:39px;
+    min-width:39px;
+    border-radius:10px;
   }
 }

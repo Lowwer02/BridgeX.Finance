@@ -155,6 +155,32 @@ const BASE_CR = [
   {id:'gold',n:'ทอง',t:'fixed',ico:'GLD',rate:0},
   {id:'car',n:'รถยนต์',t:'fixed',ico:'CAR',rate:0}
 ];
+const BANK_BRANDS = {
+  kbank:{code:'004',color:'#138f2d',nice_name:'Kasikorn Bank',label:'KB'},
+  scb:{code:'014',color:'#4e2e7f',nice_name:'Siam Commercial Bank',label:'SCB'},
+  bbl:{code:'002',color:'#1e4598',nice_name:'Bangkok Bank',label:'BBL'},
+  ktb:{code:'006',color:'#1ba5e1',nice_name:'Krungthai Bank',label:'KTB'},
+  bay:{code:'025',color:'#fec43b',nice_name:'Bank of Ayudhya (Krungsri)',label:'BAY'},
+  gsb:{code:'030',color:'#eb198d',nice_name:'Government Savings Bank',label:'GSB'},
+  ghb:{code:'033',color:'#f57d23',nice_name:'Government Housing Bank',label:'GHB'},
+  baac:{code:'034',color:'#4b9b1d',nice_name:'Bank for Agriculture and Agricultural Cooperatives',label:'BAAC'},
+  ttb:{code:'076',color:'#ecf0f1',nice_name:'TMBThanachart Bank',label:'TTB'},
+  uob:{code:'024',color:'#0b3979',nice_name:'United Overseas Bank (Thai)',label:'UOB'},
+  cimb:{code:'022',color:'#7e2f36',nice_name:'CIMB Thai Bank',label:'CIMB'},
+  tisco:{code:'067',color:'#12549f',nice_name:'Tisco Bank',label:'TISCO'},
+  kk:{code:'069',color:'#199cc5',nice_name:'Kiatnakin Bank',label:'KK'},
+  lh:{code:'073',color:'#6d6e71',nice_name:'Land and Houses Bank',label:'LH'},
+  ktc:{code:'006',color:'#1ba5e1',nice_name:'KTC',label:'KTC'},
+  aeon:{code:'',color:'#7461CF',nice_name:'AEON',label:'AEON'},
+  cardx:{code:'014',color:'#4e2e7f',nice_name:'CardX',label:'CX'},
+  umay:{code:'',color:'#DE2B68',nice_name:'Umay+',label:'UM'},
+  shopee:{code:'',color:'#FF6201',nice_name:'SPayLater',label:'SPay'},
+  linebk:{code:'',color:'#00B900',nice_name:'LINE BK',label:'LINE'},
+  firstchoice:{code:'025',color:'#fec43b',nice_name:'First Choice',label:'FC'},
+  true:{code:'',color:'#EE252B',nice_name:'True Pay Later',label:'TRUE'},
+  lazpay:{code:'',color:'#101F8C',nice_name:'Laz Pay Later',label:'Laz'},
+  tiktokpay:{code:'',color:'#111111',nice_name:'TikTok Pay Later',label:'TT'}
+};
 const PAY2CR = {
   'K-Bank':'kbank',
   'K-Bank Money':'kbankm',
@@ -284,6 +310,45 @@ function getMyCredits(){
     if(!info||c._hidden) return false;
     return getLinkedCreditId(c.id)===c.id;
   });
+}
+function getBankBrandKey(itemOrName){
+  var item=typeof itemOrName==='object'&&itemOrName?itemOrName:{};
+  var id=String(item.id||'').toLowerCase();
+  var name=String(typeof itemOrName==='string'?itemOrName:(item.n||item.credit_name||item.creditName||item.provider||item.name||'')).toLowerCase();
+  var raw=(id+' '+name).replace(/[_-]+/g,' ');
+  if(/\bcardx\b/.test(raw)) return 'cardx';
+  if(/\bktc\b/.test(raw)) return 'ktc';
+  if(/\baeon\b/.test(raw)) return 'aeon';
+  if(/\bumay/.test(raw)) return 'umay';
+  if(/shopee|spay/.test(raw)) return 'shopee';
+  if(/true/.test(raw)) return 'true';
+  if(/laz/.test(raw)) return 'lazpay';
+  if(/tiktok/.test(raw)) return 'tiktokpay';
+  if(/first\s*choice|k\s*first|kfirst/.test(raw)) return 'firstchoice';
+  if(/line\s*bk|linebk/.test(raw)) return 'linebk';
+  if(/k\s*bank|kbank|kasikorn/.test(raw)) return 'kbank';
+  if(/\bscb\b|siam commercial/.test(raw)) return 'scb';
+  if(/\bbbl\b|bangkok bank/.test(raw)) return 'bbl';
+  if(/\bktb\b|krungthai|krung thai/.test(raw)) return 'ktb';
+  if(/krungsri|\bbay\b|ayudhya/.test(raw)) return 'bay';
+  if(/\bgsb\b|government savings/.test(raw)) return 'gsb';
+  if(/\bghb\b|housing bank/.test(raw)) return 'ghb';
+  if(/\bbaac\b|agricultur/.test(raw)) return 'baac';
+  if(/\bttb\b|tmbthanachart/.test(raw)) return 'ttb';
+  if(/\buob\b|united overseas/.test(raw)) return 'uob';
+  if(/\bcimb\b/.test(raw)) return 'cimb';
+  if(/\btisco\b/.test(raw)) return 'tisco';
+  if(/\bkk\b|kiatnakin/.test(raw)) return 'kk';
+  if(/\blh\b|\blhb\b|land and houses/.test(raw)) return 'lh';
+  return '';
+}
+function getCreditLogoMeta(itemOrName){
+  var key=getBankBrandKey(itemOrName), brand=BANK_BRANDS[key];
+  if(brand) return {label:brand.label,color:brand.color};
+  var item=typeof itemOrName==='object'&&itemOrName?itemOrName:{};
+  var name=String(typeof itemOrName==='string'?itemOrName:(item.n||item.credit_name||item.creditName||item.provider||item.name||'CR'));
+  var label=name.replace(/[^\wก-๙+ ]/g,' ').split(/\s+/).filter(Boolean).map(function(part){ return part.charAt(0); }).join('').slice(0,4).toUpperCase()||'CR';
+  return {label:label,color:'#4C35C4'};
 }
 function payIcon(label){
   if(label==='เงินสด') return 'payments';
@@ -1897,9 +1962,9 @@ function renderCreditLine(cr){
   var bal=st.remaining!=null?Number(st.remaining||0):(info.minPay||0);
   var due=info.dueDate||'-';
   var rate=info.rate||cr.rate||0;
-  var tone=cr.id.indexOf('kbank')===0||cr.id.indexOf('ttb')===0||cr.id==='gsb'?'green':cr.id.indexOf('aeon')===0||cr.id.indexOf('krungsri')===0?'amber':'';
+  var logo=getCreditLogoMeta(cr);
   return '<div class="cr-line-card">'+
-    '<div class="cr-line-main"><div class="cr-logo '+tone+'">'+esc(crInitials(cr.n))+'</div><div><div class="cr-line-name">'+esc(cr.n)+'</div><div class="cr-line-meta"><span>'+(getLang()==='th'?'ครบกำหนด: ':'Due: ')+esc(due)+'</span><span>'+(getLang()==='th'?'ดอกเบี้ย: ':'Rate: ')+esc(rate)+'%</span></div></div></div>'+
+    '<div class="cr-line-main"><div class="cr-logo" style="background-color:'+esc(logo.color)+'">'+esc(logo.label)+'</div><div><div class="cr-line-name">'+esc(cr.n)+'</div><div class="cr-line-meta"><span>'+(getLang()==='th'?'ครบกำหนด: ':'Due: ')+esc(due)+'</span><span>'+(getLang()==='th'?'ดอกเบี้ย: ':'Rate: ')+esc(rate)+'%</span></div></div></div>'+
     '<div class="cr-pay-state '+(isPaid?'paid':'warn')+'"><span class="material-symbols-outlined">'+(isPaid?'check_circle':'warning')+'</span><em>'+t(isPaid?'paid':'due')+'</em></div>'+
     '<div class="cr-line-balance"><div class="cr-line-amt '+(!isPaid&&bal>0?'due':'')+'">฿ '+fmt(bal)+'</div><div class="cr-line-label">'+t('currentBalance')+'</div></div>'+
     '<div class="cr-line-actions"><button class="edit" onclick="openInfo(\''+cr.id+'\')">'+t('editInfo')+'</button><button class="pay" onclick="openPay(\''+cr.id+'\')" '+(bal<=0&&isPaid?'disabled':'')+'>'+t('payBill')+'</button></div>'+
@@ -2326,6 +2391,7 @@ function updateSmartResults(){
     var isTop=idx===0;
     if(mobileDebtView&&debtSheetList){
       var monthPay=d.minPay+extraForThis;
+      var debtLogo=getCreditLogoMeta(d.cr);
       if(isTop){
         var focus=document.createElement('section');
         focus.className='debt-focus-card';
@@ -2339,7 +2405,7 @@ function updateSmartResults(){
       var premiumRow=document.createElement('article');
       premiumRow.className='debt-premium-card'+(isTop?' priority':'');
       premiumRow.innerHTML='<div class="debt-rank-badge">'+(idx+1)+'</div>'+
-        '<span class="material-symbols-outlined debt-card-icon">'+debtMaterialIcon(d.cr)+'</span>'+
+        (d.cr.t==='revolving'?'<div class="cr-logo debt-credit-logo" style="background-color:'+esc(debtLogo.color)+'">'+esc(debtLogo.label)+'</div>':'<span class="material-symbols-outlined debt-card-icon">'+debtMaterialIcon(d.cr)+'</span>')+
         '<div class="debt-card-copy"><strong>'+esc(d.cr.n)+'</strong><small>'+(extraForThis>0?'จ่ายขั้นต่ำ + โปะพิเศษ':'จ่ายขั้นต่ำตามแผน')+'</small></div>'+
         '<div class="debt-card-pay"><strong>฿ '+fmt(monthPay)+'</strong><small>/ เดือน</small></div>'+
         '<span class="material-symbols-outlined debt-card-status">'+(isTop?'verified':'schedule')+'</span>';
@@ -2829,12 +2895,13 @@ function renderDash(){
   }
   myCredits.forEach(function(cr){
     var st=S.crStatus[cr.id]||{},info=S.crInfo[cr.id]||{};
+    var logo=getCreditLogoMeta(cr);
     var isPaid=st.paid&&(st.date||'').slice(0,7)===mo;
     var moLeft=calcMoLeft(st.remaining,info.minPay,info.rate||cr.rate||0);
     var pct=0;
     if(info.limit&&info.limit>0){ var used=info.limit-(st.remaining!=null?st.remaining:info.limit); pct=Math.min(100,Math.max(0,Math.round(used/info.limit*100))); }
     var card=document.createElement('div'); card.style.cssText='background:var(--card);border-radius:var(--rds);padding:13px 14px;box-shadow:var(--sh);margin-bottom:8px;border:1px solid var(--bdr);border-left:3px solid '+(isPaid?'var(--gl)':'var(--rl)');
-    card.innerHTML='<div style="display:flex;align-items:center;gap:9px;width:100%"><div style="font-size:12px;font-weight:800;flex-shrink:0;color:var(--p);min-width:30px;text-align:center">'+esc(cr.ico||'CR')+'</div><div style="flex:1;min-width:0"><div style="font-size:13.5px;font-weight:700">'+esc(cr.n)+'</div><div style="font-size:11px;color:var(--mut);margin-top:2px">'+(isPaid?'จ่าย ฿ '+fmt(st.amount)+' · เหลือ ฿ '+fmt2(st.remaining||0)+(moLeft!=null?' · ~'+moLeft+' เดือน':''):info.minPay?'ขั้นต่ำ ฿ '+fmt(info.minPay):'ยังไม่มีข้อมูล')+'</div></div><div style="flex-shrink:0;text-align:right"><span class="cr-badge '+(isPaid?'paid':'unpaid')+'">'+(isPaid?'จ่ายแล้ว':'ยังไม่จ่าย')+'</span>'+(st.remaining!=null?'<div style="font-size:11px;color:var(--sub);margin-top:3px;font-family:var(--mono)">เหลือ ฿ '+fmt2(st.remaining||0)+'</div>':'')+'</div></div>'+(info.limit?'<div class="cr-progress-wrap"><div class="cr-progress-row"><div class="cr-progress-lbl">ใช้ '+pct+'%</div><div class="cr-progress-track"><div class="cr-progress-fill" style="width:'+pct+'%;background:'+(isPaid?'var(--gl)':'var(--a)')+'"></div></div><div class="cr-months">'+(moLeft!=null?'~'+moLeft+' เดือน':'')+'</div></div></div>':'');
+    card.innerHTML='<div style="display:flex;align-items:center;gap:9px;width:100%"><div class="cr-logo dash-cr-logo" style="background-color:'+esc(logo.color)+'">'+esc(logo.label)+'</div><div style="flex:1;min-width:0"><div style="font-size:13.5px;font-weight:700">'+esc(cr.n)+'</div><div style="font-size:11px;color:var(--mut);margin-top:2px">'+(isPaid?'จ่าย ฿ '+fmt(st.amount)+' · เหลือ ฿ '+fmt2(st.remaining||0)+(moLeft!=null?' · ~'+moLeft+' เดือน':''):info.minPay?'ขั้นต่ำ ฿ '+fmt(info.minPay):'ยังไม่มีข้อมูล')+'</div></div><div style="flex-shrink:0;text-align:right"><span class="cr-badge '+(isPaid?'paid':'unpaid')+'">'+(isPaid?'จ่ายแล้ว':'ยังไม่จ่าย')+'</span>'+(st.remaining!=null?'<div style="font-size:11px;color:var(--sub);margin-top:3px;font-family:var(--mono)">เหลือ ฿ '+fmt2(st.remaining||0)+'</div>':'')+'</div></div>'+(info.limit?'<div class="cr-progress-wrap"><div class="cr-progress-row"><div class="cr-progress-lbl">ใช้ '+pct+'%</div><div class="cr-progress-track"><div class="cr-progress-fill" style="width:'+pct+'%;background:'+(isPaid?'var(--gl)':'var(--a)')+'"></div></div><div class="cr-months">'+(moLeft!=null?'~'+moLeft+' เดือน':'')+'</div></div></div>':'');
     inner.appendChild(card);
   });
   sBody.appendChild(inner); secDiv.appendChild(sHdr); secDiv.appendChild(sBody); w.appendChild(secDiv);
