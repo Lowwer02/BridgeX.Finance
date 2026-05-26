@@ -2527,6 +2527,7 @@ function renderIncSum(){
 // DASHBOARD
 // ═══════════════════════════════════════════════════════
 var df='mo';
+var currentMobileDashView='summary';
 function setDF(f,el){ currentDashTimeFilter=f==='all'?'all_time':'this_month'; if(el) el.classList.add('on'); renderDash(); }
 function dashMonthKey(add){
   var n=new Date();
@@ -2535,6 +2536,17 @@ function dashMonthKey(add){
 }
 function setDashTimeFilter(f){ currentDashTimeFilter=f; renderDash(); }
 function setDashUserFilter(f){ currentDashUserFilter=f; renderDash(); }
+function switchMobileDashView(view){
+  currentMobileDashView=view||'summary';
+  var pg=document.getElementById('pg-dash');
+  if(pg) pg.dataset.mobileDashView=currentMobileDashView;
+  document.querySelectorAll('[data-mobile-dash-tab]').forEach(function(btn){
+    btn.classList.toggle('on',btn.dataset.mobileDashTab===currentMobileDashView);
+  });
+  if(currentMobileDashView==='analysis'&&dashCategoryChart&&typeof dashCategoryChart.resize==='function'){
+    setTimeout(function(){ dashCategoryChart.resize(); },0);
+  }
+}
 function dashEntityMembers(){
   var out=[], seen={};
   function add(id,name){
@@ -2567,6 +2579,13 @@ function filterDashRows(rows){
     var okTime=time==='all_time'||(time==='this_month'&&r.date&&r.date.slice(0,7)===mo)||(time==='last_month'&&r.date&&r.date.slice(0,7)===last);
     var okUser=user==='joint'||String(r.user_id||'')===String(user);
     return okTime&&okUser;
+  });
+}
+function updateMobileDashBento(values){
+  var ids={net:'mobile-dash-net',income:'mobile-dash-income',outflow:'mobile-dash-outflow',debt:'mobile-dash-debt'};
+  Object.keys(values||{}).forEach(function(key){
+    var el=document.getElementById(ids[key]);
+    if(el) el.textContent=values[key];
   });
 }
 function renderDashCategoryChart(filteredExpenses){
@@ -2661,6 +2680,12 @@ function renderDash(){
       debtTotal+=Math.max(0,limit-Number(st.remaining!=null?st.remaining:limit));
     }
   });
+  updateMobileDashBento({
+    net:'฿ '+fmt2(net),
+    income:'฿ '+fmt(incMo),
+    outflow:'฿ '+fmt(tot),
+    debt:'฿ '+fmt(debtTotal)
+  });
   var debtPct=limitTotal?Math.min(100,Math.round(debtTotal/limitTotal*100)):0;
   var projectedSave=Math.max(0,Math.round((totUnpaid+totPaid)*0.12));
   var catIconMap={'อาหาร':'restaurant','เครื่องดื่ม':'local_cafe','ขนม':'bakery_dining','สัตว์เลี้ยง':'pets','ช้อปปิ้ง':'shopping_bag','กิจกรรม':'sports_esports','การเดินทาง':'directions_car','เดินทาง':'directions_car','สถานที่':'home','ลงทุน':'trending_up','สุขภาพ':'medical_services','บิล':'receipt_long','การศึกษา':'school','บริจาค':'volunteer_activism','ท่องเที่ยว':'flight','ครอบครัว':'family_restroom','อื่น':'more_horiz'};
@@ -2705,14 +2730,15 @@ function renderDash(){
     '<section class="dash-kpi main"><div><span>'+t('monthlyNetBalance')+'</span><strong>฿ '+fmt2(net)+'</strong><small class="'+(net>=0?'pos':'neg')+'"><span class="material-symbols-outlined">trending_up</span> '+t('incomeLabel')+' ฿ '+fmt(incMo)+' · '+t('expenseLabel')+' ฿ '+fmt(tot)+'</small></div></section>'+
     '<section class="dash-kpi"><span>'+t('totalDebt')+'</span><strong>฿ '+fmt(debtTotal)+'</strong><div class="dash-mini-track"><i style="width:'+debtPct+'%"></i></div><small>'+t('useLimit')+' '+debtPct+'%</small></section>'+
     '<section class="dash-kpi"><span>'+t('projectedInterestSavings')+'</span><strong class="green">฿ '+fmt(projectedSave)+'</strong><small class="pos"><span class="material-symbols-outlined">auto_awesome</span> '+(getLang()==='th'?'ด้วยแผนชำระเร่งด่วน':'with an accelerated plan')+'</small></section>'+
-    '<section class="dash-panel budget"><div class="dash-panel-head"><h2>'+t('budgetProgress')+'</h2><span>'+t('budgetThisMonth')+'</span></div><div class="budget-progress">'+budgetProgressHtml(items)+'</div></section>'+
-    '<section class="dash-panel chart"><div class="dash-panel-head"><h2>'+t('financialHealth')+'</h2><button type="button" onclick="goTab(\'hist\',document.querySelector(\'.tbtn[onclick*=hist]\'))">'+t('viewDetails')+'</button></div><div class="dash-chart">'+chartHtml+'</div><div class="dash-legend"><span><i class="income"></i>รายได้</span><span><i class="expense"></i>รายจ่าย</span></div></section>'+
-    '<section class="dash-panel category"><div class="dash-panel-head"><h2>'+t('expenseByCategory')+'</h2><span>'+t('category')+'</span></div><div class="dash-doughnut-wrap"><canvas id="dash-category-chart"></canvas></div></section>'+
-    '<section class="dash-panel calendar"><div class="dash-panel-head"><h2>'+t('dailyCalendar')+'</h2><span>'+thaiMo(calMo)+'</span></div><div class="dash-cal-dow"><span>อา</span><span>จ</span><span>อ</span><span>พ</span><span>พฤ</span><span>ศ</span><span>ส</span></div><div class="dash-cal-grid">'+calHtml+'</div><div class="dash-cal-legend"><span>'+t('less')+'</span><i class="l0"></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i><span>'+t('more')+'</span></div></section>'+
-    '<section class="dash-panel history"><div class="dash-panel-head"><h2>'+t('recentTransactions')+'</h2><button type="button" onclick="goTab(\'hist\',document.querySelector(\'.tbtn[onclick*=hist]\'))">'+t('viewAll')+' <span class="material-symbols-outlined">arrow_forward</span></button></div><div class="dash-table-wrap"><table class="dash-table"><thead><tr><th>รายการ</th><th>'+t('category')+'</th><th>ผู้ทำรายการ</th><th>'+t('amount')+'</th></tr></thead><tbody>'+recentHtml+'</tbody></table></div></section>'+
+    '<section class="dash-panel budget" data-mobile-views="budget"><div class="dash-panel-head"><h2>'+t('budgetProgress')+'</h2><span>'+t('budgetThisMonth')+'</span></div><div class="budget-progress">'+budgetProgressHtml(items)+'</div></section>'+
+    '<section class="dash-panel chart" data-mobile-views="summary analysis"><div class="dash-panel-head"><h2>'+t('financialHealth')+'</h2><button type="button" onclick="goTab(\'hist\',document.querySelector(\'.tbtn[onclick*=hist]\'))">'+t('viewDetails')+'</button></div><div class="dash-chart">'+chartHtml+'</div><div class="dash-legend"><span><i class="income"></i>รายได้</span><span><i class="expense"></i>รายจ่าย</span></div></section>'+
+    '<section class="dash-panel category" data-mobile-views="analysis"><div class="dash-panel-head"><h2>'+t('expenseByCategory')+'</h2><span>'+t('category')+'</span></div><div class="dash-doughnut-wrap"><canvas id="dash-category-chart"></canvas></div></section>'+
+    '<section class="dash-panel calendar" data-mobile-views="recent"><div class="dash-panel-head"><h2>'+t('dailyCalendar')+'</h2><span>'+thaiMo(calMo)+'</span></div><div class="dash-cal-dow"><span>อา</span><span>จ</span><span>อ</span><span>พ</span><span>พฤ</span><span>ศ</span><span>ส</span></div><div class="dash-cal-grid">'+calHtml+'</div><div class="dash-cal-legend"><span>'+t('less')+'</span><i class="l0"></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i><span>'+t('more')+'</span></div></section>'+
+    '<section class="dash-panel history" data-mobile-views="recent"><div class="dash-panel-head"><h2>'+t('recentTransactions')+'</h2><button type="button" onclick="goTab(\'hist\',document.querySelector(\'.tbtn[onclick*=hist]\'))">'+t('viewAll')+' <span class="material-symbols-outlined">arrow_forward</span></button></div><div class="dash-table-wrap"><table class="dash-table"><thead><tr><th>รายการ</th><th>'+t('category')+'</th><th>ผู้ทำรายการ</th><th>'+t('amount')+'</th></tr></thead><tbody>'+recentHtml+'</tbody></table></div></section>'+
   '</div>';
   applyLanguage();
   renderDashCategoryChart(items);
+  switchMobileDashView(currentMobileDashView);
   return;
 
   function mkK(lbl,val,vc,sub,full,bc){ var c=document.createElement('div'); c.className='kcard'+(full?' full':''); if(bc) c.style.borderLeft='3px solid '+bc; c.innerHTML='<div class="kl">'+lbl+'</div><div class="kv" style="color:'+vc+'">'+val+'</div>'+(sub?'<div class="ks">'+sub+'</div>':''); return c; }

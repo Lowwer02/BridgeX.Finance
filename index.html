@@ -419,6 +419,30 @@
       <span data-i18n="view">มุมมอง</span>
     </div>
   </div>
+  <div class="mobile-dash-bento" id="mobile-dash-bento" aria-label="สรุปภาพรวมการเงิน">
+    <div class="mobile-dash-bento-card balance">
+      <span>เงินเหลือใช้เดือนนี้</span>
+      <strong id="mobile-dash-net">-</strong>
+    </div>
+    <div class="mobile-dash-bento-card income">
+      <span>รายรับ</span>
+      <strong id="mobile-dash-income">-</strong>
+    </div>
+    <div class="mobile-dash-bento-card expense">
+      <span>รายจ่ายรวม</span>
+      <strong id="mobile-dash-outflow">-</strong>
+    </div>
+    <div class="mobile-dash-bento-card debt">
+      <span>หนี้สินรวม</span>
+      <strong id="mobile-dash-debt">-</strong>
+    </div>
+  </div>
+  <div class="mobile-dash-toggle" aria-label="เลือกมุมมองภาพรวมการเงิน">
+    <button class="on" type="button" data-mobile-dash-tab="summary" onclick="switchMobileDashView('summary')">สรุป</button>
+    <button type="button" data-mobile-dash-tab="budget" onclick="switchMobileDashView('budget')">งบประมาณ</button>
+    <button type="button" data-mobile-dash-tab="analysis" onclick="switchMobileDashView('analysis')">วิเคราะห์</button>
+    <button type="button" data-mobile-dash-tab="recent" onclick="switchMobileDashView('recent')">รายการล่าสุด</button>
+  </div>
   <div id="dash"></div>
 </div>
 
