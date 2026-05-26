@@ -25,6 +25,7 @@
   --rd:var(--radius-md);--rds:var(--radius-md);
   --font:var(--font-body);--mono:'JetBrains Mono',monospace;
 }
+
 /* ── Light Theme ── */
 body.light{
   --bg:#f7f7fb;--bg2:#ffffff;--card:#ffffff;--card2:#f1f0f7;--bdr:#e1dfeb;
@@ -2673,4 +2674,89 @@ body.theme-light .google-btn{border-color:var(--bdr)}
   .debt-card-pay small{color:var(--mut);font:600 10px var(--font-label)}
   .debt-card-status{font-size:20px;color:var(--mut)}
   .debt-premium-card.priority .debt-card-status{color:var(--gl)}
+}
+
+/* Mobile debt width and unified bottom navigation state */
+@media (max-width:768px){
+  #pg-debt,
+  #pg-debt #debt-mode-plan,
+  #pg-debt #debt-mode-plan .debtp-shell,
+  #pg-debt #debt-mode-plan .debtp-grid,
+  #pg-debt #debt-mode-plan .debtp-side,
+  #pg-debt #debt-mode-plan .debtp-main,
+  #pg-debt #debt-mode-plan .debtp-hero,
+  #pg-debt #debt-mode-plan .debtp-impact,
+  #pg-debt #debt-mode-plan .debtp-list-card,
+  #pg-debt #debt-mode-plan #debtp-impact,
+  #pg-debt #debt-mode-plan #debt-plan-list,
+  #pg-debt #debt-mode-plan #smart-results,
+  #pg-debt #debt-mode-plan .debt-focus-card{
+    width:100%;
+    max-width:100%;
+    min-width:0;
+    margin-left:0;
+    margin-right:0;
+    box-sizing:border-box;
+    overflow-x:hidden;
+  }
+  #pg-debt #debt-mode-plan .debtp-grid,
+  #pg-debt #debt-mode-plan .debtp-main{
+    display:flex;
+    flex-direction:column;
+    align-items:stretch;
+    gap:16px;
+  }
+  #pg-debt #debt-mode-plan .debtp-impact{margin-bottom:0}
+  #pg-debt #debt-mode-plan .debtp-impact-grid{
+    display:flex;
+    flex-direction:column;
+    width:100%;
+    gap:12px;
+  }
+  #pg-debt #debt-mode-plan .debtp-impact-card{
+    width:100%;
+    max-width:100%;
+    min-width:0;
+    box-sizing:border-box;
+  }
+
+  .bn .tbtn,
+  .bn .add-fab{
+    width:68px;
+    min-height:58px;
+    padding:4px 0 3px;
+    margin:0;
+    transform:none;
+    color:var(--mut);
+    transition:transform .2s ease,background .2s ease,color .2s ease,box-shadow .2s ease;
+  }
+  .bn .tbtn .ico,
+  .bn .add-fab .ico{
+    width:42px;
+    height:42px;
+    margin:0;
+    border:1px solid transparent;
+    background:transparent;
+    box-shadow:none;
+    color:var(--sub);
+    font-size:24px;
+    transition:transform .2s ease,background .2s ease,color .2s ease,box-shadow .2s ease;
+  }
+  .bn .tbtn.active,
+  .bn .add-fab.active{
+    color:var(--pl);
+    transform:translateY(-3px);
+  }
+  .bn .tbtn.active .ico,
+  .bn .add-fab.active .ico{
+    width:54px;
+    height:54px;
+    margin-top:-12px;
+    border:1px solid rgba(199,191,255,.25);
+    background:var(--p);
+    box-shadow:0 8px 24px rgba(76,53,196,.44);
+    color:#fff;
+    font-size:30px;
+    transform:none;
+  }
 }
