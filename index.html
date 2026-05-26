@@ -687,7 +687,7 @@
 
     <div class="set-hub-section">
       <div class="set-hub-label">ตั้งค่าการใช้งาน</div>
-      <button class="set-hub-item" onclick="">
+      <button class="set-hub-item" type="button" onclick="document.getElementById('pg-set').classList.remove('on');document.getElementById('pg-account-family-mobile').classList.add('on');renderAccountFamilyMobile()">
         <span class="material-symbols-outlined">manage_accounts</span> บัญชีและครอบครัว
         <span class="set-hub-chev">›</span>
       </button>
@@ -717,6 +717,58 @@
     </div>
 
     <div class="set-version">App Version 4.1.2</div>
+  </div>
+</div>
+
+<div class="pg account-family-mobile-page" id="pg-account-family-mobile">
+  <div id="account-family-mobile">
+    <header class="account-family-head">
+      <button type="button" onclick="document.getElementById('pg-account-family-mobile').classList.remove('on');goTab('set')" aria-label="กลับไปหน้าตั้งค่า"><span class="material-symbols-outlined">arrow_back</span></button>
+      <h1>บัญชีและครอบครัว</h1>
+      <img src="assets/bridgex-logo.png" alt="BridgeX.Wallet">
+    </header>
+
+    <section class="account-family-card account-profile-card">
+      <div class="account-profile-top">
+        <div class="account-avatar-wrap">
+          <div class="account-family-avatar" id="account-family-avatar">BX</div>
+          <label class="account-avatar-edit" for="user-avatar-uploader" aria-label="เปลี่ยนรูปโปรไฟล์"><span class="material-symbols-outlined">photo_camera</span></label>
+          <input type="file" id="user-avatar-uploader" accept="image/*" hidden>
+        </div>
+        <div class="account-profile-copy">
+          <h2 id="account-family-name">-</h2>
+          <div class="account-family-pill">แชร์บัญชีครอบครัว</div>
+          <p id="account-family-status">-</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="account-family-card account-family-card-main">
+      <div class="account-card-title">
+        <span class="material-symbols-outlined">family_restroom</span>
+        <div>
+          <h2>ครอบครัวของคุณ</h2>
+          <p>จัดการสมาชิกที่แชร์ข้อมูลร่วมกัน</p>
+        </div>
+      </div>
+      <label class="account-family-label" for="account-family-id-view">Family ID</label>
+      <div class="account-family-id-row">
+        <input id="account-family-id-view" type="text" readonly value="">
+        <button type="button" onclick="copyFamilyIdValue(document.getElementById('account-family-id-view').value)"><span class="material-symbols-outlined">content_copy</span>คัดลอก ID</button>
+      </div>
+      <div class="account-family-members" id="account-family-members-list"></div>
+    </section>
+
+    <section class="account-family-card account-connection-card">
+      <div class="account-connection-row">
+        <span class="account-line-icon">LINE</span>
+        <div>
+          <h2>LINE Official Account</h2>
+          <p>เชื่อมต่อเพื่อรับการแจ้งเตือน</p>
+        </div>
+        <button class="account-line-toggle" id="line-oa-toggle" type="button" aria-pressed="false" aria-label="เชื่อมต่อ LINE Official Account"><i></i></button>
+      </div>
+    </section>
   </div>
 </div>
 
