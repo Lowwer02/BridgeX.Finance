@@ -104,8 +104,8 @@ function tabTitle(id){
 // ═══════════════════════════════════════════════════════
 const DEF_CATS = [
   {id:'food',l:'อาหาร',c:'#f59e0b'},{id:'drink',l:'เครื่องดื่ม',c:'#3b82f6'},
-  {id:'buffet',l:'บุฟเฟ่ต์',c:'#fb923c'},
-  {id:'snack',l:'ขนม',c:'#f97316'},{id:'cat',l:'สัตว์เลี้ยง',c:'#fb923c'},
+  {id:'snack',l:'ขนม',c:'#f97316'},{id:'buffet',l:'บุฟเฟ่ต์',c:'#fb923c'},
+  {id:'cat',l:'สัตว์เลี้ยง',c:'#fb923c'},
   {id:'shop',l:'ช้อปปิ้ง',c:'#ec4899'},{id:'act',l:'กิจกรรม',c:'#10b981'},
   {id:'trans',l:'การเดินทาง',c:'#8b5cf6'},{id:'place',l:'สถานที่',c:'#64748b'},
   {id:'inv',l:'การลงทุน',c:'#06b6d4'},{id:'health',l:'สุขภาพ',c:'#22d3ee'},
@@ -1140,6 +1140,16 @@ function mkChips(arr,selId,wrapId,onPick){
   });
 }
 var addCatIconMap={food:'restaurant',buffet:'restaurant_menu',drink:'local_cafe',snack:'bakery_dining',cat:'pets',shop:'shopping_bag',act:'sports_esports',trans:'directions_car',place:'home',inv:'trending_up',health:'medical_services',bill:'receipt_long',edu:'school',donate:'volunteer_activism',travel:'flight',fam:'family_restroom',other:'more_horiz'};
+function orderedExpenseCats(cats){
+  var ordered=(cats||[]).slice();
+  var buffetIndex=ordered.findIndex(function(c){ return c.id==='buffet'; });
+  var snackIndex=ordered.findIndex(function(c){ return c.id==='snack'; });
+  if(buffetIndex<0||snackIndex<0||buffetIndex===snackIndex+1) return ordered;
+  var buffet=ordered.splice(buffetIndex,1)[0];
+  snackIndex=ordered.findIndex(function(c){ return c.id==='snack'; });
+  ordered.splice(snackIndex+1,0,buffet);
+  return ordered;
+}
 function cleanAddLabel(v){ return String(v||'').replace(/^[^\wก-๙]+/,'').trim()||v; }
 function addPayIcon(id){
   id=String(id||'');
@@ -1149,7 +1159,7 @@ function renderCats(){
   var w=document.getElementById('cat-chips');
   renderMobilePickers();
   if(!w) return; w.innerHTML='';
-  S.cats.forEach(function(c){
+  orderedExpenseCats(S.cats).forEach(function(c){
     var b=document.createElement('button');
     b.className='chip'+(S.fc.cat===c.id?' on':'');
     b.dataset.icon=addCatIconMap[c.id]||'more_horiz';
@@ -1194,7 +1204,7 @@ function openMobilePicker(type){
   if(!modal||!title||!list) return;
   var iconMap={sal:'work',bon:'redeem',free:'business_center',inv:'trending_up',oth:'more_horiz'};
   var arr=[], selectedId='', pickerTitle='';
-  if(type==='cat'){ arr=S.cats; selectedId=S.fc.cat; pickerTitle=t('selectCategory'); }
+  if(type==='cat'){ arr=orderedExpenseCats(S.cats); selectedId=S.fc.cat; pickerTitle=t('selectCategory'); }
   else if(type==='pay'){ arr=S.pays; selectedId=S.fc.pay; pickerTitle=t('selectPayment'); }
   else if(type==='inc-cat'){ arr=S.incc; selectedId=S.fi.cat; pickerTitle=t('selectIncomeCategory'); }
   else if(type==='inc-ch'){ arr=S.inch; selectedId=S.fi.ch; pickerTitle=t('selectIncomeChannel'); }
