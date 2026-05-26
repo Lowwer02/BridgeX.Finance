@@ -688,7 +688,11 @@
     <div class="set-hub-section">
       <div class="set-hub-label">ตั้งค่าการใช้งาน</div>
       <button class="set-hub-item" onclick="">
-        <span class="material-symbols-outlined">person</span> บัญชี
+        <span class="material-symbols-outlined">manage_accounts</span> บัญชีและครอบครัว
+        <span class="set-hub-chev">›</span>
+      </button>
+      <button class="set-hub-item" type="button" onclick="openBudgetManager()">
+        <span class="material-symbols-outlined">account_balance_wallet</span> จัดการงบประมาณ
         <span class="set-hub-chev">›</span>
       </button>
       <button class="set-hub-item" onclick="">
@@ -714,6 +718,45 @@
 
     <div class="set-version">App Version 4.1.2</div>
   </div>
+</div>
+
+<div class="pg budget-mobile-page" id="pg-budget-mobile">
+  <header class="mobile-budget-head">
+    <button type="button" onclick="closeBudgetManager()" aria-label="กลับไปหน้าตั้งค่า"><span class="material-symbols-outlined">arrow_back</span></button>
+    <h1>งบประมาณ</h1>
+    <img src="assets/bridgex-logo.png" alt="BridgeX.Wallet">
+  </header>
+  <section class="mobile-budget-summary" id="mobile-budget-summary">
+    <span>งบประมาณรวมรายเดือน</span>
+    <strong>฿ 0</strong>
+    <small>คงเหลือ ฿ 0</small>
+    <div class="mobile-budget-track"><i></i></div>
+  </section>
+  <div class="mobile-budget-section-head">
+    <h2>งบแต่ละหมวดหมู่</h2>
+    <span>ต่อเดือน</span>
+  </div>
+  <div class="mobile-budget-grid" id="mobile-budget-grid"></div>
+</div>
+
+<div class="mobile-budget-editor" id="mobile-budget-editor" onclick="mobileBudgetEditorBg(event)">
+  <section class="mobile-budget-sheet">
+    <div class="mobile-budget-handle"></div>
+    <div class="mobile-budget-sheet-head">
+      <span class="mobile-budget-edit-icon material-symbols-outlined" id="mobile-budget-edit-icon">category</span>
+      <div>
+        <small>งบรายเดือน</small>
+        <h2 id="mobile-budget-edit-name">หมวดหมู่</h2>
+      </div>
+      <button type="button" onclick="closeMobileBudgetEditor()" aria-label="ปิด"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <label class="mobile-budget-input-label" for="mobile-budget-amount">จำนวนเงินต่อเดือน</label>
+    <div class="mobile-budget-input-wrap">
+      <span>฿</span>
+      <input id="mobile-budget-amount" type="number" min="0" step="1" placeholder="0">
+    </div>
+    <button class="mobile-budget-save" type="button" onclick="saveMobileBudget()">บันทึกงบประมาณ</button>
+  </section>
 </div>
 
 <div class="mobile-picker-modal hidden" id="mobile-picker-modal" onclick="mobilePickerBg(event)">

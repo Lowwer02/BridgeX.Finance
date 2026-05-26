@@ -3039,6 +3039,82 @@ async function saveBudgets(){
     toast('บันทึกงบประมาณไม่สำเร็จ','err');
   }
 }
+var activeMobileBudgetCat='';
+function mobileBudgetCats(){
+  return S.cats&&S.cats.length?S.cats:DEF_CATS;
+}
+function renderMobileBudgetManager(){
+  var summary=document.getElementById('mobile-budget-summary');
+  var grid=document.getElementById('mobile-budget-grid');
+  if(!summary||!grid) return;
+  var budgets=(S.profile&&S.profile.monthly_budgets)||{};
+  var total=Object.keys(budgets).reduce(function(sum,key){ return sum+Number(budgets[key]||0); },0);
+  var spent=(S.expenses||[]).filter(function(e){
+    return e.date&&e.date.slice(0,7)===thisMo();
+  }).reduce(function(sum,e){ return sum+Number(e.amount||0); },0);
+  var remaining=Math.max(0,total-spent);
+  var pct=total?Math.min(100,Math.round(spent/total*100)):0;
+  var tone=pct>=100?' danger':pct>=80?' warn':'';
+  summary.innerHTML='<span>งบประมาณรวมรายเดือน</span><strong>฿ '+fmt(total)+'</strong><small>ใช้ไป ฿ '+fmt(spent)+' · คงเหลือ ฿ '+fmt(remaining)+'</small><div class="mobile-budget-track"><i class="'+tone.trim()+'" style="width:'+pct+'%"></i></div><em>'+pct+'%</em>';
+  grid.innerHTML=mobileBudgetCats().map(function(c){
+    var icon=addCatIconMap[c.id]||'category';
+    return '<button type="button" class="mobile-budget-card" data-mobile-budget-cat="'+esc(c.id)+'"><span class="material-symbols-outlined">'+icon+'</span><strong>'+esc(c.l)+'</strong><small>฿ '+fmt(Number(budgets[c.id]||0))+'</small></button>';
+  }).join('')+'<button type="button" class="mobile-budget-card add" disabled><span class="material-symbols-outlined">add</span><strong>เพิ่มหมวดหมู่</strong><small>เร็ว ๆ นี้</small></button>';
+  grid.querySelectorAll('[data-mobile-budget-cat]').forEach(function(btn){
+    btn.onclick=function(){ openMobileBudgetEditor(btn.dataset.mobileBudgetCat); };
+  });
+}
+function openBudgetManager(){
+  if(!window.matchMedia('(max-width:768px)').matches) return;
+  document.querySelectorAll('.pg').forEach(function(p){ p.classList.remove('on'); });
+  var page=document.getElementById('pg-budget-mobile');
+  if(page) page.classList.add('on');
+  var title=document.getElementById('topbar-title');
+  if(title) title.textContent='งบประมาณ';
+  renderMobileBudgetManager();
+}
+function closeBudgetManager(){
+  closeMobileBudgetEditor();
+  goTab('set');
+}
+function openMobileBudgetEditor(catId){
+  var cat=mobileBudgetCats().find(function(c){ return c.id===catId; });
+  if(!cat) return;
+  activeMobileBudgetCat=catId;
+  var budgets=(S.profile&&S.profile.monthly_budgets)||{};
+  document.getElementById('mobile-budget-edit-icon').textContent=addCatIconMap[catId]||'category';
+  document.getElementById('mobile-budget-edit-name').textContent=cat.l;
+  document.getElementById('mobile-budget-amount').value=Number(budgets[catId]||0)||'';
+  document.getElementById('mobile-budget-editor').classList.add('on');
+}
+function closeMobileBudgetEditor(){
+  var editor=document.getElementById('mobile-budget-editor');
+  if(editor) editor.classList.remove('on');
+  activeMobileBudgetCat='';
+}
+function mobileBudgetEditorBg(e){
+  if(e&&e.target&&e.target.id==='mobile-budget-editor') closeMobileBudgetEditor();
+}
+async function saveMobileBudget(){
+  if(!activeMobileBudgetCat||!S.user||!S.profile) return toast('ไม่พบโปรไฟล์','err');
+  var amount=Number(document.getElementById('mobile-budget-amount').value||0);
+  if(!Number.isFinite(amount)||amount<0) return toast('กรอกงบประมาณให้ถูกต้อง','err');
+  var budgets=Object.assign({},S.profile.monthly_budgets||{});
+  if(amount>0) budgets[activeMobileBudgetCat]=amount;
+  else delete budgets[activeMobileBudgetCat];
+  try{
+    var res=await sb.from('profiles').update({monthly_budgets:budgets,updated_at:new Date().toISOString()}).eq('id',S.user.id);
+    if(res.error) throw res.error;
+    S.profile.monthly_budgets=budgets;
+    closeMobileBudgetEditor();
+    renderMobileBudgetManager();
+    renderBudgetSettings();
+    toast('บันทึกงบประมาณแล้ว','ok');
+  }catch(e){
+    console.error('save mobile budgets failed:',e);
+    toast('บันทึกงบประมาณไม่สำเร็จ','err');
+  }
+}
 function renderV4Settings(){
   applyLanguage();
   updateHeader();

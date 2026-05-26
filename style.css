@@ -2040,6 +2040,271 @@ body.theme-light .google-btn{border-color:var(--bdr)}
   #pg-set .set-hub{display:none !important}
 }
 
+#pg-budget-mobile,.mobile-budget-editor{display:none}
+@media (max-width:768px){
+  #pg-set .set-head{
+    display:block;
+    margin-bottom:16px;
+  }
+  #pg-set .set-head h1,
+  #pg-set .set-export-top{display:none !important}
+  #pg-set .set-head p{
+    margin:0;
+    color:var(--sub);
+    font-size:14px;
+    line-height:1.55;
+  }
+  #pg-budget-mobile.on{
+    display:block !important;
+    width:100%;
+    max-width:480px;
+    min-width:0;
+    box-sizing:border-box;
+    margin:0 auto;
+    padding:0 16px 92px;
+    overflow-x:hidden;
+  }
+  .mobile-budget-head{
+    display:grid;
+    grid-template-columns:40px 1fr 40px;
+    align-items:center;
+    gap:12px;
+    margin:4px 0 20px;
+  }
+  .mobile-budget-head button{
+    width:40px;
+    height:40px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border:1px solid var(--bdr);
+    border-radius:12px;
+    background:var(--card);
+    color:var(--tx);
+  }
+  .mobile-budget-head h1{
+    margin:0;
+    text-align:center;
+    font-family:var(--font-headline);
+    font-size:22px;
+    color:var(--tx);
+  }
+  .mobile-budget-head img{
+    width:40px;
+    height:40px;
+    object-fit:cover;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,.12);
+    box-shadow:0 8px 20px rgba(0,0,0,.25);
+  }
+  .mobile-budget-summary{
+    position:relative;
+    width:100%;
+    box-sizing:border-box;
+    padding:20px 18px 17px;
+    margin-bottom:22px;
+    overflow:hidden;
+    border:1px solid rgba(199,191,255,.2);
+    border-radius:18px;
+    background:linear-gradient(140deg,rgba(76,53,196,.25),var(--card) 65%);
+  }
+  .mobile-budget-summary > span{
+    display:block;
+    margin-bottom:8px;
+    font-size:13px;
+    font-weight:700;
+    color:var(--sub);
+  }
+  .mobile-budget-summary > strong{
+    display:block;
+    margin-bottom:8px;
+    font-size:32px;
+    line-height:1.15;
+    color:var(--tx);
+  }
+  .mobile-budget-summary > small{
+    display:block;
+    margin-bottom:15px;
+    font-size:13px;
+    color:var(--gl);
+  }
+  .mobile-budget-track{
+    height:7px;
+    overflow:hidden;
+    border-radius:999px;
+    background:var(--card2);
+  }
+  .mobile-budget-track i{
+    display:block;
+    height:100%;
+    border-radius:inherit;
+    background:var(--p);
+    transition:width .24s ease;
+  }
+  .mobile-budget-track i.warn{background:var(--a)}
+  .mobile-budget-track i.danger{background:var(--rl)}
+  .mobile-budget-summary em{
+    display:block;
+    margin-top:8px;
+    color:var(--mut);
+    font-style:normal;
+    font-size:11px;
+    font-weight:700;
+    text-align:right;
+  }
+  .mobile-budget-section-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin:0 2px 13px;
+  }
+  .mobile-budget-section-head h2{
+    margin:0;
+    color:var(--tx);
+    font-size:18px;
+  }
+  .mobile-budget-section-head span{
+    color:var(--mut);
+    font-size:12px;
+    font-weight:700;
+  }
+  .mobile-budget-grid{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:10px;
+    width:100%;
+    max-width:100%;
+    box-sizing:border-box;
+  }
+  .mobile-budget-card{
+    min-width:0;
+    min-height:112px;
+    box-sizing:border-box;
+    padding:13px;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:7px;
+    border:1px solid var(--bdr);
+    border-radius:15px;
+    background:var(--card);
+    color:var(--tx);
+    text-align:left;
+  }
+  .mobile-budget-card .material-symbols-outlined{
+    width:34px;
+    height:34px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:10px;
+    background:var(--pbg);
+    color:var(--pl);
+    font-size:19px;
+  }
+  .mobile-budget-card strong{
+    width:100%;
+    min-width:0;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    font-size:14px;
+  }
+  .mobile-budget-card small{font-size:13px;color:var(--sub)}
+  .mobile-budget-card.add{opacity:.55;border-style:dashed}
+  .mobile-budget-editor.on{
+    position:fixed;
+    inset:0;
+    z-index:12020;
+    display:flex;
+    align-items:flex-end;
+    background:rgba(0,0,0,.6);
+    backdrop-filter:blur(5px);
+  }
+  .mobile-budget-sheet{
+    width:100%;
+    box-sizing:border-box;
+    padding:10px 20px max(24px,env(safe-area-inset-bottom));
+    border:1px solid var(--bdr);
+    border-bottom:0;
+    border-radius:22px 22px 0 0;
+    background:var(--card);
+    box-shadow:0 -16px 40px rgba(0,0,0,.34);
+  }
+  .mobile-budget-handle{
+    width:42px;
+    height:4px;
+    border-radius:9px;
+    background:var(--bdr);
+    margin:0 auto 18px;
+  }
+  .mobile-budget-sheet-head{
+    display:grid;
+    grid-template-columns:48px 1fr 40px;
+    align-items:center;
+    gap:12px;
+    margin-bottom:22px;
+  }
+  .mobile-budget-edit-icon{
+    width:48px;
+    height:48px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:14px;
+    background:var(--pbg);
+    color:var(--pl);
+  }
+  .mobile-budget-sheet-head small{display:block;color:var(--mut);font-size:11px}
+  .mobile-budget-sheet-head h2{margin:3px 0 0;font-size:18px;color:var(--tx)}
+  .mobile-budget-sheet-head button{
+    border:0;
+    background:transparent;
+    color:var(--sub);
+  }
+  .mobile-budget-input-label{
+    display:block;
+    margin-bottom:8px;
+    color:var(--sub);
+    font-size:12px;
+    font-weight:700;
+  }
+  .mobile-budget-input-wrap{
+    height:58px;
+    box-sizing:border-box;
+    margin-bottom:18px;
+    padding:0 16px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    border:1px solid var(--bdr);
+    border-radius:14px;
+    background:var(--card2);
+    color:var(--sub);
+    font-size:22px;
+  }
+  .mobile-budget-input-wrap input{
+    width:100%;
+    min-width:0;
+    border:0;
+    outline:0;
+    background:transparent;
+    color:var(--tx);
+    font-size:24px;
+    font-weight:700;
+  }
+  .mobile-budget-save{
+    width:100%;
+    height:50px;
+    border:0;
+    border-radius:12px;
+    background:var(--p);
+    color:#fff;
+    font-size:15px;
+    font-weight:800;
+  }
+}
+
 /* Mobile Add Transaction shell */
 .add-mobile-head,.add-type-toggle{display:none}
 .add-mobile-amount,.add-mobile-field{display:contents}
