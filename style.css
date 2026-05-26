@@ -245,6 +245,9 @@ body{background:#13121b;color:#e5e0ed;padding-bottom:0}
 .icon-btn{min-width:40px;height:40px;border:none;background:transparent;color:#c9c4d7;cursor:pointer;position:relative;padding:0 8px;display:flex;align-items:center;justify-content:center}
 .icon-btn .material-symbols-outlined{font-size:24px;color:#c9c4d7}
 .icon-btn.notify::after{content:'';position:absolute;top:9px;right:8px;width:8px;height:8px;background:#4edea3;border-radius:999px}
+.topbar-logo-btn{padding:0;border-radius:12px}
+.topbar-logo-image{display:block;width:36px;height:36px;border-radius:12px;object-fit:cover;border:1px solid rgba(255,255,255,.12);box-shadow:0 8px 20px rgba(0,0,0,.25)}
+.topbar-logo-btn.notify::after{top:1px;right:1px}
 .tb .theme-btn,.tb .sync-pill{display:none}
 .user-pill{display:flex;flex-direction:column;align-items:flex-end;gap:2px;max-width:150px}
 .user-pill-name{font-size:11px;font-weight:800;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px}
@@ -2962,9 +2965,58 @@ body.theme-light .google-btn{border-color:var(--bdr)}
   #pg-debt #debt-mode-plan .debt-focus-card{padding:15px}
 }
 
-.mobile-dash-bento,.mobile-dash-toggle{display:none}
+.mobile-dash-pill-filters,.mobile-dash-bento,.mobile-dash-toggle{display:none}
 
 @media (max-width:768px){
+  #pg-dash .dash-page-head p{display:none}
+  #pg-dash .dash-page-head{margin-bottom:12px}
+  #pg-dash #dash-filters{display:none}
+  #pg-dash .mobile-dash-pill-filters{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    width:100%;
+    max-width:100%;
+    margin:0 0 12px;
+    padding:0 0 1px;
+    overflow-x:auto;
+    scrollbar-width:none;
+    box-sizing:border-box;
+  }
+  #pg-dash .mobile-dash-pill-filters::-webkit-scrollbar{display:none}
+  #pg-dash .mobile-dash-pill{
+    display:inline-flex;
+    align-items:center;
+    gap:3px;
+    min-width:0;
+    max-width:calc(50% - 4px);
+    padding:4px 8px;
+    flex:1 1 0;
+    border:1px solid rgba(199,191,255,.18);
+    border-radius:20px;
+    background:rgba(255,255,255,.05);
+    color:var(--pl);
+    box-sizing:border-box;
+  }
+  #pg-dash .mobile-dash-pill .material-symbols-outlined{
+    flex:0 0 auto;
+    font-size:15px;
+    color:var(--pl);
+  }
+  #pg-dash .mobile-dash-pill .chevron{font-size:16px}
+  #pg-dash .mobile-dash-pill select{
+    width:100%;
+    min-width:0;
+    border:0;
+    outline:0;
+    appearance:none;
+    background:transparent;
+    color:var(--pl);
+    font:700 12px/1.4 var(--font-label);
+    text-overflow:ellipsis;
+    cursor:pointer;
+  }
+  #pg-dash .mobile-dash-pill select option{background:var(--card2);color:var(--tx)}
   #pg-dash .mobile-dash-bento{
     display:grid;
     grid-template-columns:repeat(2,minmax(0,1fr));
@@ -3052,6 +3104,15 @@ body.theme-light .google-btn{border-color:var(--bdr)}
   #pg-dash[data-mobile-dash-view="budget"] #dash [data-mobile-views~="budget"],
   #pg-dash[data-mobile-dash-view="analysis"] #dash [data-mobile-views~="analysis"],
   #pg-dash[data-mobile-dash-view="recent"] #dash [data-mobile-views~="recent"]{display:block !important}
+  #pg-dash[data-mobile-dash-view="analysis"] .dash-panel.chart .dash-panel-head h2{display:none}
+  #pg-dash[data-mobile-dash-view="analysis"] .dash-panel.chart .dash-panel-head::before{
+    content:'รายรับ vs รายจ่าย';
+    color:var(--tx);
+    font-family:var(--font-headline);
+    font-size:21px;
+    line-height:1.25;
+    font-weight:800;
+  }
 }
 
 @media (max-width:350px){

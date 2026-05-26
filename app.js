@@ -2564,13 +2564,22 @@ function renderDashFilters(){
   var wrap=document.getElementById('dash-entity-filters'); if(!wrap) return;
   var members=dashEntityMembers();
   var html='<span>'+t('view')+'</span><button type="button" data-dash-user="joint" onclick="setDashUserFilter(\'joint\')">'+t('jointFamily')+'</button>';
+  var mobileUser=document.getElementById('mobile-dash-user-filter');
+  var mobileHtml='<option value="joint">'+t('jointFamily')+'</option>';
   members.forEach(function(m){
     var val=(S.user&&m.id===S.user.id)?'me':m.id;
     var label=(S.user&&m.id===S.user.id)?t('me'):m.name;
     html+='<button type="button" data-dash-user="'+esc(val)+'" onclick="setDashUserFilter(\''+esc(val)+'\')">'+esc(label)+'</button>';
+    mobileHtml+='<option value="'+esc(val)+'">'+esc(label)+'</option>';
   });
   wrap.innerHTML=html;
   wrap.querySelectorAll('[data-dash-user]').forEach(function(b){ b.classList.toggle('on',b.dataset.dashUser===currentDashUserFilter); });
+  var mobileTime=document.getElementById('mobile-dash-time-filter');
+  if(mobileTime) mobileTime.value=currentDashTimeFilter;
+  if(mobileUser){
+    mobileUser.innerHTML=mobileHtml;
+    mobileUser.value=currentDashUserFilter;
+  }
 }
 function filterDashRows(rows){
   var time=currentDashTimeFilter, user=currentDashUserFilter==='me'&&S.user?S.user.id:currentDashUserFilter;
@@ -2733,7 +2742,7 @@ function renderDash(){
     '<section class="dash-panel budget" data-mobile-views="budget"><div class="dash-panel-head"><h2>'+t('budgetProgress')+'</h2><span>'+t('budgetThisMonth')+'</span></div><div class="budget-progress">'+budgetProgressHtml(items)+'</div></section>'+
     '<section class="dash-panel chart" data-mobile-views="summary analysis"><div class="dash-panel-head"><h2>'+t('financialHealth')+'</h2><button type="button" onclick="goTab(\'hist\',document.querySelector(\'.tbtn[onclick*=hist]\'))">'+t('viewDetails')+'</button></div><div class="dash-chart">'+chartHtml+'</div><div class="dash-legend"><span><i class="income"></i>รายได้</span><span><i class="expense"></i>รายจ่าย</span></div></section>'+
     '<section class="dash-panel category" data-mobile-views="analysis"><div class="dash-panel-head"><h2>'+t('expenseByCategory')+'</h2><span>'+t('category')+'</span></div><div class="dash-doughnut-wrap"><canvas id="dash-category-chart"></canvas></div></section>'+
-    '<section class="dash-panel calendar" data-mobile-views="recent"><div class="dash-panel-head"><h2>'+t('dailyCalendar')+'</h2><span>'+thaiMo(calMo)+'</span></div><div class="dash-cal-dow"><span>อา</span><span>จ</span><span>อ</span><span>พ</span><span>พฤ</span><span>ศ</span><span>ส</span></div><div class="dash-cal-grid">'+calHtml+'</div><div class="dash-cal-legend"><span>'+t('less')+'</span><i class="l0"></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i><span>'+t('more')+'</span></div></section>'+
+    '<section class="dash-panel calendar" data-mobile-views="analysis"><div class="dash-panel-head"><h2>'+t('dailyCalendar')+'</h2><span>'+thaiMo(calMo)+'</span></div><div class="dash-cal-dow"><span>อา</span><span>จ</span><span>อ</span><span>พ</span><span>พฤ</span><span>ศ</span><span>ส</span></div><div class="dash-cal-grid">'+calHtml+'</div><div class="dash-cal-legend"><span>'+t('less')+'</span><i class="l0"></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i><span>'+t('more')+'</span></div></section>'+
     '<section class="dash-panel history" data-mobile-views="recent"><div class="dash-panel-head"><h2>'+t('recentTransactions')+'</h2><button type="button" onclick="goTab(\'hist\',document.querySelector(\'.tbtn[onclick*=hist]\'))">'+t('viewAll')+' <span class="material-symbols-outlined">arrow_forward</span></button></div><div class="dash-table-wrap"><table class="dash-table"><thead><tr><th>รายการ</th><th>'+t('category')+'</th><th>ผู้ทำรายการ</th><th>'+t('amount')+'</th></tr></thead><tbody>'+recentHtml+'</tbody></table></div></section>'+
   '</div>';
   applyLanguage();

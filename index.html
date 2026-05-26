@@ -154,7 +154,7 @@
     <div class="top-search"><span>⌕</span><input type="text" placeholder="Search..."></div>
     <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" title="เปลี่ยนธีม">🌙</button>
     <button class="icon-btn" type="button" onclick="syncNow()"><span class="material-symbols-outlined">sync</span></button>
-    <button class="icon-btn notify" type="button"><span class="material-symbols-outlined">notifications</span></button>
+    <button class="icon-btn notify topbar-logo-btn" type="button"><img class="topbar-logo-image" src="assets/bridgex-logo.png" alt="BridgeX.Wallet"></button>
     <button class="sync-pill" onclick="syncNow()">
       <span class="sdot" id="sdot"></span>
       <span id="slbl">กำลังโหลด</span>
@@ -408,6 +408,24 @@
     <h1 data-i18n="dashboardHeading">สรุปภาพรวมการเงิน</h1>
     <p data-i18n="dashboardIntro">ดูข้อมูลล่าสุดและติดตามสุขภาพการเงินของคุณได้ง่าย ๆ</p>
   </header>
+  <div class="mobile-dash-pill-filters" aria-label="ตัวกรองภาพรวมการเงิน">
+    <label class="mobile-dash-pill">
+      <span class="material-symbols-outlined">calendar_month</span>
+      <select id="mobile-dash-time-filter" onchange="setDashTimeFilter(this.value)">
+        <option value="this_month">เดือนนี้</option>
+        <option value="last_month">เดือนก่อน</option>
+        <option value="all_time">ทั้งหมด</option>
+      </select>
+      <span class="material-symbols-outlined chevron">expand_more</span>
+    </label>
+    <label class="mobile-dash-pill">
+      <span class="material-symbols-outlined">group</span>
+      <select id="mobile-dash-user-filter" onchange="setDashUserFilter(this.value)">
+        <option value="joint">รวมครอบครัว</option>
+      </select>
+      <span class="material-symbols-outlined chevron">expand_more</span>
+    </label>
+  </div>
   <div class="dash-filter-stack" id="dash-filters">
     <div class="dash-filter-tier">
       <span data-i18n="period">ช่วงเวลา</span>
