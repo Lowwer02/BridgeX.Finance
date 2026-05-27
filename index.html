@@ -17,8 +17,6 @@
 <link rel="stylesheet" href="css/global.css">
 <link rel="stylesheet" href="css/components.css">
 <link rel="stylesheet" href="css/pages.css">
-<!-- Tailwind migration: keep legacy CSS until each page is verified -->
-<script src="https://cdn.tailwindcss.com"></script>
 <script>
   tailwind.config = {
     darkMode: 'class',
@@ -47,6 +45,8 @@
     }
   }
 </script>
+<!-- Tailwind migration: keep legacy CSS until each page is verified -->
+<script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="light bg-bg text-tx min-h-screen pb-[84px] md:pb-0 overscroll-none font-body">
 
@@ -918,5 +918,13 @@
 <script src="config.js"></script>
 <script src="helpers.js"></script>
 <script src="app.js"></script>
+
+<!-- Emergency fail-safe for loading screen -->
+<script>
+  setTimeout(() => {
+    document.getElementById('loading')?.classList.add('off');
+    console.warn('[BX Debug] loading fallback released');
+  }, 12000);
+</script>
 </body>
 </html>
