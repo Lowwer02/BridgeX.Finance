@@ -1,72 +1,6 @@
 // ═══════════════════════════════════════════════════════
 // SUPABASE CONFIG
 // ═══════════════════════════════════════════════════════
-const SUPA_URL  = 'https://ahnbgcnydlquvondssoy.supabase.co';
-const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFobmJnY255ZGxxdXZvbmRzc295Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxODYxNDksImV4cCI6MjA5Mzc2MjE0OX0.G0jZjEFxgLBO_kJAG0IxVzpf5QnsV32Ja8p_ZHlMF-M';
-const sb = supabase.createClient(SUPA_URL, SUPA_ANON);
-
-const I18N = {
-  th: {
-    dashboard:'ภาพรวมการเงิน', debtPlanner:'แผนปลดหนี้', credit:'บัตรและสินเชื่อ',
-    addTransaction:'จดรายจ่าย', income:'จดรายรับ', history:'ประวัติย้อนหลัง', settings:'ตั้งค่า',
-    monthlyNetBalance:'เงินเหลือใช้เดือนนี้', totalDebt:'หนี้สินรวม', projectedInterestSavings:'ประหยัดดอกเบี้ยได้',
-    recentTransactions:'รายการล่าสุด', amount:'จำนวนเงิน', category:'หมวดหมู่', paymentMethod:'จ่ายผ่าน',
-    depositTo:'รับเงินเข้าบัญชี', note:'บันทึกช่วยจำ', saveTransaction:'บันทึกรายการ',
-    saveIncome:'บันทึกรายรับ', incomeSource:'ที่มาของรายรับ', date:'วันที่', cancel:'ยกเลิก',
-    totalApprovedLimit:'วงเงินทั้งหมด', utilizationRate:'ใช้งบวงเงินไปแล้ว', availableCredit:'วงเงินคงเหลือ',
-    jointWealthMode:'แชร์บัญชีครอบครัว', syncNow:'อัปเดตข้อมูล', exportData:'ดาวน์โหลดข้อมูล',
-    todaySummary:'สรุปรายการวันนี้', totalSpentToday:'ใช้จ่ายวันนี้', activeLines:'รายการสินเชื่อ',
-    support:'ช่วยเหลือ', signOut:'ออกจากระบบ', settingsIntro:'จัดการบัญชี ความปลอดภัย และการแชร์ข้อมูลครอบครัว',
-    familyHelp:'จัดการสมาชิกและข้อมูลการเงินที่แชร์ร่วมกัน', preferences:'การตั้งค่าทั่วไป',
-    theme:'ธีม', appearance:'รูปแบบหน้าจอ', language:'ภาษา', selectCategory:'เลือกหมวดหมู่',
-    selectPayment:'เลือกช่องทางจ่ายเงิน', paid:'จ่ายแล้ว', due:'ยังไม่จ่าย', currentBalance:'ยอดคงเหลือ',
-    editInfo:'แก้ไขข้อมูล', payBill:'ชำระเงิน', paidThisMonth:'ชำระเดือนนี้',
-    healthyStatus:'ใช้งานพอดี', watchStatus:'ใกล้เต็มวงเงิน', highUsage:'ใช้วงเงินสูง',
-    budgetProgress:'ติดตามงบประมาณ', budgetThisMonth:'งบเดือนนี้', financialHealth:'สุขภาพทางการเงินของคุณ',
-    viewDetails:'ดูรายละเอียด', expenseByCategory:'รายจ่ายตามหมวดหมู่', viewAll:'ดูทั้งหมด',
-    monthlyIncomeGoal:'เป้ารายรับเดือนนี้', recentInflows:'รายรับล่าสุด', achieved:'สำเร็จแล้ว', remaining:'เหลืออีก',
-    incomeLabel:'รายรับ', expenseLabel:'รายจ่าย', useLimit:'ใช้วงเงิน', dailyBudget:'ของงบวันนี้',
-    dailyCalendar:'ปฏิทินรายจ่ายรายวัน', less:'น้อย', more:'มาก', member:'สมาชิกครอบครัว',
-    fullAccess:'เข้าถึงได้ทั้งหมด', adminOwner:'ผู้ดูแลบัญชี', creditPaidMonth:'ชำระสินเชื่อเดือนนี้',
-    selectIncomeCategory:'เลือกหมวดรายรับ', selectIncomeChannel:'เลือกรับเงินเข้าบัญชี',
-    selectCreditType:'เลือกประเภทสินเชื่อ', selectProvider:'เลือกผู้ให้บริการ', selectPrimaryCard:'เลือกบัตรหลัก'
-    ,dashboardHeading:'สรุปภาพรวมการเงิน', dashboardIntro:'ดูข้อมูลล่าสุดและติดตามสุขภาพการเงินของคุณได้ง่าย ๆ',
-    currentPlan:'แพ็กเกจปัจจุบัน', managePlan:'จัดการแพ็กเกจ', primaryContact:'ข้อมูลติดต่อหลัก',
-    connection:'การเชื่อมต่อ', addMember:'เพิ่มสมาชิก', realtimeSync:'อัปเดตข้อมูลทันที',
-    transactionAlerts:'แจ้งเตือนรายการ', baseCurrency:'สกุลเงินหลัก', dataSecurity:'ความปลอดภัยของข้อมูล',
-    period:'ช่วงเวลา', view:'มุมมอง', thisMonth:'เดือนนี้', lastMonth:'เดือนก่อน', all:'ทั้งหมด',
-    joint:'รวม', jointFamily:'รวมครอบครัว', me:'ฉัน', overview:'ภาพรวม', revolving:'สินเชื่อหมุนเวียน', secured:'สินเชื่อหลักประกัน'
-  },
-  en: {
-    dashboard:'Dashboard', debtPlanner:'Debt Planner', credit:'Credit', addTransaction:'Add Transaction',
-    income:'Income', history:'History', settings:'Settings', monthlyNetBalance:'Monthly Net Balance',
-    totalDebt:'Total Debt', projectedInterestSavings:'Projected Interest Savings', recentTransactions:'Recent Transactions',
-    amount:'Amount', category:'Category', paymentMethod:'Payment Method', depositTo:'Deposit To', note:'Note',
-    saveTransaction:'Save Transaction', saveIncome:'Save Income', incomeSource:'Income Source', date:'Date', cancel:'Cancel',
-    totalApprovedLimit:'Total Approved Limit', utilizationRate:'Utilization Rate', availableCredit:'Available Credit',
-    jointWealthMode:'Joint Wealth Mode', syncNow:'Sync Now', exportData:'Export Data', todaySummary:"Today's Summary",
-    totalSpentToday:'Total Spent Today', activeLines:'Active Lines', support:'Support', signOut:'Sign Out',
-    settingsIntro:'Manage your preferences, security, and joint wealth configurations.',
-    familyHelp:'Manage shared portfolios and member access levels.', preferences:'Preferences', theme:'Theme',
-    appearance:'Application appearance', language:'Language', selectCategory:'Select Category',
-    selectPayment:'Select Payment Method', paid:'Paid', due:'Due', currentBalance:'Current Balance',
-    editInfo:'Edit Info', payBill:'Pay Bill', paidThisMonth:'paid this month', healthyStatus:'Healthy Status',
-    watchStatus:'Watch Status', highUsage:'High Usage', budgetProgress:'Budget Progress', budgetThisMonth:'Monthly Budget',
-    financialHealth:'Your Financial Health', viewDetails:'View Details', expenseByCategory:'Expenses by Category',
-    viewAll:'View All', monthlyIncomeGoal:'Monthly Income Goal', recentInflows:'Recent Inflows', achieved:'Achieved', remaining:'Remaining',
-    incomeLabel:'Income', expenseLabel:'Expense', useLimit:'Credit used', dailyBudget:'of daily budget',
-    dailyCalendar:'Daily Expense Calendar', less:'Less', more:'More', member:'Family Member',
-    fullAccess:'Full Access', adminOwner:'Admin (Owner)', creditPaidMonth:'Credit paid this month',
-    selectIncomeCategory:'Select Income Category', selectIncomeChannel:'Select Deposit Account',
-    selectCreditType:'Select Credit Type', selectProvider:'Select Provider', selectPrimaryCard:'Select Primary Card'
-    ,dashboardHeading:'Wealth Overview', dashboardIntro:'See your latest figures and track your financial health.',
-    currentPlan:'Current Plan', managePlan:'Manage Subscription', primaryContact:'Primary Contact',
-    connection:'Connection', addMember:'Add Member', realtimeSync:'Real-Time Sync',
-    transactionAlerts:'Transaction Alerts', baseCurrency:'Base Currency', dataSecurity:'Security & Data',
-    period:'Period', view:'View', thisMonth:'This Month', lastMonth:'Last Month', all:'All',
-    joint:'Joint', jointFamily:'Family', me:'Me', overview:'Overview', revolving:'Revolving', secured:'Secured'
-  }
-};
 function getLang(){
   var lang=localStorage.getItem('bxLanguage')||(S.profile&&(S.profile.language||S.profile.lang));
   return lang==='en'?'en':'th';
@@ -102,103 +36,6 @@ function tabTitle(id){
 // ═══════════════════════════════════════════════════════
 // DEFAULT DATA
 // ═══════════════════════════════════════════════════════
-const DEF_CATS = [
-  {id:'food',l:'อาหาร',c:'#f59e0b'},{id:'drink',l:'เครื่องดื่ม',c:'#3b82f6'},
-  {id:'snack',l:'ขนม',c:'#f97316'},{id:'buffet',l:'บุฟเฟ่ต์',c:'#fb923c'},
-  {id:'cat',l:'สัตว์เลี้ยง',c:'#fb923c'},
-  {id:'shop',l:'ช้อปปิ้ง',c:'#ec4899'},{id:'act',l:'กิจกรรม',c:'#10b981'},
-  {id:'trans',l:'การเดินทาง',c:'#8b5cf6'},{id:'place',l:'สถานที่',c:'#64748b'},
-  {id:'inv',l:'การลงทุน',c:'#06b6d4'},{id:'health',l:'สุขภาพ',c:'#22d3ee'},
-  {id:'bill',l:'บิล',c:'#6366f1'},{id:'edu',l:'การศึกษา',c:'#0ea5e9'},
-  {id:'donate',l:'การบริจาค',c:'#14b8a6'},{id:'travel',l:'ท่องเที่ยว',c:'#f43f5e'},
-  {id:'fam',l:'ให้ครอบครัว',c:'#a855f7'},{id:'other',l:'อื่นๆ',c:'#78716c'}
-];
-const DEF_PAYS = [
-  {id:'cash',l:'เงินสด'},{id:'xfer',l:'โอนเงิน'}
-];
-const DEF_INCC = [
-  {id:'sal',l:'เงินเดือน',c:'#22c98a'},{id:'bon',l:'โบนัส',c:'#f5a623'},
-  {id:'free',l:'ฟรีแลนซ์',c:'#4d9ef5'},{id:'inv',l:'ลงทุน',c:'#7c6ef5'},
-  {id:'oth',l:'อื่นๆ',c:'#6b7280'}
-];
-const DEF_INCH = [
-  {id:'bank',l:'โอนเข้าบัญชี'},{id:'cash',l:'รับเงินสด'},{id:'prompt',l:'พร้อมเพย์'}
-];
-const BASE_CR = [
-  {id:'ktc',n:'KTC',t:'revolving',ico:'KTC',rate:18},
-  {id:'ktcm',n:'KTC Money',t:'revolving',ico:'KTC',rate:25},
-  {id:'cardx',n:'CardX / SCB',t:'revolving',ico:'CX',rate:18},
-  {id:'krungsri',n:'Krungsri',t:'revolving',ico:'KS',rate:18},
-  {id:'ttb',n:'TTB',t:'revolving',ico:'TTB',rate:18},
-  {id:'bbl',n:'BBL',t:'revolving',ico:'BBL',rate:18},
-  {id:'uob',n:'UOB',t:'revolving',ico:'UOB',rate:18},
-  {id:'gsb',n:'GSB',t:'revolving',ico:'GSB',rate:18},
-  {id:'aeon',n:'AEON',t:'revolving',ico:'AE',rate:18},
-  {id:'aeonm',n:'AEON Money',t:'revolving',ico:'AE',rate:25},
-  {id:'kbank',n:'K-Bank',t:'revolving',ico:'KB',rate:18},
-  {id:'kbankm',n:'K-Bank Money',t:'revolving',ico:'KB',rate:25},
-  {id:'cardxm',n:'CardX Money',t:'revolving',ico:'CX',rate:25},
-  {id:'ttbm',n:'TTB Money',t:'revolving',ico:'TTB',rate:25},
-  {id:'umay',n:'Umay+',t:'revolving',ico:'UM',rate:25},
-  {id:'kfirst',n:'K-First',t:'revolving',ico:'KF',rate:18},
-  {id:'lazpay',n:'Laz Pay Later',t:'revolving',ico:'LP',rate:22},
-  {id:'tiktokpay',n:'TikTok Pay Later',t:'revolving',ico:'TT',rate:22},
-  {id:'shopee',n:'Shopee Pay Later',t:'revolving',ico:'SP',rate:22},
-  {id:'shopeem',n:'Shopee Money',t:'revolving',ico:'SM',rate:22},
-  {id:'true',n:'True Pay Later',t:'revolving',ico:'TR',rate:22},
-  {id:'thisshop',n:'This Shop',t:'revolving',ico:'TS',rate:20},
-  {id:'pawn_loan',n:'สินเชื่อจำนำ',t:'fixed',ico:'LN',rate:0},
-  {id:'car_loan',n:'สินเชื่อรถยนต์',t:'fixed',ico:'CAR',rate:0},
-  {id:'motorcycle_loan',n:'สินเชื่อรถจักรยานยนต์',t:'fixed',ico:'MC',rate:0},
-  {id:'home_loan',n:'สินเชื่อที่อยู่อาศัย',t:'fixed',ico:'HM',rate:0},
-  {id:'other_loan',n:'สินเชื่ออื่นๆ',t:'fixed',ico:'LN',rate:0},
-  {id:'gold',n:'ทอง',t:'fixed',ico:'GLD',rate:0},
-  {id:'car',n:'รถยนต์',t:'fixed',ico:'CAR',rate:0}
-];
-const BANK_BRANDS = {
-  kbank:{code:'004',color:'#138f2d',nice_name:'Kasikorn Bank',label:'KB'},
-  scb:{code:'014',color:'#4e2e7f',nice_name:'Siam Commercial Bank',label:'SCB'},
-  bbl:{code:'002',color:'#1e4598',nice_name:'Bangkok Bank',label:'BBL'},
-  ktb:{code:'006',color:'#1ba5e1',nice_name:'Krungthai Bank',label:'KTB'},
-  bay:{code:'025',color:'#fec43b',nice_name:'Bank of Ayudhya (Krungsri)',label:'BAY'},
-  gsb:{code:'030',color:'#eb198d',nice_name:'Government Savings Bank',label:'GSB'},
-  ghb:{code:'033',color:'#f57d23',nice_name:'Government Housing Bank',label:'GHB'},
-  baac:{code:'034',color:'#4b9b1d',nice_name:'Bank for Agriculture and Agricultural Cooperatives',label:'BAAC'},
-  ttb:{code:'076',color:'#ecf0f1',nice_name:'TMBThanachart Bank',label:'TTB'},
-  uob:{code:'024',color:'#0b3979',nice_name:'United Overseas Bank (Thai)',label:'UOB'},
-  cimb:{code:'022',color:'#7e2f36',nice_name:'CIMB Thai Bank',label:'CIMB'},
-  tisco:{code:'067',color:'#12549f',nice_name:'Tisco Bank',label:'TISCO'},
-  kk:{code:'069',color:'#199cc5',nice_name:'Kiatnakin Bank',label:'KK'},
-  lh:{code:'073',color:'#6d6e71',nice_name:'Land and Houses Bank',label:'LH'},
-  ktc:{code:'006',color:'#1ba5e1',nice_name:'KTC',label:'KTC'},
-  aeon:{code:'',color:'#7461CF',nice_name:'AEON',label:'AEON'},
-  cardx:{code:'014',color:'#4e2e7f',nice_name:'CardX',label:'CX'},
-  umay:{code:'',color:'#DE2B68',nice_name:'Umay+',label:'UM'},
-  shopee:{code:'',color:'#FF6201',nice_name:'SPayLater',label:'SPay'},
-  linebk:{code:'',color:'#00B900',nice_name:'LINE BK',label:'LINE'},
-  firstchoice:{code:'025',color:'#fec43b',nice_name:'First Choice',label:'FC'},
-  true:{code:'',color:'#EE252B',nice_name:'True Pay Later',label:'TRUE'},
-  lazpay:{code:'',color:'#101F8C',nice_name:'Laz Pay Later',label:'Laz'},
-  tiktokpay:{code:'',color:'#111111',nice_name:'TikTok Pay Later',label:'TT'}
-};
-const PAY2CR = {
-  'K-Bank':'kbank',
-  'K-Bank Money':'kbankm',
-  'KTC':'ktc',
-  'KTC Money':'ktcm',
-  'CardX / SCB':'cardx','Krungsri':'krungsri','TTB':'ttb','BBL':'bbl','UOB':'uob','GSB':'gsb',
-  'CardX Money':'cardxm','TTB Money':'ttbm','Umay+':'umay','Laz Pay Later':'lazpay','TikTok Pay Later':'tiktokpay',
-  'AEON':'aeon',
-  'Aeon':'aeon',
-  'AEON Money':'aeonm',
-  'K-First':'kfirst',
-  'Shopee Pay Later':'shopee',
-  'Shopee Money':'shopeem',
-  'True Pay Later':'true'
-};
-
-// ═══════════════════════════════════════════════════════
-// STATE
 // ═══════════════════════════════════════════════════════
 function readLS(key, fallback){
   try {
@@ -223,29 +60,6 @@ function mergeById(saved, defs){
   });
   return out;
 }
-var S = {
-  user: null,
-  profile: null,
-  hasAccess: false,
-  accessReason: '',
-  familyMembers: [],
-  avatarData: localStorage.getItem('setAvatar')||'',
-  expenses: [],
-  incomes: [],
-  credits: [],
-  crInfo: readLS('crInfo',{}),
-  crStatus: readLS('crStatus',{}),
-  customCr: readLS('customCr',[]),
-  cats: mergeById(readLS('cats',null), DEF_CATS),
-  pays: DEF_PAYS.slice(),
-  incc: mergeById(readLS('incc',null), DEF_INCC),
-  inch: mergeById(readLS('inch',null), DEF_INCH),
-  fc:{cat:'',pay:'',payer:''},
-  fi:{cat:'',ch:'',rcv:''},
-  hf:'all', df:'mo', crf:'overview',
-  strategy:'avalanche', extraCash:1000,
-  activeCr:'', activeInfo:''
-};
 var authMode='login';
 var currentDashTimeFilter='this_month';
 var currentDashUserFilter='joint';
@@ -266,43 +80,6 @@ function sv(){
 // ═══════════════════════════════════════════════════════
 // HELPERS
 // ═══════════════════════════════════════════════════════
-function today(){
-  var d = new Date();
-  return d.getFullYear() + '-' +
-    String(d.getMonth()+1).padStart(2,'0') + '-' +
-    String(d.getDate()).padStart(2,'0');
-}
-function thisMo(){ return today().slice(0,7); }
-function fmt(n){ return Number(n||0).toLocaleString('th-TH',{maximumFractionDigits:0}); }
-function fmt2(n){ return Number(n||0).toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2}); }
-function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function cleanLabel(s){ return String(s||'').replace(/^[^\wก-๙]+/u,'').trim(); }
-function validYMD(d){
-  if(!/^\d{4}-\d{2}-\d{2}$/.test(String(d||''))) return false;
-  var p=String(d).split('-').map(Number);
-  var x=new Date(p[0],p[1]-1,p[2]);
-  return x.getFullYear()===p[0]&&x.getMonth()===p[1]-1&&x.getDate()===p[2];
-}
-function trimLimit(v,max,label){
-  var s=String(v||'').trim();
-  if(s.length>max){ toast(label+'ยาวเกิน '+max+' ตัวอักษร','err'); return null; }
-  return s;
-}
-function validateTxnInput(row, opts){
-  opts=opts||{};
-  if(opts.requireDate!==false&&!validYMD(row.date)) return toast('วันที่ไม่ถูกต้อง','err'),false;
-  if(opts.requireAmount!==false&&(!Number.isFinite(Number(row.amount))||Number(row.amount)<=0)) return toast('จำนวนเงินไม่ถูกต้อง','err'),false;
-  var fields=[['detail',500,'รายละเอียด/Note '],['note',500,'Note '],['category',100,'หมวดหมู่ '],['payment',100,'ช่องทางชำระ '],['channel',100,'ช่องทางรับ '],['receiver',100,'ผู้รับ '],['paidBy',100,'ผู้จ่าย '],['paid_by',100,'ผู้จ่าย '],['credit_name',100,'ชื่อสินเชื่อ ']];
-  for(var i=0;i<fields.length;i++){
-    var f=fields[i];
-    if(row[f[0]]!=null){
-      var t=trimLimit(row[f[0]],f[1],f[2]);
-      if(t==null) return false;
-      row[f[0]]=t;
-    }
-  }
-  return true;
-}
 function allCR(){ return BASE_CR.concat(S.customCr); }
 function getMyCredits(){
   return allCR().filter(function(c){
@@ -366,22 +143,11 @@ function debtMaterialIcon(cr){
   if(cr&&cr.t==='fixed') return 'request_quote';
   return 'credit_card';
 }
-function thaiMo(mo){
-  var TM=['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-  var p=mo.split('-'); return TM[parseInt(p[1])]+' '+p[0];
-}
 function calcMoLeft(remaining, minPay, rateYr){
   if(!remaining||remaining<=0||!minPay||minPay<=0) return null;
   var rt=(rateYr||0)/100/12, r=remaining, m=0;
   while(r>0&&m<600){ r=r*(1+rt)-minPay; m++; }
   return m<600?m:null;
-}
-function validCreatedTime(v){
-  if(!v) return 0;
-  var t=new Date(v).getTime();
-  if(!Number.isFinite(t)) return 0;
-  if(t>Date.now()+86400000) return 0;
-  return t;
 }
 function profileIdByName(name){
   name=String(name||'').trim();
@@ -467,11 +233,6 @@ function recomputeMatchedCreditBalances(){
     S.crStatus[crId]=st;
   });
 }
-function toast(msg,type){
-  var t=document.getElementById('toast');
-  t.textContent=msg; t.className='toast on'+(type?' '+type:'');
-  clearTimeout(t._t); t._t=setTimeout(function(){ t.classList.remove('on'); },2800);
-}
 function showSuccessModal(message,details,title){
   var modal=document.getElementById('success-modal');
   if(!modal) return toast(message||'บันทึกสำเร็จ','ok');
@@ -497,25 +258,6 @@ function hideSuccessModal(){
 }
 function successModalBg(e){
   if(e.target===document.getElementById('success-modal')) hideSuccessModal();
-}
-function setDot(state,txt){
-  var d=document.getElementById('sdot'),l=document.getElementById('slbl');
-  d.className='sdot'+(state==='spin'?' spin':state==='off'?' off':'');
-  l.textContent=txt;
-}
-function makeRowId(){
-  return Date.now()*1000 + Math.floor(Math.random()*1000);
-}
-function makeUUID(){
-  if(window.crypto&&crypto.randomUUID) return crypto.randomUUID();
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,function(c){
-    var r=Math.random()*16|0,v=c==='x'?r:(r&0x3|0x8);
-    return v.toString(16);
-  });
-}
-function daysLeft(dateStr){
-  if(!dateStr) return 0;
-  return Math.max(0,Math.ceil((new Date(dateStr).getTime()-Date.now())/86400000));
 }
 function tierLabel(){
   if(!S.profile) return 'ไม่พบโปรไฟล์';
@@ -1458,103 +1200,9 @@ function closeDebtOrderSheet(e){
   if(!e||e.target===sheet) sheet.classList.remove('on');
 }
 
-function parseEMVAmount(qrText){
-  qrText=String(qrText||'');
-  var m=qrText.match(/5403(\d+\.?\d*)/);
-  if(m&&m[1]){
-    var a=parseFloat(m[1]);
-    return Number.isFinite(a)?a:null;
-  }
-  m=qrText.match(/54(\d{2})(\d[\d.]*)/);
-  if(m&&m[1]&&m[2]){
-    var len=parseInt(m[1],10);
-    var raw=m[2].slice(0,len);
-    var amt=parseFloat(raw);
-    return Number.isFinite(amt)?amt:null;
-  }
-  return null;
-}
-
 var slipScanCache={};
 function slipFileKey(file){
   return [file&&file.name||'',file&&file.size||0,file&&file.lastModified||0].join('|');
-}
-function normalizeSlipText(text){
-  var thaiDigits={'๐':'0','๑':'1','๒':'2','๓':'3','๔':'4','๕':'5','๖':'6','๗':'7','๘':'8','๙':'9'};
-  return String(text||'').replace(/[๐-๙]/g,function(d){ return thaiDigits[d]||d; }).replace(/\s+/g,' ').trim();
-}
-function parseAmountFromText(text){
-  text=normalizeSlipText(text);
-  var patterns=[
-    /(?:จำนวนเงิน|จํานวนเงิน|ยอดเงิน|ยอดโอน|ยอดสุทธิ|ยอดรวม|รวมทั้งสิ้น)[^\d]*(\d[\d,]*\.?\d{0,2})/i,
-    /(?:total|net amount|amount due|amount)[^\d]*(\d[\d,]*\.?\d{0,2})/i,
-    /(?:฿|THB|บาท)[^\d]*(\d[\d,]*\.?\d{0,2})/i,
-    /(\d{1,6}\.\d{2})/
-  ];
-  for(var i=0;i<patterns.length;i++){
-    var m=text.match(patterns[i]);
-    if(m&&m[1]){
-      var amt=parseFloat(String(m[1]).replace(/,/g,''));
-      if(Number.isFinite(amt)&&amt>0) return amt;
-    }
-  }
-  return null;
-}
-function parseDateFromText(text){
-  text=normalizeSlipText(text);
-  var monthMap={
-    'ม.ค.':1,'มค':1,'มกราคม':1,
-    'ก.พ.':2,'กพ':2,'กุมภาพันธ์':2,
-    'มี.ค.':3,'มีค':3,'มีนาคม':3,
-    'เม.ย.':4,'เมย':4,'เมษายน':4,
-    'พ.ค.':5,'พค':5,'พฤษภาคม':5,
-    'มิ.ย.':6,'มิย':6,'มิถุนายน':6,
-    'ก.ค.':7,'กค':7,'กรกฎาคม':7,
-    'ส.ค.':8,'สค':8,'สิงหาคม':8,
-    'ก.ย.':9,'กย':9,'กันยายน':9,
-    'ต.ค.':10,'ตค':10,'ตุลาคม':10,
-    'พ.ย.':11,'พย':11,'พฤศจิกายน':11,
-    'ธ.ค.':12,'ธค':12,'ธันวาคม':12
-  };
-  function cleanMonth(s){ return String(s||'').replace(/\s+/g,'').replace(/\.?$/,''); }
-  function toDate(y,m,d){
-    y=Number(y); m=Number(m); d=Number(d);
-    if(y>2400) y-=543;
-    if(y<100) y+=2000;
-    var dt=new Date(y,m-1,d);
-    if(dt.getFullYear()!==y||dt.getMonth()!==m-1||dt.getDate()!==d) return null;
-    return y+'-'+String(m).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-  }
-  var labels=['วันที่ทำรายการ','โอนเงินสำเร็จ','วันเวลา','วันที่'];
-  var scopes=[text];
-  labels.forEach(function(label){
-    var idx=text.indexOf(label);
-    if(idx>=0) scopes.unshift(text.slice(idx,idx+90));
-  });
-  var monthPattern='(ม\\.ค\\.|มกราคม|ก\\.พ\\.|กุมภาพันธ์|มี\\.ค\\.|มีนาคม|เม\\.ย\\.|เมษายน|พ\\.ค\\.|พฤษภาคม|มิ\\.ย\\.|มิถุนายน|ก\\.ค\\.|กรกฎาคม|ส\\.ค\\.|สิงหาคม|ก\\.ย\\.|กันยายน|ต\\.ค\\.|ตุลาคม|พ\\.ย\\.|พฤศจิกายน|ธ\\.ค\\.|ธันวาคม|มค|กพ|มีค|เมย|พค|มิย|กค|สค|กย|ตค|พย|ธค)';
-  for(var i=0;i<scopes.length;i++){
-    var s=scopes[i];
-    var m=s.match(new RegExp('(\\d{1,2})\\s*'+monthPattern+'\\s*(\\d{4})','i'));
-    if(m){
-      var mo=monthMap[m[2]]||monthMap[cleanMonth(m[2])]||monthMap[cleanMonth(m[2]).replace(/\./g,'')];
-      var out=toDate(m[3],mo,m[1]);
-      if(out) return out;
-    }
-    m=s.match(/(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/);
-    if(m){
-      var out2=toDate(m[3],m[2],m[1]);
-      if(out2) return out2;
-    }
-  }
-  return null;
-}
-function parseSlipTextAmount(text){ return parseAmountFromText(text); }
-function parseSlipDataFromText(text){
-  return {amount:parseAmountFromText(text),date:parseDateFromText(text),text:text};
-}
-function isBankSlipText(text){
-  text=normalizeSlipText(text);
-  return /ธนาคาร|โอนเงิน|โอนสำเร็จ|รายการสำเร็จ|เลขที่รายการ|พร้อมเพย์|SCB|KBank|K\s*PLUS|Krungthai|KTB|BBL|Bangkok\s*Bank|Krungsri|GSB|ttb|CIMB|UOB|BAAC/i.test(text);
 }
 function setPaymentToTransfer(){
   var transfer=(S.pays||[]).find(function(p){
@@ -1920,7 +1568,6 @@ async function delEx(idOrEl){
 // ═══════════════════════════════════════════════════════
 var crf='overview', activeCrId='', activeInfoId='';
 function setCRF(f,el){ crf=f; document.querySelectorAll('#pg-cr .fchip').forEach(function(c){ c.classList.remove('on'); }); el.classList.add('on'); renderCR(); }
-const FIXED_CREDIT_PROVIDERS = ['สินเชื่อจำนำ','สินเชื่อรถยนต์','สินเชื่อรถจักรยานยนต์','สินเชื่อที่อยู่อาศัย','สินเชื่ออื่นๆ'];
 function updateCreditProviderOptions(){
   var typeEl=document.getElementById('cs-type'), providerEl=document.getElementById('cs-provider');
   if(!typeEl||!providerEl) return;
