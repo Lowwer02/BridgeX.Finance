@@ -1,0 +1,76 @@
+/* Theme tokens and theme state rules moved from style.css. */
+
+:root{
+  /* Design System: Colors & Typography */
+  --color-primary:#4C35C4;
+  --color-secondary:#10B981;
+  --color-tertiary:#F59E0B;
+  --color-neutral:#787680;
+  --bg-dark:#1E1E24;
+  --bg-card:#2A2A32;
+  --font-headline:'Space Grotesk',sans-serif;
+  --font-body:'Noto Sans','Noto Sans Thai',sans-serif;
+  --font-label:'Inter','Noto Sans Thai',sans-serif;
+  --radius-sm:4px;
+  --radius-md:8px;
+  --radius-full:9999px;
+
+  --bg:#13121b;--bg2:var(--bg-dark);--card:var(--bg-card);--card2:#35343d;--bdr:#474554;
+  --p:var(--color-primary);--pl:#c7bfff;--pd:#4228ba;--pbg:rgba(76,53,196,.18);
+  --g:var(--color-secondary);--gbg:rgba(16,185,129,.14);--gl:#4edea3;
+  --a:var(--color-tertiary);--abg:rgba(245,158,11,.14);
+  --r:#f0524f;--rbg:rgba(240,82,79,.12);--rl:#f87171;
+  --b:#4d9ef5;--bbg:rgba(77,158,245,.14);
+  --tx:#e5e0ed;--sub:#c9c4d7;--mut:#928ea0;
+  --sh:0 4px 18px rgba(0,0,0,.28);--sh2:0 12px 40px rgba(0,0,0,.42);
+  --rd:var(--radius-md);--rds:var(--radius-md);
+  --font:var(--font-body);--mono:'JetBrains Mono',monospace;
+}
+
+/* ── Light Theme ── */
+body.light{
+  --bg:#f7f7fb;--bg2:#ffffff;--card:#ffffff;--card2:#f1f0f7;--bdr:#e1dfeb;
+  --p:var(--color-primary);--pl:#5a46d3;--pd:#4228ba;--pbg:rgba(76,53,196,.10);
+  --g:#059669;--gbg:rgba(16,185,129,.10);--gl:#059669;
+  --a:#d97706;--abg:rgba(245,158,11,.12);
+  --r:#dc2626;--rbg:rgba(220,38,38,.1);--rl:#dc2626;
+  --b:#2563eb;--bbg:rgba(37,99,235,.1);
+  --tx:#1E1E24;--sub:#575461;--mut:var(--color-neutral);
+  --sh:0 2px 12px rgba(76,53,196,.10);--sh2:0 8px 28px rgba(76,53,196,.16);
+}
+
+/* Light Theme - BridgeX Core */
+body.theme-light{
+  --surface:#f8f9ff;
+  --surface-lowest:#ffffff;
+  --surface-low:#eff4ff;
+  --surface-container:#e5eeff;
+  --surface-high:#dce9ff;
+  --surface-highest:#d3e4fe;
+  --bg:#f8f9ff;
+  --bg2:#ffffff;
+  --card:rgba(255,255,255,.84);
+  --card2:#eff4ff;
+  --bdr:#c9c4d7;
+  --p:#4c35c4;
+  --pl:#3410ae;
+  --pd:#3410ae;
+  --pbg:rgba(76,53,196,.10);
+  --g:#059669;
+  --gbg:rgba(5,150,105,.10);
+  --gl:#047857;
+  --a:#b45309;
+  --abg:rgba(217,119,6,.12);
+  --r:#ba1a1a;
+  --rbg:rgba(186,26,26,.10);
+  --rl:#ba1a1a;
+  --b:#005774;
+  --bbg:rgba(0,87,116,.10);
+  --tx:#0b1c30;
+  --sub:#474554;
+  --mut:#787586;
+  --sh:0 10px 25px -5px rgba(76,53,196,.05);
+  --sh2:0 18px 44px rgba(76,53,196,.15);
+  background:var(--bg);
+  color:var(--tx);
+}
