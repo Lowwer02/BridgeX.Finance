@@ -13,24 +13,57 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="css/theme.css">
+<link rel="stylesheet" href="css/global.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/pages.css">
+<!-- Tailwind migration: keep legacy CSS until each page is verified -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        colors: {
+          primary: 'var(--color-primary, #4C35C4)',
+          secondary: 'var(--color-secondary, #10B981)',
+          tertiary: 'var(--color-tertiary, #F59E0B)',
+          neutral: 'var(--color-neutral, #787680)',
+          bg: 'var(--bg, #13121b)',
+          bg2: 'var(--bg2, #1E1E24)',
+          card: 'var(--card, #2A2A32)',
+          card2: 'var(--card2, #35343d)',
+          bdr: 'var(--bdr, #474554)',
+          mut: 'var(--mut, #787680)',
+          sub: 'var(--sub, #c9c4d7)',
+          tx: 'var(--tx, #e5e0ed)',
+        },
+        fontFamily: {
+          headline: ['"Space Grotesk"', 'sans-serif'],
+          body: ['"Noto Sans"', '"Noto Sans Thai"', 'sans-serif'],
+          label: ['"Inter"', '"Noto Sans Thai"', 'sans-serif'],
+        }
+      }
+    }
+  }
+</script>
 </head>
-<body class="light">
+<body class="light bg-bg text-tx min-h-screen pb-[84px] md:pb-0 overscroll-none font-body">
 
 <!-- Loading -->
-<div class="loading" id="loading">
+<div class="loading fixed inset-0 bg-bg z-[9999] flex flex-col items-center justify-center gap-[16px] text-primary font-headline font-bold text-[24px] transition-opacity duration-400" id="loading">
   <div style="font-size:40px;animation:rot 2s linear infinite;display:block">⬡</div>
   <p>BridgeX.Finance</p>
-  <p style="font-size:11px;margin-top:-6px;opacity:.5">กำลังโหลดข้อมูล...</p>
+  <p style="font-size:11px;margin-top:-6px;opacity:.5" class="text-[11px] -mt-[6px] opacity-50">กำลังโหลดข้อมูล...</p>
 </div>
 
 <!-- Auth Screen -->
-<div class="auth-screen" id="auth-screen">
-  <div class="auth-wrap">
-    <div class="auth-box">
-      <div class="auth-logo-big">BX</div>
-      <div class="auth-title">Bridge<span>X</span>.Wallet</div>
-      <div class="auth-sub">Premium Wealth Management</div>
+<div class="auth-screen fixed inset-0 bg-bg z-[2000] flex items-center justify-center p-[20px] overflow-y-auto backdrop-blur-[10px]" id="auth-screen">
+  <div class="auth-wrap w-full max-w-[380px] flex flex-col gap-[16px] m-auto">
+    <div class="auth-box bg-card border border-bdr rounded-[24px] p-[32px] shadow-[0_16px_40px_rgba(0,0,0,0.4)] relative overflow-hidden">
+      <div class="auth-logo-big text-[54px] font-headline font-bold text-primary opacity-10 absolute -top-[10px] -right-[10px] select-none">BX</div>
+      <div class="auth-title font-headline text-[28px] font-bold text-tx mb-[4px]">Bridge<span class="text-primary">X</span>.Wallet</div>
+      <div class="auth-sub text-[13px] text-sub font-label mb-[24px]">Premium Wealth Management</div>
       <div class="auth-form">
         <div class="auth-err" id="auth-err">อีเมลหรือรหัสผ่านไม่ถูกต้อง</div>
         <div class="fld"><label>Email Address</label><input type="email" id="auth-email" placeholder="you@example.com" autocomplete="email"></div>
@@ -60,67 +93,67 @@
   </div>
 </div>
 
-<div class="modal-overlay" id="legal-modal" onclick="closeModalBg(event,'legal-modal')">
-  <div class="modal-box" onclick="event.stopPropagation()">
-    <button class="dclose" onclick="closeD('legal-modal')">×</button>
-    <div class="modal-title" id="legal-title">ข้อตกลงการใช้งาน</div>
-    <div class="modal-sub" id="legal-body">กำลังจัดทำเนื้อหา</div>
-    <button class="btn-go blue" onclick="closeD('legal-modal')">รับทราบ</button>
+<div class="modal-overlay fixed inset-0 bg-black/60 z-[9000] hidden [&.on]:flex items-center justify-center p-[16px] backdrop-blur-md" id="legal-modal" onclick="closeModalBg(event,'legal-modal')">
+  <div class="modal-box bg-card border border-bdr rounded-[24px] p-[24px] w-full max-w-[400px] relative shadow-[0_12px_32px_rgba(0,0,0,0.4)]" onclick="event.stopPropagation()">
+    <button class="dclose absolute top-[16px] right-[16px] w-[32px] h-[32px] rounded-full bg-card2 border border-bdr text-sub text-[20px] flex items-center justify-center cursor-pointer z-10" onclick="closeD('legal-modal')">×</button>
+    <div class="modal-title font-headline text-[20px] font-bold text-tx mb-[8px]" id="legal-title">ข้อตกลงการใช้งาน</div>
+    <div class="modal-sub text-[13px] text-sub font-label mb-[24px]" id="legal-body">กำลังจัดทำเนื้อหา</div>
+    <button class="btn-go blue w-full h-[52px] rounded-[14px] bg-[#2563eb] text-white font-label text-[15px] font-bold cursor-pointer transition-transform active:scale-95 border-none shadow-[0_4px_12px_rgba(37,99,235,0.3)]" onclick="closeD('legal-modal')">รับทราบ</button>
   </div>
 </div>
 
-<div class="modal-overlay" id="onboard-modal">
-  <div class="modal-box">
-    <div class="modal-title">ตั้งค่าโปรไฟล์</div>
-    <div class="modal-sub">กรอกชื่อที่จะแสดงในครอบครัว ชื่อนี้จะถูกใช้เป็นผู้จ่าย/ผู้รับอัตโนมัติ</div>
-    <div class="fld"><label>ชื่อของคุณ</label><input type="text" id="onboard-name" placeholder="เช่น เจ"></div>
-    <button class="btn-go" onclick="saveOnboarding()">เริ่มใช้งาน</button>
+<div class="modal-overlay fixed inset-0 bg-black/60 z-[9000] hidden [&.on]:flex items-center justify-center p-[16px] backdrop-blur-md" id="onboard-modal">
+  <div class="modal-box bg-card border border-bdr rounded-[24px] p-[24px] w-full max-w-[400px] relative shadow-[0_12px_32px_rgba(0,0,0,0.4)]">
+    <div class="modal-title font-headline text-[20px] font-bold text-tx mb-[8px]">ตั้งค่าโปรไฟล์</div>
+    <div class="modal-sub text-[13px] text-sub font-label mb-[24px]">กรอกชื่อที่จะแสดงในครอบครัว ชื่อนี้จะถูกใช้เป็นผู้จ่าย/ผู้รับอัตโนมัติ</div>
+    <div class="fld flex flex-col gap-[8px] mb-[16px]"><label class="text-[12px] font-bold text-tx tracking-wide">ชื่อของคุณ</label><input class="w-full h-[50px] bg-bg2 border border-bdr rounded-[12px] px-[16px] text-tx font-label text-[15px] transition-colors focus:border-primary focus:outline-none" type="text" id="onboard-name" placeholder="เช่น เจ"></div>
+    <button class="btn-go w-full h-[52px] rounded-[14px] bg-primary text-white font-label text-[15px] font-bold cursor-pointer transition-transform active:scale-95 border-none shadow-[0_4px_12px_rgba(76,53,196,0.3)]" onclick="saveOnboarding()">เริ่มใช้งาน</button>
   </div>
 </div>
 
-<div class="modal-overlay" id="paywall">
-  <div class="modal-box paywall-card">
-    <div class="modal-title">กรุณาสมัครสมาชิก 59฿</div>
-    <div class="modal-sub">Trial หมดอายุหรือแพ็กเกจยังไม่เปิดใช้งาน<br>สมัคร Standard 59฿ เพื่อใช้งานต่อ หรือ Pro 109฿ เพื่อเปิด Export CSV</div>
-    <button class="btn-go" onclick="goTab('set',document.querySelector('.tbtn[onclick*=set]'))">ดูสถานะสมาชิก</button>
+<div class="modal-overlay fixed inset-0 bg-black/60 z-[9000] hidden [&.on]:flex items-center justify-center p-[16px] backdrop-blur-md" id="paywall">
+  <div class="modal-box paywall-card bg-card border border-bdr rounded-[24px] p-[24px] w-full max-w-[400px] relative shadow-[0_12px_32px_rgba(0,0,0,0.4)] text-center">
+    <div class="modal-title font-headline text-[20px] font-bold text-tx mb-[8px]">กรุณาสมัครสมาชิก 59฿</div>
+    <div class="modal-sub text-[13px] text-sub font-label mb-[24px]">Trial หมดอายุหรือแพ็กเกจยังไม่เปิดใช้งาน<br>สมัคร Standard 59฿ เพื่อใช้งานต่อ หรือ Pro 109฿ เพื่อเปิด Export CSV</div>
+    <button class="btn-go w-full h-[52px] rounded-[14px] bg-primary text-white font-label text-[15px] font-bold cursor-pointer transition-transform active:scale-95 border-none shadow-[0_4px_12px_rgba(76,53,196,0.3)]" onclick="goTab('set',document.querySelector('.tbtn[onclick*=set]'))">ดูสถานะสมาชิก</button>
   </div>
 </div>
 
-<div class="modal-overlay" id="credit-setup-modal" onclick="closeModalBg(event,'credit-setup-modal')">
-  <div class="modal-box credit-setup-box" onclick="event.stopPropagation()">
-    <button class="dclose credit-setup-close" onclick="closeD('credit-setup-modal')">×</button>
-    <div class="credit-setup-head">
-      <div class="modal-title">เพิ่มสินเชื่อหมุนเวียน</div>
-      <div class="modal-sub">กรอกข้อมูลสินเชื่อเพื่อเริ่มติดตามวงเงิน ยอดหนี้ และวันครบกำหนด</div>
+<div class="modal-overlay fixed inset-0 bg-black/60 z-[9000] hidden [&.on]:flex items-center justify-center p-[16px] backdrop-blur-md" id="credit-setup-modal" onclick="closeModalBg(event,'credit-setup-modal')">
+  <div class="modal-box credit-setup-box bg-card border border-bdr rounded-[24px] p-[24px] w-full max-w-[400px] relative shadow-[0_12px_32px_rgba(0,0,0,0.4)]" onclick="event.stopPropagation()">
+    <button class="dclose credit-setup-close absolute top-[16px] right-[16px] w-[32px] h-[32px] rounded-full bg-card2 border border-bdr text-sub text-[20px] flex items-center justify-center cursor-pointer z-10" onclick="closeD('credit-setup-modal')">×</button>
+    <div class="credit-setup-head mb-[20px]">
+      <div class="modal-title font-headline text-[20px] font-bold text-tx mb-[4px]">เพิ่มสินเชื่อหมุนเวียน</div>
+      <div class="modal-sub text-[13px] text-sub font-label">กรอกข้อมูลสินเชื่อเพื่อเริ่มติดตามวงเงิน ยอดหนี้ และวันครบกำหนด</div>
     </div>
-    <div class="credit-setup-form">
-    <div class="fld"><label>ประเภท</label><select class="mobile-picker-native" id="cs-type" onchange="updateCreditProviderOptions()"><option value="revolving">สินเชื่อหมุนเวียน</option><option value="fixed">สินเชื่อหลักประกัน</option></select><button class="mobile-picker-trigger" id="mobile-cr-type-trigger" type="button" onclick="openMobilePicker('cr-type')"><span class="material-symbols-outlined">category</span><strong>เลือกประเภทสินเชื่อ</strong><em id="mobile-cr-type-label">สินเชื่อหมุนเวียน</em></button></div>
-    <div class="fld"><label>ผู้ให้บริการ</label><select class="mobile-picker-native" id="cs-provider"></select><button class="mobile-picker-trigger" id="mobile-cr-provider-trigger" type="button" onclick="openMobilePicker('cr-provider')"><span class="material-symbols-outlined">credit_card</span><strong>เลือกผู้ให้บริการ</strong><em id="mobile-cr-provider-label">-</em></button></div>
-    <div class="fld"><label>ชนิดบัตร</label><select id="cs-card-type" onchange="toggleLinkedPrimaryCredit()"><option value="primary">Primary card</option><option value="secondary">Secondary card</option></select></div>
-    <div class="fld linked-credit-field" id="cs-linked-wrap">
-      <label>Primary card ที่ใช้วงเงินร่วมกัน</label>
-      <select class="mobile-picker-native" id="cs-linked-credit"></select>
-      <button class="mobile-picker-trigger" id="mobile-cr-linked-trigger" type="button" onclick="openMobilePicker('cr-linked')"><span class="material-symbols-outlined">link</span><strong>เลือกบัตรหลัก</strong><em id="mobile-cr-linked-label">เลือก primary card</em></button>
-      <div class="linked-credit-note">Secondary card จะใช้วงเงินเดียวกับ primary (balance รวมกัน)</div>
+    <div class="credit-setup-form flex flex-col gap-[16px]">
+    <div class="fld flex flex-col gap-[8px]"><label class="text-[12px] font-bold text-tx tracking-wide">ประเภท</label><select class="mobile-picker-native md:block hidden w-full h-[50px] bg-bg2 border border-bdr rounded-[12px] px-[16px] text-tx font-label text-[15px] focus:border-primary focus:outline-none" id="cs-type" onchange="updateCreditProviderOptions()"><option value="revolving">สินเชื่อหมุนเวียน</option><option value="fixed">สินเชื่อหลักประกัน</option></select><button class="mobile-picker-trigger md:hidden w-full h-[50px] bg-bg2 border border-bdr rounded-[12px] px-[16px] flex items-center justify-between text-left text-tx font-label text-[14px]" id="mobile-cr-type-trigger" type="button" onclick="openMobilePicker('cr-type')"><span class="material-symbols-outlined text-[20px] text-primary">category</span><strong class="flex-1 ml-[10px]">เลือกประเภทสินเชื่อ</strong><em class="not-italic text-sub" id="mobile-cr-type-label">สินเชื่อหมุนเวียน</em></button></div>
+    <div class="fld flex flex-col gap-[8px]"><label class="text-[12px] font-bold text-tx tracking-wide">ผู้ให้บริการ</label><select class="mobile-picker-native md:block hidden w-full h-[50px] bg-bg2 border border-bdr rounded-[12px] px-[16px] text-tx font-label text-[15px] focus:border-primary focus:outline-none" id="cs-provider"></select><button class="mobile-picker-trigger md:hidden w-full h-[50px] bg-bg2 border border-bdr rounded-[12px] px-[16px] flex items-center justify-between text-left text-tx font-label text-[14px]" id="mobile-cr-provider-trigger" type="button" onclick="openMobilePicker('cr-provider')"><span class="material-symbols-outlined text-[20px] text-primary">credit_card</span><strong class="flex-1 ml-[10px]">เลือกผู้ให้บริการ</strong><em class="not-italic text-sub" id="mobile-cr-provider-label">-</em></button></div>
+    <div class="fld flex flex-col gap-[8px]"><label class="text-[12px] font-bold text-tx tracking-wide">ชนิดบัตร</label><select class="w-full h-[50px] bg-bg2 border border-bdr rounded-[12px] px-[16px] text-tx font-label text-[15px] focus:border-primary focus:outline-none" id="cs-card-type" onchange="toggleLinkedPrimaryCredit()"><option value="primary">Primary card</option><option value="secondary">Secondary card</option></select></div>
+    <div class="fld linked-credit-field flex flex-col gap-[8px]" id="cs-linked-wrap">
+      <label class="text-[12px] font-bold text-tx tracking-wide">Primary card ที่ใช้วงเงินร่วมกัน</label>
+      <select class="mobile-picker-native md:block hidden w-full h-[50px] bg-bg2 border border-bdr rounded-[12px] px-[16px] text-tx font-label text-[15px] focus:border-primary focus:outline-none" id="cs-linked-credit"></select>
+      <button class="mobile-picker-trigger md:hidden w-full h-[50px] bg-bg2 border border-bdr rounded-[12px] px-[16px] flex items-center justify-between text-left text-tx font-label text-[14px]" id="mobile-cr-linked-trigger" type="button" onclick="openMobilePicker('cr-linked')"><span class="material-symbols-outlined text-[20px] text-primary">link</span><strong class="flex-1 ml-[10px]">เลือกบัตรหลัก</strong><em class="not-italic text-sub" id="mobile-cr-linked-label">เลือก primary card</em></button>
+      <div class="linked-credit-note text-[11px] text-tertiary bg-[#f59e0b14] p-[8px_12px] rounded-[8px] mt-[4px]">Secondary card จะใช้วงเงินเดียวกับ primary (balance รวมกัน)</div>
     </div>
-    <div class="fld"><label>วงเงิน / ยอดหนี้</label><input type="number" id="cs-limit" placeholder="0"></div>
-    <div class="info-r">
-      <div class="fld"><label>ดอกเบี้ย (%/ปี)</label><input type="number" id="cs-rate" placeholder="0" step="0.01"></div>
-      <div class="fld"><label>จ่ายขั้นต่ำ</label><input type="number" id="cs-min" placeholder="0"></div>
+    <div class="fld flex flex-col gap-[8px]"><label class="text-[12px] font-bold text-tx tracking-wide">วงเงิน / ยอดหนี้</label><input class="w-full h-[50px] bg-bg2 border border-bdr rounded-[12px] px-[16px] text-tx font-label text-[15px] focus:border-primary focus:outline-none" type="number" id="cs-limit" placeholder="0"></div>
+    <div class="info-r flex gap-[12px] [&>div]:flex-1">
+      <div class="fld flex flex-col gap-[8px]"><label class="text-[12px] font-bold text-tx tracking-wide">ดอกเบี้ย (%/ปี)</label><input class="w-full h-[50px] bg-bg2 border border-bdr rounded-[12px] px-[16px] text-tx font-label text-[15px] focus:border-primary focus:outline-none" type="number" id="cs-rate" placeholder="0" step="0.01"></div>
+      <div class="fld flex flex-col gap-[8px]"><label class="text-[12px] font-bold text-tx tracking-wide">จ่ายขั้นต่ำ</label><input class="w-full h-[50px] bg-bg2 border border-bdr rounded-[12px] px-[16px] text-tx font-label text-[15px] focus:border-primary focus:outline-none" type="number" id="cs-min" placeholder="0"></div>
     </div>
-    <div class="info-r">
-      <div class="fld"><label>วันตัดรอบ</label><input type="text" id="cs-bill" placeholder="เช่น 25"></div>
-      <div class="fld"><label>วันครบกำหนด</label><input type="text" id="cs-due" placeholder="เช่น 15"></div>
+    <div class="info-r flex gap-[12px] [&>div]:flex-1">
+      <div class="fld flex flex-col gap-[8px]"><label class="text-[12px] font-bold text-tx tracking-wide">วันตัดรอบ</label><input class="w-full h-[50px] bg-bg2 border border-bdr rounded-[12px] px-[16px] text-tx font-label text-[15px] focus:border-primary focus:outline-none" type="text" id="cs-bill" placeholder="เช่น 25"></div>
+      <div class="fld flex flex-col gap-[8px]"><label class="text-[12px] font-bold text-tx tracking-wide">วันครบกำหนด</label><input class="w-full h-[50px] bg-bg2 border border-bdr rounded-[12px] px-[16px] text-tx font-label text-[15px] focus:border-primary focus:outline-none" type="text" id="cs-due" placeholder="เช่น 15"></div>
     </div>
-    <button class="btn-go credit-setup-save" onclick="saveFirstCredit()">บันทึกสินเชื่อ</button>
+    <button class="btn-go credit-setup-save w-full h-[52px] rounded-[14px] bg-primary text-white font-label text-[15px] font-bold cursor-pointer transition-transform active:scale-95 border-none shadow-[0_4px_12px_rgba(76,53,196,0.3)] mt-[10px]" onclick="saveFirstCredit()">บันทึกสินเชื่อ</button>
     </div>
   </div>
 </div>
 
 <!-- Desktop Sidebar -->
-<aside class="app-sidebar">
-  <div class="side-brand">BridgeX.Wallet</div>
-  <nav class="side-nav">
+<aside class="app-sidebar fixed left-0 top-0 bottom-0 w-[250px] bg-[#1c1b23db] backdrop-blur-[18px] border-r border-white/10 z-[380] md:z-[310] pt-[28px] px-[18px] pb-[18px] flex flex-col transition-transform duration-240 hidden md:flex">
+  <div class="side-brand font-headline text-[25px] font-bold text-[#c7bfff] my-[16px] mx-[4px] mb-[56px]">BridgeX.Wallet</div>
+  <nav class="side-nav flex flex-col gap-[10px]">
     <button class="tbtn" onclick="goTab('dash',this)"><span class="ico material-symbols-outlined">dashboard</span><span data-i18n="dashboard">ภาพรวมการเงิน</span></button>
     <button class="tbtn" onclick="goTab('debt-planner',this)"><span class="ico material-symbols-outlined">payments</span><span data-i18n="debtPlanner">แผนปลดหนี้</span></button>
     <button class="tbtn" onclick="goTab('cr',this)"><span class="ico material-symbols-outlined">credit_card</span><span data-i18n="credit">บัตรและสินเชื่อ</span></button>
@@ -129,11 +162,11 @@
     <button class="tbtn" onclick="goTab('inc',this)"><span class="ico material-symbols-outlined">account_balance_wallet</span><span data-i18n="income">จดรายรับ</span></button>
     <button class="tbtn" onclick="goTab('set',this)"><span class="ico material-symbols-outlined">settings</span><span data-i18n="settings">ตั้งค่า</span></button>
   </nav>
-  <div class="side-bottom">
-    <button class="side-sync" onclick="syncNow()" data-i18n="syncNow">อัปเดตข้อมูล</button>
-    <button class="side-link" type="button"><span class="material-symbols-outlined">help</span><span data-i18n="support">ช่วยเหลือ</span></button>
-    <button class="side-link" type="button" onclick="doLogout()"><span class="material-symbols-outlined">logout</span><span data-i18n="signOut">ออกจากระบบ</span></button>
-    <div class="side-user">
+  <div class="side-bottom mt-auto flex flex-col gap-[12px]">
+    <button class="side-sync w-full h-[48px] rounded-lg border border-[#c7bfff3d] bg-card2 text-[#c7bfff] font-label text-[14px] font-extrabold cursor-pointer" onclick="syncNow()" data-i18n="syncNow">อัปเดตข้อมูล</button>
+    <button class="side-link border-none bg-transparent text-sub font-label text-[14px] font-extrabold text-left py-[10px] px-[12px] cursor-pointer flex items-center gap-[12px]" type="button"><span class="material-symbols-outlined text-[23px] text-sub">help</span><span data-i18n="support">ช่วยเหลือ</span></button>
+    <button class="side-link border-none bg-transparent text-sub font-label text-[14px] font-extrabold text-left py-[10px] px-[12px] cursor-pointer flex items-center gap-[12px]" type="button" onclick="doLogout()"><span class="material-symbols-outlined text-[23px] text-sub">logout</span><span data-i18n="signOut">ออกจากระบบ</span></button>
+    <div class="side-user flex items-center gap-[12px] pt-[14px] px-[8px] pb-0 border-t border-white/10 mt-[6px]">
       <div class="side-avatar">BX</div>
       <div>
         <div class="side-user-name" id="hdr-name">-</div>
@@ -145,12 +178,12 @@
 <div class="sidebar-backdrop" onclick="toggleSidebar(false)"></div>
 
 <!-- Topbar -->
-<div class="tb">
-  <div class="tb-brand">
-    <button class="hamb material-symbols-outlined" type="button" onclick="toggleSidebar()">menu</button>
-    <div class="tb-name" id="topbar-title">จดรายจ่าย</div>
+<div class="tb fixed top-0 left-0 right-0 h-[60px] md:h-[72px] md:left-[250px] bg-bg2/80 backdrop-blur-[12px] border-b border-bdr z-[300] flex items-center justify-between px-[16px] md:px-[32px]">
+  <div class="tb-brand flex items-center gap-[12px]">
+    <button class="hamb material-symbols-outlined md:hidden border-none bg-transparent text-sub text-[28px] leading-none cursor-pointer relative z-[360] pointer-events-auto" type="button" onclick="toggleSidebar()">menu</button>
+    <div class="tb-name font-headline text-[18px] md:text-[22px] font-bold text-tx" id="topbar-title">จดรายจ่าย</div>
   </div>
-  <div class="tb-right">
+  <div class="tb-right flex items-center gap-[12px] md:gap-[16px]">
     <div class="top-search"><span>⌕</span><input type="text" placeholder="Search..."></div>
     <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" title="เปลี่ยนธีม">🌙</button>
     <button class="icon-btn" type="button" onclick="syncNow()"><span class="material-symbols-outlined">sync</span></button>
@@ -163,81 +196,81 @@
 </div>
 
 <!-- ADD EXPENSE -->
-<div class="pg on" id="pg-add">
-  <header class="add-mobile-head">
-    <button class="material-symbols-outlined" type="button" onclick="toggleSidebar()">menu</button>
-    <h1>บันทึกรายการ</h1>
-    <span class="add-mobile-mark">BX</span>
+<div class="pg hidden [&.on]:block pt-[60px] md:pt-[72px] md:pl-[250px] min-h-screen w-full box-border on" id="pg-add">
+  <header class="add-mobile-head md:hidden h-[60px] flex items-center justify-between px-[16px] bg-bg sticky top-0 z-[280] border-b border-bdr">
+    <button class="material-symbols-outlined bg-transparent border-none text-sub text-[28px] cursor-pointer" type="button" onclick="toggleSidebar()">menu</button>
+    <h1 class="font-headline text-[18px] font-bold text-tx m-0">บันทึกรายการ</h1>
+    <span class="add-mobile-mark text-primary font-headline font-bold text-[18px]">BX</span>
   </header>
-  <div class="add-type-toggle">
-    <button id="tog-exp" class="tog-btn on" onclick="toggleAddMode('expense')">รายจ่าย</button>
-    <button id="tog-inc" class="tog-btn" onclick="toggleAddMode('income')">รายรับ</button>
+  <div class="add-type-toggle flex bg-card2 border border-bdr rounded-[12px] p-[4px] mx-[16px] md:mx-[32px] mt-[16px] md:mt-[24px] mb-[20px] max-w-[400px]">
+    <button id="tog-exp" class="tog-btn flex-1 h-[40px] rounded-[10px] border-none bg-transparent text-sub font-label text-[14px] font-bold cursor-pointer transition-colors [&.on]:bg-bg [&.on]:text-tx [&.on]:shadow-[0_2px_8px_rgba(0,0,0,0.2)] on" onclick="toggleAddMode('expense')">รายจ่าย</button>
+    <button id="tog-inc" class="tog-btn flex-1 h-[40px] rounded-[10px] border-none bg-transparent text-sub font-label text-[14px] font-bold cursor-pointer transition-colors [&.on]:bg-bg [&.on]:text-tx [&.on]:shadow-[0_2px_8px_rgba(0,0,0,0.2)]" onclick="toggleAddMode('income')">รายรับ</button>
   </div>
   <div id="mode-expense">
-  <div class="add-shell">
-    <div class="add-main">
-      <div class="add-glass add-amount-card">
-        <div class="add-mobile-amount">
-        <div class="amt-lbl" data-i18n="amount">จำนวนเงิน</div>
-        <div class="amt-row"><span class="amt-cur">฿ </span><input class="amt-inp" id="f-amt" type="number" placeholder="0.00" inputmode="decimal"></div>
+  <div class="add-shell flex flex-col xl:flex-row gap-[24px] px-[16px] md:px-[32px] pb-[32px] max-w-[1200px]">
+    <div class="add-main flex-1 flex flex-col gap-[16px]">
+      <div class="add-glass add-amount-card bg-card border border-bdr rounded-[24px] p-[24px] shadow-[0_8px_24px_rgba(0,0,0,0.12)]">
+        <div class="add-mobile-amount flex flex-col gap-[4px] pb-[16px] border-b border-white/10 mb-[16px]">
+        <div class="amt-lbl text-[14px] font-bold text-sub" data-i18n="amount">จำนวนเงิน</div>
+        <div class="amt-row flex items-baseline gap-[8px]"><span class="amt-cur font-headline text-[32px] font-bold text-tx">฿ </span><input class="amt-inp flex-1 bg-transparent border-none font-headline text-[48px] font-bold text-primary focus:outline-none w-full placeholder:text-[#4c35c44d]" id="f-amt" type="number" placeholder="0.00" inputmode="decimal"></div>
         </div>
-        <div class="slip-scan-row">
+        <div class="slip-scan-row mb-[16px]">
           <input type="file" id="slip-upload" accept="image/*" hidden>
-          <button type="button" class="slip-btn" onclick="document.getElementById('slip-upload').click()">
-            <span class="material-symbols-outlined">document_scanner</span>
-            <span class="slip-copy"><strong>สแกนสลิป / ใบเสร็จ</strong><small>แตะเพื่ออ่านยอดเงินและวันที่อัตโนมัติ</small></span>
-            <span class="material-symbols-outlined slip-chevron">chevron_right</span>
+          <button type="button" class="slip-btn w-full h-[56px] rounded-[16px] border border-bdr bg-card2 flex items-center gap-[16px] px-[16px] cursor-pointer transition-colors hover:bg-white/5" onclick="document.getElementById('slip-upload').click()">
+            <span class="material-symbols-outlined text-[24px] text-primary">document_scanner</span>
+            <span class="slip-copy flex-1 flex flex-col text-left"><strong class="font-label text-[14px] text-tx">สแกนสลิป / ใบเสร็จ</strong><small class="font-label text-[11px] text-sub">แตะเพื่ออ่านยอดเงินและวันที่อัตโนมัติ</small></span>
+            <span class="material-symbols-outlined slip-chevron text-[24px] text-sub">chevron_right</span>
           </button>
-          <span class="slip-status" id="slip-status"></span>
+          <span class="slip-status text-[12px] font-bold text-primary mt-[8px] block" id="slip-status"></span>
         </div>
-        <div class="add-meta-row">
-          <div class="fld inc-field add-date-field"><label data-i18n="date">วันที่</label><input type="date" id="f-dt"></div>
-          <div class="add-mode-toggle"><span class="on">Joint</span><span>Personal</span></div>
+        <div class="add-meta-row flex gap-[12px]">
+          <div class="fld inc-field add-date-field flex-1 flex flex-col gap-[8px]"><label class="text-[12px] font-bold text-tx tracking-wide" data-i18n="date">วันที่</label><input class="w-full h-[50px] bg-bg2 border border-bdr rounded-[12px] px-[16px] text-tx font-label text-[15px] focus:border-primary focus:outline-none" type="date" id="f-dt"></div>
+          <div class="add-mode-toggle flex-1 h-[50px] bg-bg2 border border-bdr rounded-[12px] p-[4px] mt-[23px] flex hidden"><span class="flex-1 rounded-[8px] flex items-center justify-center font-label text-[13px] font-bold cursor-pointer text-sub [&.on]:bg-card [&.on]:text-tx [&.on]:shadow-[0_2px_8px_rgba(0,0,0,0.15)] on">Joint</span><span class="flex-1 rounded-[8px] flex items-center justify-center font-label text-[13px] font-bold cursor-pointer text-sub [&.on]:bg-card [&.on]:text-tx [&.on]:shadow-[0_2px_8px_rgba(0,0,0,0.15)]">Personal</span></div>
         </div>
       </div>
-      <div class="add-grid">
-        <div class="add-glass add-panel">
-          <div class="add-panel-title" data-i18n="category">หมวดหมู่</div>
-          <div class="chips" id="cat-chips"></div>
-          <button class="mobile-picker-trigger" id="mobile-cat-trigger" type="button" onclick="openMobilePicker('cat')">
-            <span class="material-symbols-outlined">grid_view</span>
-            <strong>เลือกหมวดหมู่</strong>
-            <em id="mobile-cat-label">เลือกหมวดหมู่</em>
+      <div class="add-grid grid grid-cols-1 md:grid-cols-2 gap-[16px]">
+        <div class="add-glass add-panel bg-card border border-bdr rounded-[24px] p-[24px] shadow-[0_8px_24px_rgba(0,0,0,0.12)]">
+          <div class="add-panel-title font-headline text-[16px] font-bold text-tx mb-[16px]" data-i18n="category">หมวดหมู่</div>
+          <div class="chips hidden md:flex flex-wrap gap-[8px]" id="cat-chips"></div>
+          <button class="mobile-picker-trigger md:hidden w-full h-[50px] bg-bg2 border border-bdr rounded-[12px] px-[16px] flex items-center justify-between text-left text-tx font-label text-[14px]" id="mobile-cat-trigger" type="button" onclick="openMobilePicker('cat')">
+            <span class="material-symbols-outlined text-[20px] text-primary">grid_view</span>
+            <strong class="flex-1 ml-[10px]">เลือกหมวดหมู่</strong>
+            <em class="not-italic text-sub" id="mobile-cat-label">เลือกหมวดหมู่</em>
           </button>
         </div>
-        <div class="add-glass add-panel">
+        <div class="add-glass add-panel bg-card border border-bdr rounded-[24px] p-[24px] shadow-[0_8px_24px_rgba(0,0,0,0.12)] flex flex-col gap-[16px]">
           <div class="add-mobile-field add-payment-field">
-          <div class="add-panel-title" data-i18n="paymentMethod">จ่ายผ่าน</div>
-          <div class="chips" id="pay-chips"></div>
-          <button class="mobile-picker-trigger" id="mobile-pay-trigger" type="button" onclick="openMobilePicker('pay')">
-            <span class="material-symbols-outlined">account_balance_wallet</span>
-            <strong>เลือกช่องทางชำระเงิน</strong>
-            <em id="mobile-pay-label">เลือกช่องทางชำระเงิน</em>
+          <div class="add-panel-title font-headline text-[16px] font-bold text-tx mb-[16px]" data-i18n="paymentMethod">จ่ายผ่าน</div>
+          <div class="chips hidden md:flex flex-wrap gap-[8px]" id="pay-chips"></div>
+          <button class="mobile-picker-trigger md:hidden w-full h-[50px] bg-bg2 border border-bdr rounded-[12px] px-[16px] flex items-center justify-between text-left text-tx font-label text-[14px]" id="mobile-pay-trigger" type="button" onclick="openMobilePicker('pay')">
+            <span class="material-symbols-outlined text-[20px] text-primary">account_balance_wallet</span>
+            <strong class="flex-1 ml-[10px]">เลือกช่องทางชำระเงิน</strong>
+            <em class="not-italic text-sub" id="mobile-pay-label">เลือกช่องทางชำระเงิน</em>
           </button>
           </div>
-          <div class="fld add-note-field"><label data-i18n="note">บันทึกช่วยจำ</label><textarea id="f-det" placeholder="เช่น ข้าวมันไก่, ค่า Grab"></textarea></div>
+          <div class="fld add-note-field flex flex-col gap-[8px]"><label class="text-[12px] font-bold text-tx tracking-wide" data-i18n="note">บันทึกช่วยจำ</label><textarea class="w-full bg-bg2 border border-bdr rounded-[12px] p-[16px] text-tx font-label text-[14px] focus:border-primary focus:outline-none min-h-[80px] resize-y" id="f-det" placeholder="เช่น ข้าวมันไก่, ค่า Grab"></textarea></div>
         </div>
       </div>
-      <div class="card" style="display:none">
-        <div class="ctitle">ผู้จ่าย</div>
-        <div class="payers">
-          <div class="payer" id="py-j" onclick="selP('เจ')"><div class="av">จ</div><div class="nm">เจ</div><div class="rl">คุณ</div></div>
-          <div class="payer" id="py-f" onclick="selP('แฟง')"><div class="av">ฟ</div><div class="nm">แฟง</div><div class="rl">แฟน</div></div>
+      <div class="card bg-card border border-bdr rounded-[20px] p-[20px] hidden" style="display:none">
+        <div class="ctitle font-headline text-[14px] font-bold text-tx mb-[12px]">ผู้จ่าย</div>
+        <div class="payers flex gap-[12px]">
+          <div class="payer flex-1 flex flex-col items-center gap-[6px] p-[12px] rounded-[12px] border border-bdr bg-bg cursor-pointer transition-colors [&.on]:border-primary [&.on]:bg-[#4c35c414]" id="py-j" onclick="selP('เจ')"><div class="av w-[40px] h-[40px] rounded-full bg-card2 flex items-center justify-center font-headline font-bold text-[16px] text-sub">จ</div><div class="nm font-label text-[13px] font-bold text-tx">เจ</div><div class="rl font-label text-[11px] text-sub">คุณ</div></div>
+          <div class="payer flex-1 flex flex-col items-center gap-[6px] p-[12px] rounded-[12px] border border-bdr bg-bg cursor-pointer transition-colors [&.on]:border-primary [&.on]:bg-[#4c35c414]" id="py-f" onclick="selP('แฟง')"><div class="av w-[40px] h-[40px] rounded-full bg-card2 flex items-center justify-center font-headline font-bold text-[16px] text-sub">ฟ</div><div class="nm font-label text-[13px] font-bold text-tx">แฟง</div><div class="rl font-label text-[11px] text-sub">แฟน</div></div>
         </div>
       </div>
-      <div class="add-actions">
-        <button class="btn-sm" onclick="resetExpenseForm()" data-i18n="cancel">ยกเลิก</button>
-        <button class="btn-go" onclick="submitExp()" data-i18n="saveTransaction">บันทึกรายการ</button>
+      <div class="add-actions flex gap-[12px] pt-[8px] md:pt-[16px]">
+        <button class="btn-sm flex-1 max-w-[120px] h-[52px] rounded-[14px] border border-bdr bg-card2 text-tx font-label text-[15px] font-bold cursor-pointer transition-colors hover:bg-white/5" onclick="resetExpenseForm()" data-i18n="cancel">ยกเลิก</button>
+        <button class="btn-go flex-1 h-[52px] rounded-[14px] border-none bg-primary text-white font-label text-[15px] font-bold cursor-pointer transition-transform active:scale-95 shadow-[0_4px_12px_rgba(76,53,196,0.3)]" onclick="submitExp()" data-i18n="saveTransaction">บันทึกรายการ</button>
       </div>
     </div>
-    <aside class="add-glass add-summary">
-      <h3 data-i18n="todaySummary">สรุปรายการวันนี้</h3>
-      <div class="sum-label" data-i18n="totalSpentToday">ใช้จ่ายวันนี้</div>
-      <div class="sum-amount" id="add-sum-today">฿ 0</div>
-      <div class="sum-track"><div class="sum-fill" id="add-sum-bar"></div></div>
-      <div class="sum-budget" id="add-sum-budget">0% ของงบวันนี้</div>
-      <div class="recent-title" data-i18n="recentTransactions">รายการล่าสุด</div>
-      <div class="recent-list" id="add-recent-list"></div>
+    <aside class="add-glass add-summary xl:w-[320px] flex-shrink-0 bg-card border border-bdr rounded-[24px] p-[24px] flex flex-col gap-[16px] h-fit">
+      <h3 class="font-headline text-[18px] font-bold text-tx m-0" data-i18n="todaySummary">สรุปรายการวันนี้</h3>
+      <div class="sum-label text-[13px] font-label text-sub" data-i18n="totalSpentToday">ใช้จ่ายวันนี้</div>
+      <div class="sum-amount font-headline text-[24px] font-bold text-tx" id="add-sum-today">฿ 0</div>
+      <div class="sum-track w-full h-[6px] bg-bg2 rounded-full overflow-hidden mt-[4px]"><div class="sum-fill h-full bg-primary rounded-full w-[0%]" id="add-sum-bar"></div></div>
+      <div class="sum-budget text-[11px] font-label text-sub text-right" id="add-sum-budget">0% ของงบวันนี้</div>
+      <div class="recent-title font-headline text-[14px] font-bold text-sub mt-[16px] pt-[16px] border-t border-white/10" data-i18n="recentTransactions">รายการล่าสุด</div>
+      <div class="recent-list flex flex-col gap-[12px]" id="add-recent-list"></div>
     </aside>
   </div>
   </div>
@@ -245,33 +278,37 @@
 </div>
 
 <!-- HISTORY -->
-<div class="pg" id="pg-hist">
-  <div class="hist-shell">
+<div class="pg hidden [&.on]:block pt-[60px] md:pt-[72px] md:pl-[250px] min-h-screen w-full box-border" id="pg-hist">
+  <div class="hist-shell p-[16px] md:p-[32px] max-w-[1200px] mx-auto flex flex-col gap-[24px]">
     <section class="hist-kpis" id="hist-kpis"></section>
-    <div class="hist-layout">
-      <aside class="hist-filter-card">
-        <div class="hist-filter-head">
-          <h3><span class="material-symbols-outlined">tune</span> ตัวกรอง</h3>
-          <button type="button" onclick="setHistTimeFilter('all_time');setHistUserFilter('joint')">ล้างทั้งหมด</button>
+    <div class="hist-layout flex flex-col xl:flex-row gap-[24px]">
+      <aside class="hist-filter-card xl:w-[280px] flex-shrink-0 bg-card border border-bdr rounded-[24px] p-[24px] h-fit">
+        <div class="hist-filter-head flex justify-between items-center mb-[20px] pb-[16px] border-b border-white/10">
+          <h3 class="font-headline text-[16px] font-bold text-tx m-0 flex items-center gap-[8px]"><span class="material-symbols-outlined text-[20px] text-primary">tune</span> ตัวกรอง</h3>
+          <button class="bg-transparent border-none text-[12px] font-bold text-sub cursor-pointer hover:text-tx transition-colors" type="button" onclick="setHistTimeFilter('all_time');setHistUserFilter('joint')">ล้างทั้งหมด</button>
         </div>
-        <div class="dash-filter-stack hist-filter-stack">
-          <div class="dash-filter-tier" id="hist-time-filters">
-            <span data-i18n="period">ช่วงเวลา</span>
-            <button type="button" data-hist-time="this_month" onclick="setHistTimeFilter('this_month')" data-i18n="thisMonth">เดือนนี้</button>
-            <button type="button" data-hist-time="last_month" onclick="setHistTimeFilter('last_month')" data-i18n="lastMonth">เดือนก่อน</button>
-            <button type="button" data-hist-time="all_time" onclick="setHistTimeFilter('all_time')" data-i18n="all">ทั้งหมด</button>
+        <div class="dash-filter-stack hist-filter-stack flex flex-col gap-[16px]">
+          <div class="dash-filter-tier flex flex-col gap-[8px]" id="hist-time-filters">
+            <span class="text-[11px] font-label font-bold text-sub uppercase tracking-wider mb-[4px]" data-i18n="period">ช่วงเวลา</span>
+            <div class="flex flex-wrap gap-[8px]">
+              <button class="h-[32px] px-[16px] rounded-[16px] border-none bg-transparent text-sub font-label text-[13px] font-bold cursor-pointer transition-all hover:bg-card2 [&.on]:bg-white/10 [&.on]:text-white" type="button" data-hist-time="this_month" onclick="setHistTimeFilter('this_month')" data-i18n="thisMonth">เดือนนี้</button>
+              <button class="h-[32px] px-[16px] rounded-[16px] border-none bg-transparent text-sub font-label text-[13px] font-bold cursor-pointer transition-all hover:bg-card2 [&.on]:bg-white/10 [&.on]:text-white" type="button" data-hist-time="last_month" onclick="setHistTimeFilter('last_month')" data-i18n="lastMonth">เดือนก่อน</button>
+              <button class="h-[32px] px-[16px] rounded-[16px] border-none bg-transparent text-sub font-label text-[13px] font-bold cursor-pointer transition-all hover:bg-card2 [&.on]:bg-white/10 [&.on]:text-white" type="button" data-hist-time="all_time" onclick="setHistTimeFilter('all_time')" data-i18n="all">ทั้งหมด</button>
+            </div>
           </div>
-          <div class="dash-filter-tier" id="hist-filters">
-            <span data-i18n="view">มุมมอง</span>
-            <button type="button" data-hist-user="joint" onclick="setHistUserFilter('joint')" data-i18n="joint">รวม</button>
-            <button type="button" data-hist-user="me" onclick="setHistUserFilter('me')" data-i18n="me">ฉัน</button>
+          <div class="dash-filter-tier flex flex-col gap-[8px]" id="hist-filters">
+            <span class="text-[11px] font-label font-bold text-sub uppercase tracking-wider mb-[4px]" data-i18n="view">มุมมอง</span>
+            <div class="flex flex-wrap gap-[8px]">
+              <button class="h-[32px] px-[16px] rounded-[16px] border-none bg-transparent text-sub font-label text-[13px] font-bold cursor-pointer transition-all hover:bg-card2 [&.on]:bg-white/10 [&.on]:text-white" type="button" data-hist-user="joint" onclick="setHistUserFilter('joint')" data-i18n="joint">รวม</button>
+              <button class="h-[32px] px-[16px] rounded-[16px] border-none bg-transparent text-sub font-label text-[13px] font-bold cursor-pointer transition-all hover:bg-card2 [&.on]:bg-white/10 [&.on]:text-white" type="button" data-hist-user="me" onclick="setHistUserFilter('me')" data-i18n="me">ฉัน</button>
+            </div>
           </div>
         </div>
       </aside>
-      <section class="hist-table-card">
-        <div class="hist-table-head">
-          <h2 data-i18n="recentTransactions">รายการล่าสุด</h2>
-          <button type="button" onclick="exportCSV('expense')"><span class="material-symbols-outlined">download</span> Export CSV</button>
+      <section class="hist-table-card flex-1 bg-card border border-bdr rounded-[24px] overflow-hidden">
+        <div class="hist-table-head flex justify-between items-center p-[20px_24px] border-b border-white/10">
+          <h2 class="font-headline text-[18px] font-bold text-tx m-0" data-i18n="recentTransactions">รายการล่าสุด</h2>
+          <button class="h-[32px] px-[12px] rounded-[8px] border border-bdr bg-card2 text-tx font-label text-[12px] font-bold cursor-pointer flex items-center gap-[6px] transition-colors hover:bg-white/5" type="button" onclick="exportCSV('expense')"><span class="material-symbols-outlined text-[16px]">download</span> Export CSV</button>
         </div>
         <div id="hist-list"></div>
       </section>
@@ -280,30 +317,30 @@
 </div>
 
 <!-- DEBT PLANNER -->
-<div class="pg" id="pg-debt-planner">
-  <div class="debtp-shell">
-    <section class="debtp-hero">
-      <div>
-        <h1>แผนปลดหนี้อัจฉริยะ</h1>
-        <p>วางแผนจัดการหนี้สินของคุณอย่างเป็นระบบด้วยกลยุทธ์ที่ออกแบบมาเพื่อคุณโดยเฉพาะ</p>
+<div class="pg hidden [&.on]:block pt-[60px] md:pt-[72px] md:pl-[250px] min-h-screen w-full box-border" id="pg-debt-planner">
+  <div class="debtp-shell p-[16px] md:p-[32px] max-w-[1200px] mx-auto flex flex-col gap-[24px]">
+    <section class="debtp-hero bg-[linear-gradient(135deg,rgba(76,53,196,0.1),rgba(16,185,129,0.05))] border border-bdr rounded-[24px] p-[24px] flex flex-col md:flex-row gap-[24px] justify-between items-center shadow-[0_8px_24px_rgba(0,0,0,0.12)]">
+      <div class="flex-1">
+        <h1 class="font-headline text-[24px] md:text-[28px] font-bold text-tx m-0 mb-[8px]">แผนปลดหนี้อัจฉริยะ</h1>
+        <p class="font-label text-[14px] md:text-[15px] text-sub m-0 leading-[1.5]">วางแผนจัดการหนี้สินของคุณอย่างเป็นระบบด้วยกลยุทธ์ที่ออกแบบมาเพื่อคุณโดยเฉพาะ</p>
       </div>
-      <div class="debtp-save-card">
-        <div>ประหยัดดอกเบี้ยได้หลักแสน</div>
-        <strong id="debtp-save-amt">฿ 0</strong>
-        <span>เทียบกับการจ่ายขั้นต่ำ</span>
+      <div class="debtp-save-card bg-card border border-primary/30 rounded-[16px] p-[20px] flex flex-col items-center justify-center gap-[4px] min-w-[200px] shadow-[0_4px_16px_rgba(76,53,196,0.15)] text-center relative overflow-hidden before:content-[''] before:absolute before:inset-0 before:bg-[linear-gradient(45deg,rgba(76,53,196,0.1),transparent)] before:pointer-events-none">
+        <div class="font-label text-[12px] font-bold text-secondary">ประหยัดดอกเบี้ยได้หลักแสน</div>
+        <strong class="font-headline text-[24px] font-bold text-tx" id="debtp-save-amt">฿ 0</strong>
+        <span class="font-label text-[11px] text-sub">เทียบกับการจ่ายขั้นต่ำ</span>
       </div>
     </section>
-    <div class="debtp-grid">
-      <aside class="debtp-side" id="debtp-controls"></aside>
-      <section class="debtp-main">
-        <div class="debtp-impact">
-          <h2>ผลลัพธ์ของแผน</h2>
+    <div class="debtp-grid flex flex-col xl:flex-row gap-[24px]">
+      <aside class="debtp-side xl:w-[320px] flex-shrink-0 flex flex-col gap-[16px]" id="debtp-controls"></aside>
+      <section class="debtp-main flex-1 flex flex-col gap-[24px]">
+        <div class="debtp-impact bg-card border border-bdr rounded-[24px] p-[24px] shadow-[0_8px_24px_rgba(0,0,0,0.12)]">
+          <h2 class="font-headline text-[18px] font-bold text-tx m-0 mb-[16px] flex items-center gap-[8px] before:content-[''] before:w-[4px] before:h-[20px] before:bg-secondary before:rounded-full">ผลลัพธ์ของแผน</h2>
           <div id="debtp-impact"></div>
         </div>
-        <div class="debtp-list-card">
-          <div class="debtp-list-head">
-            <h2>ลำดับการชำระหนี้</h2>
-            <button type="button" onclick="openCreditSetupModal('revolving')"><span class="material-symbols-outlined">add</span> เพิ่มรายการ</button>
+        <div class="debtp-list-card bg-card border border-bdr rounded-[24px] p-[24px] shadow-[0_8px_24px_rgba(0,0,0,0.12)] overflow-hidden flex flex-col h-full">
+          <div class="debtp-list-head flex justify-between items-center mb-[16px] pb-[16px] border-b border-white/10">
+            <h2 class="font-headline text-[18px] font-bold text-tx m-0 flex items-center gap-[8px] before:content-[''] before:w-[4px] before:h-[20px] before:bg-primary before:rounded-full">ลำดับการชำระหนี้</h2>
+            <button class="h-[32px] px-[12px] rounded-[8px] border border-bdr bg-card2 text-tx font-label text-[12px] font-bold cursor-pointer flex items-center gap-[4px] transition-colors hover:bg-white/5" type="button" onclick="openCreditSetupModal('revolving')"><span class="material-symbols-outlined text-[16px]">add</span> เพิ่มรายการ</button>
           </div>
           <div id="debt-plan-list"></div>
         </div>
@@ -313,557 +350,573 @@
 </div>
 
 <!-- MOBILE DEBT HUB -->
-<div class="pg" id="pg-debt">
-  <div class="mobile-debt-bento" id="mobile-debt-bento">
-    <div class="mobile-debt-bento-card debt-total">
-      <span>หนี้รวม</span>
-      <strong id="mobile-debt-total">-</strong>
+<div class="pg hidden [&.on]:block pt-[60px] md:pt-[72px] md:pl-[250px] min-h-screen w-full box-border md:hidden" id="pg-debt">
+  <div class="mobile-debt-bento grid grid-cols-2 gap-[12px] px-[16px] pb-[20px]" id="mobile-debt-bento">
+    <div class="mobile-debt-bento-card debt-total bg-card border border-bdr rounded-[20px] p-[16px] flex flex-col gap-[6px] shadow-[0_4px_12px_rgba(0,0,0,0.15)] text-tx">
+      <span class="text-[12px] font-label font-bold text-sub">หนี้รวม</span>
+      <strong class="font-headline text-[22px] font-bold text-tertiary" id="mobile-debt-total">-</strong>
     </div>
-    <div class="mobile-debt-bento-card paid">
-      <span>จ่ายเดือนนี้</span>
-      <strong id="mobile-debt-monthly">-</strong>
+    <div class="mobile-debt-bento-card paid bg-card border border-bdr rounded-[20px] p-[16px] flex flex-col gap-[6px] shadow-[0_4px_12px_rgba(0,0,0,0.15)] text-tx">
+      <span class="text-[12px] font-label font-bold text-sub">จ่ายเดือนนี้</span>
+      <strong class="font-headline text-[18px] font-bold" id="mobile-debt-monthly">-</strong>
     </div>
-    <div class="mobile-debt-bento-card saved">
-      <span>ประหยัดดอกเบี้ย</span>
-      <strong id="mobile-debt-interest">-</strong>
+    <div class="mobile-debt-bento-card saved bg-secondary/10 border border-secondary/30 rounded-[20px] p-[16px] flex flex-col gap-[6px] shadow-[0_4px_12px_rgba(16,185,129,0.1)] text-tx">
+      <span class="text-[12px] font-label font-bold text-secondary">ประหยัดดอกเบี้ย</span>
+      <strong class="font-headline text-[18px] font-bold text-secondary" id="mobile-debt-interest">-</strong>
     </div>
-    <div class="mobile-debt-bento-card faster">
-      <span>ปิดหนี้เร็วขึ้น</span>
-      <strong id="mobile-debt-faster">-</strong>
+    <div class="mobile-debt-bento-card faster bg-card border border-bdr rounded-[20px] p-[16px] flex flex-col gap-[6px] shadow-[0_4px_12px_rgba(0,0,0,0.15)] text-tx">
+      <span class="text-[12px] font-label font-bold text-sub">ปิดหนี้เร็วขึ้น</span>
+      <strong class="font-headline text-[18px] font-bold" id="mobile-debt-faster">-</strong>
     </div>
   </div>
-  <div class="debt-type-toggle">
-    <button id="tog-cr" class="tog-btn on" onclick="toggleDebtMode('credit')">สินเชื่อ</button>
-    <button id="tog-plan" class="tog-btn" onclick="toggleDebtMode('plan')">แผนปลดหนี้</button>
+  <div class="debt-type-toggle flex bg-card2 border border-bdr rounded-[12px] p-[4px] mx-[16px] mb-[20px]">
+    <button id="tog-cr" class="tog-btn flex-1 h-[40px] rounded-[10px] border-none bg-transparent text-sub font-label text-[14px] font-bold cursor-pointer transition-colors [&.on]:bg-bg [&.on]:text-tx [&.on]:shadow-[0_2px_8px_rgba(0,0,0,0.2)] on" onclick="toggleDebtMode('credit')">สินเชื่อ</button>
+    <button id="tog-plan" class="tog-btn flex-1 h-[40px] rounded-[10px] border-none bg-transparent text-sub font-label text-[14px] font-bold cursor-pointer transition-colors [&.on]:bg-bg [&.on]:text-tx [&.on]:shadow-[0_2px_8px_rgba(0,0,0,0.2)]" onclick="toggleDebtMode('plan')">แผนปลดหนี้</button>
   </div>
   <div id="debt-mode-credit"></div>
   <div id="debt-mode-plan" style="display:none"></div>
-  <div class="debt-sheet-overlay" id="debt-order-sheet" onclick="closeDebtOrderSheet(event)">
-    <section class="debt-bottom-sheet" onclick="event.stopPropagation()">
-      <div class="sheet-handle"></div>
-      <header class="debt-sheet-head">
-        <h2>ลำดับการชำระหนี้รายเดือน</h2>
-        <button type="button" onclick="closeDebtOrderSheet()"><span class="material-symbols-outlined">close</span></button>
+  <div class="debt-sheet-overlay fixed inset-0 bg-black/60 z-[950] hidden [&.on]:block opacity-0 transition-opacity duration-300 [&.on]:opacity-100" id="debt-order-sheet" onclick="closeDebtOrderSheet(event)">
+    <section class="debt-bottom-sheet absolute bottom-0 left-0 w-full bg-card rounded-[24px_24px_0_0] p-[24px] max-h-[85vh] overflow-y-auto flex flex-col gap-[20px] transition-transform duration-300 translate-y-full [&.open]:translate-y-0" onclick="event.stopPropagation()">
+      <div class="sheet-handle w-[40px] h-[4px] bg-white/20 rounded-full mx-auto -mt-[12px] mb-[12px]"></div>
+      <header class="debt-sheet-head flex justify-between items-center pb-[16px] border-b border-white/10">
+        <h2 class="font-headline text-[18px] font-bold text-tx m-0">ลำดับการชำระหนี้รายเดือน</h2>
+        <button class="bg-card2 border border-bdr rounded-full w-[32px] h-[32px] flex items-center justify-center text-sub cursor-pointer transition-colors hover:text-tx hover:border-white/30" type="button" onclick="closeDebtOrderSheet()"><span class="material-symbols-outlined text-[20px]">close</span></button>
       </header>
-      <div class="debt-sheet-list" id="debt-order-sheet-list"></div>
+      <div class="debt-sheet-list flex flex-col gap-[12px]" id="debt-order-sheet-list"></div>
     </section>
   </div>
 </div>
 
 <!-- CREDIT + SMART DEBT -->
-<div class="pg" id="pg-cr">
-  <div class="cr-shell">
-    <div class="frow cr-filter-row">
-      <div class="fchip on" onclick="setCRF('overview',this)" data-i18n="overview">ภาพรวม</div>
-      <div class="fchip" onclick="setCRF('revolving',this)" data-i18n="revolving">สินเชื่อหมุนเวียน</div>
-      <div class="fchip" onclick="setCRF('fixed',this)" data-i18n="secured">สินเชื่อหลักประกัน</div>
+<!-- CREDIT + SMART DEBT -->
+<div class="pg hidden [&.on]:block pt-[60px] md:pt-[72px] md:pl-[250px] min-h-screen w-full box-border" id="pg-cr">
+  <div class="cr-shell p-[16px] md:p-[32px] max-w-[1200px] mx-auto flex flex-col gap-[24px]">
+    <div class="frow cr-filter-row flex gap-[8px] overflow-x-auto hide-scrollbar pb-[4px]">
+      <div class="fchip on h-[32px] px-[16px] rounded-[16px] border border-bdr bg-bg text-sub font-label text-[13px] font-bold cursor-pointer flex items-center justify-center whitespace-nowrap transition-colors hover:bg-card [&.on]:bg-primary [&.on]:border-primary [&.on]:text-white" onclick="setCRF('overview',this)" data-i18n="overview">ภาพรวม</div>
+      <div class="fchip h-[32px] px-[16px] rounded-[16px] border border-bdr bg-bg text-sub font-label text-[13px] font-bold cursor-pointer flex items-center justify-center whitespace-nowrap transition-colors hover:bg-card [&.on]:bg-primary [&.on]:border-primary [&.on]:text-white" onclick="setCRF('revolving',this)" data-i18n="revolving">สินเชื่อหมุนเวียน</div>
+      <div class="fchip h-[32px] px-[16px] rounded-[16px] border border-bdr bg-bg text-sub font-label text-[13px] font-bold cursor-pointer flex items-center justify-center whitespace-nowrap transition-colors hover:bg-card [&.on]:bg-primary [&.on]:border-primary [&.on]:text-white" onclick="setCRF('fixed',this)" data-i18n="secured">สินเชื่อหลักประกัน</div>
     </div>
     <div id="debt-overview-card"></div>
-    <div class="cr-detail-grid">
-      <section class="cr-lines-panel">
-        <div class="cr-lines-head">
-          <h2 data-i18n="activeLines">รายการสินเชื่อ</h2>
-          <button type="button" onclick="openCreditSetupModal('revolving')"><span class="material-symbols-outlined">add</span> เพิ่มสินเชื่อ</button>
+    <div class="cr-detail-grid flex flex-col xl:flex-row gap-[24px]">
+      <section class="cr-lines-panel flex-1 bg-card border border-bdr rounded-[24px] p-[24px] shadow-[0_8px_24px_rgba(0,0,0,0.12)]">
+        <div class="cr-lines-head flex justify-between items-center mb-[20px] pb-[16px] border-b border-white/10">
+          <h2 class="font-headline text-[18px] font-bold text-tx m-0 flex items-center gap-[8px] before:content-[''] before:w-[4px] before:h-[20px] before:bg-primary before:rounded-full" data-i18n="activeLines">รายการสินเชื่อ</h2>
+          <button class="h-[32px] px-[12px] rounded-[8px] border border-bdr bg-card2 text-tx font-label text-[12px] font-bold cursor-pointer flex items-center gap-[4px] transition-colors hover:bg-white/5" type="button" onclick="openCreditSetupModal('revolving')"><span class="material-symbols-outlined text-[16px]">add</span> เพิ่มสินเชื่อ</button>
         </div>
-        <div id="cr-list"></div>
+        <div id="cr-list" class="flex flex-col gap-[12px]"></div>
       </section>
-      <aside id="match-summary-card"></aside>
+      <aside id="match-summary-card" class="xl:w-[360px] flex-shrink-0"></aside>
     </div>
   </div>
   <!-- Pay Drawer -->
-  <div class="drawer" id="pay-drawer" onclick="closeDrBg(event,'pay-drawer')">
-    <div class="dbox">
-      <button class="dclose" onclick="closeD('pay-drawer')">×</button>
-      <div class="dtitle" id="dr-title">ชำระ</div>
-      <div class="dsub" id="dr-sub">-</div>
-      <div class="fld"><label>จำนวนที่จ่าย (บาท)</label><input type="number" id="dr-amt" placeholder="0" inputmode="decimal"></div>
-      <div class="fld"><label>วงเงินคงเหลือหลังจ่าย (บาท)</label><input type="number" id="dr-rem" placeholder="0" inputmode="decimal"></div>
-      <div class="fld"><label>วันที่จ่าย</label><input type="date" id="dr-dt"></div>
-      <button class="btn-go" onclick="submitCredit()">บันทึกการชำระ</button>
+  <div class="drawer fixed inset-0 bg-black/60 z-[950] hidden [&.on]:flex flex-col justify-end opacity-0 transition-opacity duration-300 [&.on]:opacity-100" id="pay-drawer" onclick="closeDrBg(event,'pay-drawer')">
+    <div class="dbox bg-card border-t border-bdr rounded-[24px_24px_0_0] p-[24px_24px_32px] w-full max-w-[500px] mx-auto relative transition-transform duration-300 translate-y-full [&.open]:translate-y-0" onclick="event.stopPropagation()">
+      <div class="sheet-handle w-[40px] h-[4px] bg-white/20 rounded-full mx-auto -mt-[12px] mb-[12px] md:hidden"></div>
+      <button class="dclose absolute top-[16px] right-[16px] w-[32px] h-[32px] rounded-full bg-card2 border border-bdr text-sub text-[20px] flex items-center justify-center cursor-pointer z-10 hover:text-tx hover:border-white/30" onclick="closeD('pay-drawer')">×</button>
+      <div class="dtitle font-headline text-[20px] font-bold text-tx mb-[4px]" id="dr-title">ชำระ</div>
+      <div class="dsub text-[13px] text-sub font-label mb-[24px]" id="dr-sub">-</div>
+      <div class="flex flex-col gap-[16px]">
+        <div class="fld flex flex-col gap-[8px]"><label class="text-[12px] font-bold text-tx tracking-wide">จำนวนที่จ่าย (บาท)</label><input class="w-full h-[50px] bg-bg2 border border-bdr rounded-[12px] px-[16px] text-tx font-label text-[15px] focus:border-primary focus:outline-none" type="number" id="dr-amt" placeholder="0" inputmode="decimal"></div>
+        <div class="fld flex flex-col gap-[8px]"><label class="text-[12px] font-bold text-tx tracking-wide">วงเงินคงเหลือหลังจ่าย (บาท)</label><input class="w-full h-[50px] bg-bg2 border border-bdr rounded-[12px] px-[16px] text-tx font-label text-[15px] focus:border-primary focus:outline-none" type="number" id="dr-rem" placeholder="0" inputmode="decimal"></div>
+        <div class="fld flex flex-col gap-[8px]"><label class="text-[12px] font-bold text-tx tracking-wide">วันที่จ่าย</label><input class="w-full h-[50px] bg-bg2 border border-bdr rounded-[12px] px-[16px] text-tx font-label text-[15px] focus:border-primary focus:outline-none" type="date" id="dr-dt"></div>
+        <button class="btn-go w-full h-[52px] rounded-[14px] bg-primary text-white font-label text-[15px] font-bold cursor-pointer transition-transform active:scale-95 border-none shadow-[0_4px_12px_rgba(76,53,196,0.3)] mt-[8px]" onclick="submitCredit()">บันทึกการชำระ</button>
+      </div>
     </div>
   </div>
   <!-- Info Drawer -->
-  <div class="drawer" id="info-drawer" onclick="closeDrBg(event,'info-drawer')">
-    <div class="dbox">
-      <button class="dclose" onclick="closeD('info-drawer')">×</button>
-      <div class="dtitle" id="inf-title">ข้อมูลสินเชื่อ</div>
-      <div class="dsub">บันทึกครั้งเดียว จำไปตลอด</div>
-      <div class="fld"><label>วงเงินอนุมัติรวม (บาท)</label><input type="number" id="inf-credit_limit" placeholder="0"></div>
-      <div class="info-r">
-        <div class="fld"><label>ดอกเบี้ย (%/ปี)</label><input type="number" id="inf-rate" placeholder="0" step="0.01"></div>
-        <div class="fld"><label>จ่ายขั้นต่ำ (บาท)</label><input type="number" id="inf-min" placeholder="0"></div>
+  <div class="drawer fixed inset-0 bg-black/60 z-[950] hidden [&.on]:flex flex-col justify-end opacity-0 transition-opacity duration-300 [&.on]:opacity-100" id="info-drawer" onclick="closeDrBg(event,'info-drawer')">
+    <div class="dbox bg-card border-t border-bdr rounded-[24px_24px_0_0] p-[24px_24px_32px] w-full max-w-[500px] mx-auto relative transition-transform duration-300 translate-y-full [&.open]:translate-y-0" onclick="event.stopPropagation()">
+      <div class="sheet-handle w-[40px] h-[4px] bg-white/20 rounded-full mx-auto -mt-[12px] mb-[12px] md:hidden"></div>
+      <button class="dclose absolute top-[16px] right-[16px] w-[32px] h-[32px] rounded-full bg-card2 border border-bdr text-sub text-[20px] flex items-center justify-center cursor-pointer z-10 hover:text-tx hover:border-white/30" onclick="closeD('info-drawer')">×</button>
+      <div class="dtitle font-headline text-[20px] font-bold text-tx mb-[4px]" id="inf-title">ข้อมูลสินเชื่อ</div>
+      <div class="dsub text-[13px] text-sub font-label mb-[24px]">บันทึกครั้งเดียว จำไปตลอด</div>
+      <div class="flex flex-col gap-[16px]">
+        <div class="fld flex flex-col gap-[8px]"><label class="text-[12px] font-bold text-tx tracking-wide">วงเงินอนุมัติรวม (บาท)</label><input class="w-full h-[50px] bg-bg2 border border-bdr rounded-[12px] px-[16px] text-tx font-label text-[15px] focus:border-primary focus:outline-none" type="number" id="inf-credit_limit" placeholder="0"></div>
+        <div class="info-r flex gap-[12px] [&>div]:flex-1">
+          <div class="fld flex flex-col gap-[8px]"><label class="text-[12px] font-bold text-tx tracking-wide">ดอกเบี้ย (%/ปี)</label><input class="w-full h-[50px] bg-bg2 border border-bdr rounded-[12px] px-[16px] text-tx font-label text-[15px] focus:border-primary focus:outline-none" type="number" id="inf-rate" placeholder="0" step="0.01"></div>
+          <div class="fld flex flex-col gap-[8px]"><label class="text-[12px] font-bold text-tx tracking-wide">จ่ายขั้นต่ำ (บาท)</label><input class="w-full h-[50px] bg-bg2 border border-bdr rounded-[12px] px-[16px] text-tx font-label text-[15px] focus:border-primary focus:outline-none" type="number" id="inf-min" placeholder="0"></div>
+        </div>
+        <div class="info-r flex gap-[12px] [&>div]:flex-1">
+          <div class="fld flex flex-col gap-[8px]"><label class="text-[12px] font-bold text-tx tracking-wide">วันตัดรอบบิล</label><input class="w-full h-[50px] bg-bg2 border border-bdr rounded-[12px] px-[16px] text-tx font-label text-[15px] focus:border-primary focus:outline-none" type="text" id="inf-bill" placeholder="เช่น 25"></div>
+          <div class="fld flex flex-col gap-[8px]"><label class="text-[12px] font-bold text-tx tracking-wide">วันครบกำหนด</label><input class="w-full h-[50px] bg-bg2 border border-bdr rounded-[12px] px-[16px] text-tx font-label text-[15px] focus:border-primary focus:outline-none" type="text" id="inf-due" placeholder="เช่น 15"></div>
+        </div>
+        <button class="btn-go w-full h-[52px] rounded-[14px] bg-primary text-white font-label text-[15px] font-bold cursor-pointer transition-transform active:scale-95 border-none shadow-[0_4px_12px_rgba(76,53,196,0.3)] mt-[8px]" onclick="saveInfo()">บันทึกข้อมูล</button>
       </div>
-      <div class="info-r">
-        <div class="fld"><label>วันตัดรอบบิล</label><input type="text" id="inf-bill" placeholder="เช่น 25"></div>
-        <div class="fld"><label>วันครบกำหนด</label><input type="text" id="inf-due" placeholder="เช่น 15"></div>
-      </div>
-      <button class="btn-go" onclick="saveInfo()">บันทึกข้อมูล</button>
     </div>
   </div>
 </div>
 
 <!-- DASHBOARD -->
-<div class="pg" id="pg-dash">
-  <header class="dash-page-head">
-    <h1 data-i18n="dashboardHeading">สรุปภาพรวมการเงิน</h1>
-    <p data-i18n="dashboardIntro">ดูข้อมูลล่าสุดและติดตามสุขภาพการเงินของคุณได้ง่าย ๆ</p>
+<div class="pg hidden [&.on]:block pt-[60px] md:pt-[72px] md:pl-[250px] min-h-screen w-full box-border" id="pg-dash">
+  <header class="dash-page-head hidden md:flex flex-col gap-[8px] p-[24px_32px_12px]">
+    <h1 class="font-headline text-[28px] font-bold text-tx m-0" data-i18n="dashboardHeading">สรุปภาพรวมการเงิน</h1>
+    <p class="font-label text-[14px] text-sub m-0" data-i18n="dashboardIntro">ดูข้อมูลล่าสุดและติดตามสุขภาพการเงินของคุณได้ง่าย ๆ</p>
   </header>
-  <div class="mobile-dash-pill-filters" aria-label="ตัวกรองภาพรวมการเงิน">
-    <label class="mobile-dash-pill">
-      <span class="material-symbols-outlined">calendar_month</span>
-      <select id="mobile-dash-time-filter" onchange="setDashTimeFilter(this.value)">
+  <div class="mobile-dash-pill-filters md:hidden flex gap-[8px] px-[16px] py-[12px] overflow-x-auto snap-x hide-scrollbar" aria-label="ตัวกรองภาพรวมการเงิน">
+    <label class="mobile-dash-pill flex items-center gap-[6px] h-[36px] bg-card border border-bdr rounded-[18px] px-[12px] whitespace-nowrap snap-start relative">
+      <span class="material-symbols-outlined text-[16px] text-primary">calendar_month</span>
+      <select class="opacity-0 absolute inset-0 w-full h-full cursor-pointer z-10" id="mobile-dash-time-filter" onchange="setDashTimeFilter(this.value); this.nextElementSibling.nextElementSibling.textContent = this.options[this.selectedIndex].text">
         <option value="this_month">เดือนนี้</option>
         <option value="last_month">เดือนก่อน</option>
         <option value="all_time">ทั้งหมด</option>
       </select>
-      <span class="material-symbols-outlined chevron">expand_more</span>
+      <span class="text-[13px] font-label font-bold text-tx select-value">เดือนนี้</span>
+      <span class="material-symbols-outlined chevron text-[16px] text-sub">expand_more</span>
     </label>
-    <label class="mobile-dash-pill">
-      <span class="material-symbols-outlined">group</span>
-      <select id="mobile-dash-user-filter" onchange="setDashUserFilter(this.value)">
+    <label class="mobile-dash-pill flex items-center gap-[6px] h-[36px] bg-card border border-bdr rounded-[18px] px-[12px] whitespace-nowrap snap-start relative">
+      <span class="material-symbols-outlined text-[16px] text-primary">group</span>
+      <select class="opacity-0 absolute inset-0 w-full h-full cursor-pointer z-10" id="mobile-dash-user-filter" onchange="setDashUserFilter(this.value); this.nextElementSibling.nextElementSibling.textContent = this.options[this.selectedIndex].text">
         <option value="joint">รวมครอบครัว</option>
       </select>
-      <span class="material-symbols-outlined chevron">expand_more</span>
+      <span class="text-[13px] font-label font-bold text-tx select-value">รวมครอบครัว</span>
+      <span class="material-symbols-outlined chevron text-[16px] text-sub">expand_more</span>
     </label>
   </div>
-  <div class="dash-filter-stack" id="dash-filters">
-    <div class="dash-filter-tier">
-      <span data-i18n="period">ช่วงเวลา</span>
-      <button type="button" data-dash-time="this_month" onclick="setDashTimeFilter('this_month')" data-i18n="thisMonth">เดือนนี้</button>
-      <button type="button" data-dash-time="last_month" onclick="setDashTimeFilter('last_month')" data-i18n="lastMonth">เดือนก่อน</button>
-      <button type="button" data-dash-time="all_time" onclick="setDashTimeFilter('all_time')" data-i18n="all">ทั้งหมด</button>
+  <div class="dash-filter-stack hidden md:flex flex-col gap-[12px] px-[32px] mb-[24px]" id="dash-filters">
+    <div class="dash-filter-tier flex items-center gap-[8px] flex-wrap">
+      <span class="text-[12px] font-label font-bold text-sub uppercase tracking-wider w-[60px]" data-i18n="period">ช่วงเวลา</span>
+      <button class="h-[32px] px-[16px] rounded-[16px] border-none bg-transparent text-sub font-label text-[13px] font-bold cursor-pointer transition-all hover:bg-card [&.on]:bg-white/10 [&.on]:text-white" type="button" data-dash-time="this_month" onclick="setDashTimeFilter('this_month')" data-i18n="thisMonth">เดือนนี้</button>
+      <button class="h-[32px] px-[16px] rounded-[16px] border-none bg-transparent text-sub font-label text-[13px] font-bold cursor-pointer transition-all hover:bg-card [&.on]:bg-white/10 [&.on]:text-white" type="button" data-dash-time="last_month" onclick="setDashTimeFilter('last_month')" data-i18n="lastMonth">เดือนก่อน</button>
+      <button class="h-[32px] px-[16px] rounded-[16px] border-none bg-transparent text-sub font-label text-[13px] font-bold cursor-pointer transition-all hover:bg-card [&.on]:bg-white/10 [&.on]:text-white" type="button" data-dash-time="all_time" onclick="setDashTimeFilter('all_time')" data-i18n="all">ทั้งหมด</button>
     </div>
-    <div class="dash-filter-tier" id="dash-entity-filters">
-      <span data-i18n="view">มุมมอง</span>
-    </div>
-  </div>
-  <div class="mobile-dash-bento" id="mobile-dash-bento" aria-label="สรุปภาพรวมการเงิน">
-    <div class="mobile-dash-bento-card balance">
-      <span>เงินเหลือใช้เดือนนี้</span>
-      <strong id="mobile-dash-net">-</strong>
-    </div>
-    <div class="mobile-dash-bento-card income">
-      <span>รายรับ</span>
-      <strong id="mobile-dash-income">-</strong>
-    </div>
-    <div class="mobile-dash-bento-card expense">
-      <span>รายจ่ายรวม</span>
-      <strong id="mobile-dash-outflow">-</strong>
-    </div>
-    <div class="mobile-dash-bento-card debt">
-      <span>หนี้สินรวม</span>
-      <strong id="mobile-dash-debt">-</strong>
+    <div class="dash-filter-tier flex items-center gap-[8px] flex-wrap" id="dash-entity-filters">
+      <span class="text-[12px] font-label font-bold text-sub uppercase tracking-wider w-[60px]" data-i18n="view">มุมมอง</span>
     </div>
   </div>
-  <div class="mobile-dash-toggle" aria-label="เลือกมุมมองภาพรวมการเงิน">
-    <button class="on" type="button" data-mobile-dash-tab="summary" onclick="switchMobileDashView('summary')">สรุป</button>
-    <button type="button" data-mobile-dash-tab="budget" onclick="switchMobileDashView('budget')">งบประมาณ</button>
-    <button type="button" data-mobile-dash-tab="analysis" onclick="switchMobileDashView('analysis')">วิเคราะห์</button>
-    <button type="button" data-mobile-dash-tab="recent" onclick="switchMobileDashView('recent')">รายการล่าสุด</button>
+  <div class="mobile-dash-bento md:hidden grid grid-cols-2 gap-[12px] px-[16px] pb-[20px]" id="mobile-dash-bento" aria-label="สรุปภาพรวมการเงิน">
+    <div class="mobile-dash-bento-card balance bg-primary border border-primary rounded-[20px] p-[16px] flex flex-col gap-[6px] shadow-[0_4px_12px_rgba(76,53,196,0.3)] text-white">
+      <span class="text-[12px] font-label font-bold opacity-80">เงินเหลือใช้เดือนนี้</span>
+      <strong class="font-headline text-[22px] font-bold" id="mobile-dash-net">-</strong>
+    </div>
+    <div class="mobile-dash-bento-card income bg-card border border-bdr rounded-[20px] p-[16px] flex flex-col gap-[6px] shadow-[0_4px_12px_rgba(0,0,0,0.15)] text-tx">
+      <span class="text-[12px] font-label font-bold text-sub">รายรับ</span>
+      <strong class="font-headline text-[18px] font-bold text-secondary" id="mobile-dash-income">-</strong>
+    </div>
+    <div class="mobile-dash-bento-card expense bg-card border border-bdr rounded-[20px] p-[16px] flex flex-col gap-[6px] shadow-[0_4px_12px_rgba(0,0,0,0.15)] text-tx">
+      <span class="text-[12px] font-label font-bold text-sub">รายจ่ายรวม</span>
+      <strong class="font-headline text-[18px] font-bold" id="mobile-dash-outflow">-</strong>
+    </div>
+    <div class="mobile-dash-bento-card debt bg-card border border-bdr rounded-[20px] p-[16px] flex flex-col gap-[6px] shadow-[0_4px_12px_rgba(0,0,0,0.15)] text-tx">
+      <span class="text-[12px] font-label font-bold text-sub">หนี้สินรวม</span>
+      <strong class="font-headline text-[18px] font-bold text-tertiary" id="mobile-dash-debt">-</strong>
+    </div>
+  </div>
+  <div class="mobile-dash-toggle md:hidden flex gap-[8px] px-[16px] pb-[16px] overflow-x-auto hide-scrollbar" aria-label="เลือกมุมมองภาพรวมการเงิน">
+    <button class="on h-[36px] px-[16px] rounded-[18px] border border-bdr bg-bg text-sub font-label text-[13px] font-bold cursor-pointer whitespace-nowrap [&.on]:bg-card2 [&.on]:text-tx [&.on]:border-[#c7bfff40]" type="button" data-mobile-dash-tab="summary" onclick="switchMobileDashView('summary')">สรุป</button>
+    <button class="h-[36px] px-[16px] rounded-[18px] border border-bdr bg-bg text-sub font-label text-[13px] font-bold cursor-pointer whitespace-nowrap [&.on]:bg-card2 [&.on]:text-tx [&.on]:border-[#c7bfff40]" type="button" data-mobile-dash-tab="budget" onclick="switchMobileDashView('budget')">งบประมาณ</button>
+    <button class="h-[36px] px-[16px] rounded-[18px] border border-bdr bg-bg text-sub font-label text-[13px] font-bold cursor-pointer whitespace-nowrap [&.on]:bg-card2 [&.on]:text-tx [&.on]:border-[#c7bfff40]" type="button" data-mobile-dash-tab="analysis" onclick="switchMobileDashView('analysis')">วิเคราะห์</button>
+    <button class="h-[36px] px-[16px] rounded-[18px] border border-bdr bg-bg text-sub font-label text-[13px] font-bold cursor-pointer whitespace-nowrap [&.on]:bg-card2 [&.on]:text-tx [&.on]:border-[#c7bfff40]" type="button" data-mobile-dash-tab="recent" onclick="switchMobileDashView('recent')">รายการล่าสุด</button>
   </div>
   <div id="dash"></div>
 </div>
 
 <!-- INCOME -->
-<div class="pg" id="pg-inc">
-  <div class="inc-shell">
-    <div class="inc-main">
-      <div class="inc-entry-card inc-glass">
-        <div class="inc-amount-zone">
-          <label data-i18n="amount">จำนวนเงิน</label>
-          <div class="inc-amount-input">
-            <span>฿ </span>
-            <input class="amt-inp" id="i-amt" type="number" placeholder="0.00" inputmode="decimal">
+<!-- INCOME -->
+<div class="pg hidden [&.on]:block pt-[60px] md:pt-[72px] md:pl-[250px] min-h-screen w-full box-border" id="pg-inc">
+  <div class="inc-shell flex flex-col xl:flex-row gap-[24px] max-w-[1200px] mx-auto px-[16px] md:px-[32px] pb-[32px]">
+    <div class="inc-main flex-1 flex flex-col gap-[16px]">
+      <div class="inc-entry-card inc-glass bg-card border border-bdr rounded-[24px] shadow-[0_8px_24px_rgba(0,0,0,0.12)] p-[24px]">
+        <div class="inc-amount-zone flex flex-col gap-[4px] pb-[16px] border-b border-white/10 mb-[16px]">
+          <label class="text-[14px] font-bold text-sub" data-i18n="amount">จำนวนเงิน</label>
+          <div class="inc-amount-input flex items-baseline gap-[8px]">
+            <span class="font-headline text-[32px] font-bold text-tx">฿ </span>
+            <input class="amt-inp flex-1 bg-transparent border-none font-headline text-[48px] font-bold text-secondary focus:outline-none w-full placeholder:text-[#10b9814d]" id="i-amt" type="number" placeholder="0.00" inputmode="decimal">
           </div>
-          <div class="inc-quick-row">
-            <button type="button" onclick="document.getElementById('i-amt').value=(Number(document.getElementById('i-amt').value)||0)+1000">+ ฿ 1,000</button>
-            <button type="button" onclick="document.getElementById('i-amt').value=(Number(document.getElementById('i-amt').value)||0)+5000">+ ฿ 5,000</button>
+          <div class="inc-quick-row flex gap-[8px] mt-[12px]">
+            <button class="h-[32px] px-[16px] rounded-[16px] border border-bdr bg-bg text-secondary font-label text-[13px] font-bold cursor-pointer transition-colors hover:bg-secondary/10" type="button" onclick="document.getElementById('i-amt').value=(Number(document.getElementById('i-amt').value)||0)+1000">+ ฿ 1,000</button>
+            <button class="h-[32px] px-[16px] rounded-[16px] border border-bdr bg-bg text-secondary font-label text-[13px] font-bold cursor-pointer transition-colors hover:bg-secondary/10" type="button" onclick="document.getElementById('i-amt').value=(Number(document.getElementById('i-amt').value)||0)+5000">+ ฿ 5,000</button>
           </div>
         </div>
-        <div class="inc-meta-zone">
-          <div class="fld inc-field">
-            <label data-i18n="date">วันที่</label>
-            <input type="date" id="i-dt">
+        <div class="inc-meta-zone flex gap-[12px]">
+          <div class="fld inc-field flex-1 flex flex-col gap-[8px]">
+            <label class="text-[12px] font-bold text-tx tracking-wide" data-i18n="date">วันที่</label>
+            <input class="w-full h-[50px] bg-bg2 border border-bdr rounded-[12px] px-[16px] text-tx font-label text-[15px] focus:border-secondary focus:outline-none" type="date" id="i-dt">
           </div>
-          <div class="inc-field">
-            <label data-i18n="depositTo">รับเงินเข้าบัญชี</label>
-            <div class="inc-select-list" id="inch-chips"></div>
-              <button class="mobile-picker-trigger income-picker-trigger" id="mobile-inch-trigger" type="button" onclick="openMobilePicker('inc-ch')">
-              <span class="material-symbols-outlined">account_balance_wallet</span>
-              <strong>เลือกรับเงินเข้าบัญชี</strong>
-              <em id="mobile-inch-label">เลือกรับเงินเข้าบัญชี</em>
+          <div class="inc-field flex-1 flex flex-col gap-[8px]">
+            <label class="text-[12px] font-bold text-tx tracking-wide" data-i18n="depositTo">รับเงินเข้าบัญชี</label>
+            <div class="inc-select-list hidden md:flex flex-wrap gap-[8px]" id="inch-chips"></div>
+              <button class="mobile-picker-trigger income-picker-trigger md:hidden w-full h-[50px] bg-bg2 border border-bdr rounded-[12px] px-[16px] flex items-center justify-between text-left text-tx font-label text-[14px]" id="mobile-inch-trigger" type="button" onclick="openMobilePicker('inc-ch')">
+              <span class="material-symbols-outlined text-[20px] text-secondary">account_balance_wallet</span>
+              <strong class="flex-1 ml-[10px]">เลือกรับเงินเข้าบัญชี</strong>
+              <em class="not-italic text-sub" id="mobile-inch-label">เลือกรับเงินเข้าบัญชี</em>
             </button>
           </div>
         </div>
       </div>
-      <div class="inc-form-grid">
-        <div class="inc-glass inc-panel">
-          <div class="inc-card-title" data-i18n="incomeSource">ที่มาของรายรับ</div>
-          <div class="inc-category-grid" id="incc-chips"></div>
-              <button class="mobile-picker-trigger income-picker-trigger" id="mobile-incc-trigger" type="button" onclick="openMobilePicker('inc-cat')">
-            <span class="material-symbols-outlined">work</span>
-            <strong>เลือกหมวดรายรับ</strong>
-            <em id="mobile-incc-label">เลือกหมวดรายรับ</em>
+      <div class="inc-form-grid grid grid-cols-1 md:grid-cols-2 gap-[16px]">
+        <div class="inc-glass inc-panel bg-card border border-bdr rounded-[24px] shadow-[0_8px_24px_rgba(0,0,0,0.12)] p-[24px]">
+          <div class="inc-card-title font-headline text-[16px] font-bold text-tx mb-[16px]" data-i18n="incomeSource">ที่มาของรายรับ</div>
+          <div class="inc-category-grid hidden md:flex flex-wrap gap-[8px]" id="incc-chips"></div>
+              <button class="mobile-picker-trigger income-picker-trigger md:hidden w-full h-[50px] bg-bg2 border border-bdr rounded-[12px] px-[16px] flex items-center justify-between text-left text-tx font-label text-[14px]" id="mobile-incc-trigger" type="button" onclick="openMobilePicker('inc-cat')">
+            <span class="material-symbols-outlined text-[20px] text-secondary">work</span>
+            <strong class="flex-1 ml-[10px]">เลือกหมวดรายรับ</strong>
+            <em class="not-italic text-sub" id="mobile-incc-label">เลือกหมวดรายรับ</em>
           </button>
         </div>
-        <div class="inc-glass inc-panel">
-          <div class="fld inc-field">
-            <label data-i18n="note">บันทึกช่วยจำ</label>
-            <textarea id="i-det" placeholder="เช่น เงินเดือน, โบนัส..."></textarea>
+        <div class="inc-glass inc-panel bg-card border border-bdr rounded-[24px] shadow-[0_8px_24px_rgba(0,0,0,0.12)] p-[24px] flex flex-col gap-[16px]">
+          <div class="fld inc-field flex flex-col gap-[8px]">
+            <label class="text-[12px] font-bold text-tx tracking-wide" data-i18n="note">บันทึกช่วยจำ</label>
+            <textarea class="w-full bg-bg2 border border-bdr rounded-[12px] p-[16px] text-tx font-label text-[14px] focus:border-secondary focus:outline-none min-h-[80px] resize-y" id="i-det" placeholder="เช่น เงินเดือน, โบนัส..."></textarea>
           </div>
-          <div class="payers inc-payers inc-receiver-field" id="py-chips">
-            <div class="payer" id="ip-j" onclick="selIP('เจ')"><div class="av">จ</div><div class="nm">เจ</div><div class="rl">คุณ</div></div>
-            <div class="payer" id="ip-f" onclick="selIP('แฟง')"><div class="av">ฟ</div><div class="nm">แฟง</div><div class="rl">แฟน</div></div>
+          <div class="payers inc-payers inc-receiver-field flex gap-[12px] mt-auto" id="py-chips">
+            <div class="payer flex-1 flex flex-col items-center gap-[6px] p-[12px] rounded-[12px] border border-bdr bg-bg cursor-pointer transition-colors [&.on]:border-secondary [&.on]:bg-[#10b98114]" id="ip-j" onclick="selIP('เจ')"><div class="av w-[40px] h-[40px] rounded-full bg-card2 flex items-center justify-center font-headline font-bold text-[16px] text-sub">จ</div><div class="nm font-label text-[13px] font-bold text-tx">เจ</div><div class="rl font-label text-[11px] text-sub">คุณ</div></div>
+            <div class="payer flex-1 flex flex-col items-center gap-[6px] p-[12px] rounded-[12px] border border-bdr bg-bg cursor-pointer transition-colors [&.on]:border-secondary [&.on]:bg-[#10b98114]" id="ip-f" onclick="selIP('แฟง')"><div class="av w-[40px] h-[40px] rounded-full bg-card2 flex items-center justify-center font-headline font-bold text-[16px] text-sub">ฟ</div><div class="nm font-label text-[13px] font-bold text-tx">แฟง</div><div class="rl font-label text-[11px] text-sub">แฟน</div></div>
           </div>
         </div>
       </div>
-      <div class="inc-actions">
-        <button class="btn-sm" type="button" onclick="document.getElementById('i-amt').value='';document.getElementById('i-det').value='';document.getElementById('i-dt').value=today()" data-i18n="cancel">ยกเลิก</button>
-        <button class="btn-go green" onclick="submitInc()" data-i18n="saveIncome">บันทึกรายรับ</button>
+      <div class="inc-actions flex gap-[12px] pt-[8px] md:pt-[16px]">
+        <button class="btn-sm flex-1 max-w-[120px] h-[52px] rounded-[14px] border border-bdr bg-card2 text-tx font-label text-[15px] font-bold cursor-pointer transition-colors hover:bg-white/5" type="button" onclick="document.getElementById('i-amt').value='';document.getElementById('i-det').value='';document.getElementById('i-dt').value=today()" data-i18n="cancel">ยกเลิก</button>
+        <button class="btn-go green flex-1 h-[52px] rounded-[14px] border-none bg-secondary text-white font-label text-[15px] font-bold cursor-pointer transition-transform active:scale-95 shadow-[0_4px_12px_rgba(16,185,129,0.3)]" onclick="submitInc()" data-i18n="saveIncome">บันทึกรายรับ</button>
       </div>
     </div>
-    <aside class="inc-side" id="inc-sum"></aside>
+    <aside class="inc-side xl:w-[320px] flex-shrink-0 bg-card border border-bdr rounded-[24px] p-[24px] flex flex-col gap-[16px] h-fit" id="inc-sum"></aside>
   </div>
 </div>
 
 <!-- SETTINGS -->
-<div class="pg" id="pg-set">
-  <header class="set-head">
-    <div>
-      <h1 data-i18n="settings">ตั้งค่า</h1>
-      <p data-i18n="settingsIntro">จัดการบัญชี ความปลอดภัย และการแชร์ข้อมูลครอบครัว</p>
+<div class="pg hidden [&.on]:block pt-[60px] md:pt-[72px] md:pl-[250px] min-h-screen w-full box-border" id="pg-set">
+  <header class="set-head hidden md:flex justify-between items-end p-[32px] max-w-[1200px] mx-auto border-b border-white/10">
+    <div class="flex flex-col gap-[8px]">
+      <h1 class="font-headline text-[28px] font-bold text-tx m-0" data-i18n="settings">ตั้งค่า</h1>
+      <p class="font-label text-[14px] text-sub m-0" data-i18n="settingsIntro">จัดการบัญชี ความปลอดภัย และการแชร์ข้อมูลครอบครัว</p>
     </div>
-    <button class="set-export-top" type="button" onclick="exportCSV('expense')"><span class="material-symbols-outlined">download</span><span data-i18n="exportData">ดาวน์โหลดข้อมูล</span></button>
+    <button class="set-export-top h-[36px] px-[16px] rounded-[18px] border border-bdr bg-card2 text-tx font-label text-[13px] font-bold cursor-pointer flex items-center gap-[6px] transition-colors hover:bg-white/5" type="button" onclick="exportCSV('expense')"><span class="material-symbols-outlined text-[16px]">download</span><span data-i18n="exportData">ดาวน์โหลดข้อมูล</span></button>
   </header>
-  <div class="set-grid">
-    <section class="set-card set-profile-card">
-      <div class="set-avatar-wrap">
-        <div class="set-avatar">BX</div>
-        <button class="set-avatar-edit" type="button" onclick="pickSettingsAvatar()">EDIT</button>
+  <div class="set-grid hidden md:grid grid-cols-1 md:grid-cols-2 gap-[24px] max-w-[1200px] mx-auto p-[24px_32px_48px]">
+    <section class="set-card set-profile-card bg-card border border-bdr rounded-[24px] p-[24px] shadow-[0_8px_24px_rgba(0,0,0,0.12)] flex gap-[24px]">
+      <div class="set-avatar-wrap relative w-[80px] h-[80px] flex-shrink-0">
+        <div class="set-avatar w-full h-full rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center font-headline text-[24px] font-bold text-white shadow-[0_4px_12px_rgba(76,53,196,0.3)]">BX</div>
+        <button class="set-avatar-edit absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 bg-card2 border border-bdr rounded-[12px] px-[10px] py-[2px] font-label text-[10px] font-bold text-tx cursor-pointer transition-colors hover:text-primary" type="button" onclick="pickSettingsAvatar()">EDIT</button>
         <input id="set-avatar-file" type="file" accept="image/*" hidden onchange="saveSettingsAvatar(this)">
       </div>
-      <div class="set-profile-body">
-        <h2 id="set-profile-name">-</h2>
-        <div class="set-profile-meta">
-          <span class="set-pill">JOINT MODE</span>
-          <p id="set-user">-</p>
+      <div class="set-profile-body flex-1 flex flex-col gap-[12px]">
+        <h2 class="font-headline text-[20px] font-bold text-tx m-0" id="set-profile-name">-</h2>
+        <div class="set-profile-meta flex items-center gap-[8px]">
+          <span class="set-pill text-[10px] font-bold text-primary bg-primary/10 px-[8px] py-[2px] rounded-[6px] tracking-wider">JOINT MODE</span>
+          <p class="font-label text-[13px] text-sub m-0" id="set-user">-</p>
         </div>
-        <div class="set-field-grid">
-          <label class="set-field">
-            <span data-i18n="primaryContact">ข้อมูลติดต่อหลัก</span>
-            <input type="text" value="+66" readonly>
+        <div class="set-field-grid grid grid-cols-1 sm:grid-cols-2 gap-[12px] mt-[12px]">
+          <label class="set-field flex flex-col gap-[6px]">
+            <span class="text-[11px] font-label font-bold text-sub" data-i18n="primaryContact">ข้อมูลติดต่อหลัก</span>
+            <input class="w-full h-[40px] bg-bg2 border border-bdr rounded-[10px] px-[12px] text-tx font-label text-[13px] opacity-70 pointer-events-none" type="text" value="+66" readonly>
           </label>
-          <label class="set-field">
-            <span data-i18n="connection">การเชื่อมต่อ</span>
-            <input type="text" value="BridgeX.Wallet" readonly>
+          <label class="set-field flex flex-col gap-[6px]">
+            <span class="text-[11px] font-label font-bold text-sub" data-i18n="connection">การเชื่อมต่อ</span>
+            <input class="w-full h-[40px] bg-bg2 border border-bdr rounded-[10px] px-[12px] text-tx font-label text-[13px] opacity-70 pointer-events-none" type="text" value="BridgeX.Wallet" readonly>
           </label>
         </div>
-        <div class="set-action-row">
-          <button type="button">เปลี่ยนรหัสผ่าน</button>
-          <button type="button">ตั้งค่า 2FA</button>
+        <div class="set-action-row flex gap-[8px] mt-[8px]">
+          <button class="h-[32px] px-[12px] rounded-[8px] border border-bdr bg-card2 text-tx font-label text-[12px] font-bold cursor-pointer transition-colors hover:bg-white/5" type="button">เปลี่ยนรหัสผ่าน</button>
+          <button class="h-[32px] px-[12px] rounded-[8px] border border-bdr bg-card2 text-tx font-label text-[12px] font-bold cursor-pointer transition-colors hover:bg-white/5" type="button">ตั้งค่า 2FA</button>
         </div>
       </div>
     </section>
 
-    <section class="set-card set-plan-card">
-      <div class="set-card-head">
-        <span data-i18n="currentPlan">แพ็กเกจปัจจุบัน</span>
-        <span class="material-symbols-outlined">workspace_premium</span>
+    <section class="set-card set-plan-card bg-card border border-bdr rounded-[24px] p-[24px] shadow-[0_8px_24px_rgba(0,0,0,0.12)] flex flex-col items-center justify-center text-center gap-[12px] relative overflow-hidden before:content-[''] before:absolute before:inset-0 before:bg-[linear-gradient(135deg,rgba(76,53,196,0.1),transparent)] before:pointer-events-none">
+      <div class="set-card-head w-full flex justify-between items-center z-10">
+        <span class="text-[12px] font-label font-bold text-sub tracking-wider" data-i18n="currentPlan">แพ็กเกจปัจจุบัน</span>
+        <span class="material-symbols-outlined text-[20px] text-secondary">workspace_premium</span>
       </div>
-      <h2>Pro 109฿</h2>
-      <div class="set-subscription" id="set-subscription">-</div>
-      <ul>
-        <li><span class="material-symbols-outlined">check_circle</span> สมาชิกครอบครัวไม่จำกัด</li>
-        <li><span class="material-symbols-outlined">check_circle</span> ดาวน์โหลดข้อมูล CSV</li>
-        <li><span class="material-symbols-outlined">check_circle</span> วางแผนหนี้อัจฉริยะ</li>
+      <h2 class="font-headline text-[32px] font-bold text-tx m-0 z-10">Pro 109฿</h2>
+      <div class="set-subscription text-[13px] text-sub font-label z-10" id="set-subscription">-</div>
+      <ul class="list-none p-0 m-0 my-[8px] flex flex-col gap-[6px] text-left z-10">
+        <li class="flex items-center gap-[8px] text-[13px] font-label text-tx"><span class="material-symbols-outlined text-[16px] text-primary">check_circle</span> สมาชิกครอบครัวไม่จำกัด</li>
+        <li class="flex items-center gap-[8px] text-[13px] font-label text-tx"><span class="material-symbols-outlined text-[16px] text-primary">check_circle</span> ดาวน์โหลดข้อมูล CSV</li>
+        <li class="flex items-center gap-[8px] text-[13px] font-label text-tx"><span class="material-symbols-outlined text-[16px] text-primary">check_circle</span> วางแผนหนี้อัจฉริยะ</li>
       </ul>
-      <button type="button" data-i18n="managePlan">จัดการแพ็กเกจ</button>
+      <button class="mt-auto h-[40px] px-[20px] rounded-[12px] border-none bg-primary text-white font-label text-[14px] font-bold cursor-pointer transition-transform active:scale-95 shadow-[0_4px_12px_rgba(76,53,196,0.3)] z-10" type="button" data-i18n="managePlan">จัดการแพ็กเกจ</button>
     </section>
 
-    <section class="set-card set-family-card">
-      <div class="set-section-head">
+    <section class="set-card set-family-card md:col-span-2 bg-card border border-bdr rounded-[24px] p-[24px] shadow-[0_8px_24px_rgba(0,0,0,0.12)]">
+      <div class="set-section-head flex justify-between items-end mb-[24px] pb-[16px] border-b border-white/10">
+        <div class="flex flex-col gap-[4px]">
+          <h2 class="font-headline text-[18px] font-bold text-tx m-0 flex items-center gap-[8px]"><span class="material-symbols-outlined text-[20px] text-primary">diversity_3</span><span data-i18n="jointWealthMode">แชร์บัญชีครอบครัว</span></h2>
+          <p class="font-label text-[13px] text-sub m-0" data-i18n="familyHelp">จัดการสมาชิกและข้อมูลการเงินที่แชร์ร่วมกัน</p>
+        </div>
+        <div class="set-family-id flex flex-col gap-[4px] items-end">
+          <label class="text-[11px] font-label font-bold text-sub">Family ID</label>
+          <div class="flex items-center gap-[8px]">
+          <input class="h-[36px] bg-bg2 border border-bdr rounded-[8px] px-[12px] text-tx font-label text-[13px] font-bold w-[120px] text-center pointer-events-none" id="family-id-view" type="text" readonly value="">
+          <button class="set-copy-btn w-[36px] h-[36px] rounded-[8px] border border-bdr bg-card2 text-sub flex items-center justify-center cursor-pointer transition-colors hover:text-tx hover:bg-white/5" type="button" onclick="copyFamilyId()" aria-label="คัดลอก Family ID"><span class="material-symbols-outlined text-[16px]">content_copy</span></button>
+          </div>
+        </div>
+      </div>
+      <div class="set-family-body flex flex-col gap-[24px]">
         <div>
-          <h2><span class="material-symbols-outlined">diversity_3</span><span data-i18n="jointWealthMode">แชร์บัญชีครอบครัว</span></h2>
-          <p data-i18n="familyHelp">จัดการสมาชิกและข้อมูลการเงินที่แชร์ร่วมกัน</p>
-        </div>
-        <div class="set-family-id">
-          <label>Family ID</label>
-          <input id="family-id-view" type="text" readonly value="">
-          <button class="set-copy-btn" type="button" onclick="copyFamilyId()" aria-label="คัดลอก Family ID"><span class="material-symbols-outlined">content_copy</span></button>
-        </div>
-      </div>
-      <div class="set-family-body">
-        <div>
-          <div class="set-members" id="set-members-list"></div>
-          <div class="set-join-row">
-            <input id="join-family-id" type="text" placeholder="กรอก Family ID">
-            <button type="button" onclick="joinFamily()"><span class="material-symbols-outlined">group_add</span><span data-i18n="addMember">เพิ่มสมาชิก</span></button>
+          <div class="set-members flex flex-col gap-[12px]" id="set-members-list"></div>
+          <div class="set-join-row flex items-center gap-[8px] mt-[16px] pt-[16px] border-t border-white/5">
+            <input class="flex-1 h-[44px] bg-bg2 border border-bdr rounded-[12px] px-[16px] text-tx font-label text-[14px] focus:border-primary focus:outline-none" id="join-family-id" type="text" placeholder="กรอก Family ID">
+            <button class="h-[44px] px-[16px] rounded-[12px] border-none bg-primary/10 text-primary font-label text-[14px] font-bold cursor-pointer flex items-center gap-[6px] transition-colors hover:bg-primary/20" type="button" onclick="joinFamily()"><span class="material-symbols-outlined text-[18px]">group_add</span><span data-i18n="addMember">เพิ่มสมาชิก</span></button>
           </div>
         </div>
-        <div class="set-sync-options">
-          <div>
-            <div><strong data-i18n="realtimeSync">อัปเดตข้อมูลทันที</strong><small>แชร์ยอดคงเหลือระหว่างสมาชิก</small></div>
-            <span class="set-toggle on"><i></i></span>
+        <div class="set-sync-options flex gap-[24px] pt-[16px] border-t border-white/10">
+          <div class="flex items-center justify-between flex-1">
+            <div class="flex flex-col"><strong class="font-label text-[14px] font-bold text-tx" data-i18n="realtimeSync">อัปเดตข้อมูลทันที</strong><small class="font-label text-[11px] text-sub">แชร์ยอดคงเหลือระหว่างสมาชิก</small></div>
+            <span class="set-toggle on relative w-[44px] h-[24px] bg-bg2 border border-bdr rounded-[12px] cursor-pointer transition-colors [&.on]:bg-primary [&.on]:border-primary"><i></i></span>
           </div>
-          <div>
-            <div><strong data-i18n="transactionAlerts">แจ้งเตือนรายการ</strong><small>แจ้งเมื่อมีรายการยอดสูง</small></div>
-            <span class="set-toggle"><i></i></span>
+          <div class="flex items-center justify-between flex-1">
+            <div class="flex flex-col"><strong class="font-label text-[14px] font-bold text-tx" data-i18n="transactionAlerts">แจ้งเตือนรายการ</strong><small class="font-label text-[11px] text-sub">แจ้งเมื่อมีรายการยอดสูง</small></div>
+            <span class="set-toggle relative w-[44px] h-[24px] bg-bg2 border border-bdr rounded-[12px] cursor-pointer transition-colors [&.on]:bg-primary [&.on]:border-primary"><i></i></span>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="set-card set-pref-card">
-      <h2><span class="material-symbols-outlined">tune</span><span data-i18n="preferences">การตั้งค่าทั่วไป</span></h2>
-      <div class="set-pref-row">
-        <div><strong data-i18n="theme">ธีม</strong><small data-i18n="appearance">รูปแบบหน้าจอ</small></div>
-        <div class="set-segment">
-          <button type="button" data-theme-choice="dark" onclick="setTheme('dark')">Dark</button>
-          <button type="button" data-theme-choice="light" onclick="setTheme('light')">Light</button>
+    <section class="set-card set-pref-card bg-card border border-bdr rounded-[24px] p-[24px] shadow-[0_8px_24px_rgba(0,0,0,0.12)] flex flex-col gap-[16px]">
+      <h2 class="font-headline text-[18px] font-bold text-tx m-0 mb-[8px] flex items-center gap-[8px] pb-[16px] border-b border-white/10"><span class="material-symbols-outlined text-[20px] text-primary">tune</span><span data-i18n="preferences">การตั้งค่าทั่วไป</span></h2>
+      <div class="set-pref-row flex items-center justify-between pb-[16px] border-b border-white/5">
+        <div class="flex flex-col"><strong class="font-label text-[14px] font-bold text-tx" data-i18n="theme">ธีม</strong><small class="font-label text-[11px] text-sub" data-i18n="appearance">รูปแบบหน้าจอ</small></div>
+        <div class="set-segment flex bg-bg2 border border-bdr rounded-[10px] p-[4px] h-[36px]">
+          <button class="flex-1 px-[12px] rounded-[6px] border-none bg-transparent font-label text-[12px] font-bold text-sub cursor-pointer transition-colors [&.on]:bg-card [&.on]:text-tx [&.on]:shadow-[0_2px_8px_rgba(0,0,0,0.15)]" type="button" data-theme-choice="dark" onclick="setTheme('dark')">Dark</button>
+          <button class="flex-1 px-[12px] rounded-[6px] border-none bg-transparent font-label text-[12px] font-bold text-sub cursor-pointer transition-colors [&.on]:bg-card [&.on]:text-tx [&.on]:shadow-[0_2px_8px_rgba(0,0,0,0.15)]" type="button" data-theme-choice="light" onclick="setTheme('light')">Light</button>
         </div>
       </div>
-      <div class="set-pref-row">
-        <div><strong data-i18n="baseCurrency">สกุลเงินหลัก</strong><small>ค่าเริ่มต้นสำหรับรายงาน</small></div>
-        <select aria-label="สกุลเงินหลัก"><option>THB (฿)</option><option>USD ($)</option></select>
+      <div class="set-pref-row flex items-center justify-between pb-[16px] border-b border-white/5">
+        <div class="flex flex-col"><strong class="font-label text-[14px] font-bold text-tx" data-i18n="baseCurrency">สกุลเงินหลัก</strong><small class="font-label text-[11px] text-sub">ค่าเริ่มต้นสำหรับรายงาน</small></div>
+        <select class="h-[36px] bg-bg2 border border-bdr rounded-[10px] px-[12px] text-tx font-label text-[13px] focus:outline-none focus:border-primary" aria-label="สกุลเงินหลัก"><option>THB (฿)</option><option>USD ($)</option></select>
       </div>
-      <div class="set-pref-row">
-        <div><strong data-i18n="language">ภาษา</strong><small>ภาษาที่แสดงในแอป</small></div>
-        <select id="language-select" onchange="setLanguage(this.value)"><option value="th">ไทย</option><option value="en">English</option></select>
+      <div class="set-pref-row flex items-center justify-between pb-[16px] border-b border-white/5">
+        <div class="flex flex-col"><strong class="font-label text-[14px] font-bold text-tx" data-i18n="language">ภาษา</strong><small class="font-label text-[11px] text-sub">ภาษาที่แสดงในแอป</small></div>
+        <select class="h-[36px] bg-bg2 border border-bdr rounded-[10px] px-[12px] text-tx font-label text-[13px] focus:outline-none focus:border-primary" id="language-select" onchange="setLanguage(this.value)"><option value="th">ไทย</option><option value="en">English</option></select>
       </div>
-      <div class="set-stats-wrap">
-        <h3>สรุปการใช้งาน</h3>
-        <div id="set-stats"></div>
+      <div class="set-stats-wrap mt-[8px]">
+        <h3 class="font-headline text-[14px] font-bold text-tx mb-[12px]">สรุปการใช้งาน</h3>
+        <div class="grid grid-cols-2 gap-[12px]" id="set-stats"></div>
       </div>
-      <div class="set-budget-wrap">
-        <h3>งบประมาณรายเดือน</h3>
-        <div id="budget-settings"></div>
-        <button type="button" onclick="saveBudgets()">บันทึกงบประมาณ</button>
+      <div class="set-budget-wrap mt-[8px] pt-[16px] border-t border-white/10">
+        <h3 class="font-headline text-[14px] font-bold text-tx mb-[12px]">งบประมาณรายเดือน</h3>
+        <div class="flex flex-col gap-[12px] mb-[16px]" id="budget-settings"></div>
+        <button class="h-[40px] px-[16px] rounded-[12px] border border-primary/50 bg-primary/10 text-primary font-label text-[13px] font-bold cursor-pointer transition-colors hover:bg-primary/20 w-full" type="button" onclick="saveBudgets()">บันทึกงบประมาณ</button>
       </div>
     </section>
 
-    <section class="set-card set-security-card">
-      <h2><span class="material-symbols-outlined">shield</span><span data-i18n="dataSecurity">ความปลอดภัยของข้อมูล</span></h2>
-      <div class="set-secure-box">
-        <span class="material-symbols-outlined">verified_user</span>
-        <div><strong>PDPA Compliant</strong><p>ข้อมูลของคุณถูกเข้ารหัสและไม่ถูกแชร์กับบุคคลภายนอก</p></div>
-      </div>
-      <div class="set-cache-actions">
-        <button type="button" onclick="clearLocal('expense')">ล้างแคชรายจ่าย</button>
-        <button type="button" onclick="clearLocal('all')">ล้างแคชทั้งหมด</button>
-      </div>
-      <button class="set-danger" type="button" onclick="deleteAccountAndData()"><span class="material-symbols-outlined">delete_forever</span>ลบบัญชีถาวร</button>
-    </section>
+    <div class="flex flex-col gap-[24px]">
+      <section class="set-card set-security-card bg-card border border-bdr rounded-[24px] p-[24px] shadow-[0_8px_24px_rgba(0,0,0,0.12)] flex flex-col gap-[16px]">
+        <h2 class="font-headline text-[18px] font-bold text-tx m-0 mb-[8px] flex items-center gap-[8px] pb-[16px] border-b border-white/10"><span class="material-symbols-outlined text-[20px] text-primary">shield</span><span data-i18n="dataSecurity">ความปลอดภัยของข้อมูล</span></h2>
+        <div class="set-secure-box bg-secondary/10 border border-secondary/20 rounded-[16px] p-[16px] flex items-start gap-[12px]">
+          <span class="material-symbols-outlined text-[24px] text-secondary mt-[2px]">verified_user</span>
+          <div class="flex flex-col gap-[4px]"><strong class="font-label text-[14px] font-bold text-tx">PDPA Compliant</strong><p class="font-label text-[12px] text-sub m-0 leading-[1.4]">ข้อมูลของคุณถูกเข้ารหัสและไม่ถูกแชร์กับบุคคลภายนอก</p></div>
+        </div>
+        <div class="set-cache-actions flex gap-[12px]">
+          <button class="flex-1 h-[40px] rounded-[12px] border border-bdr bg-card2 text-tx font-label text-[13px] font-bold cursor-pointer transition-colors hover:bg-white/5" type="button" onclick="clearLocal('expense')">ล้างแคชรายจ่าย</button>
+          <button class="flex-1 h-[40px] rounded-[12px] border border-bdr bg-card2 text-tx font-label text-[13px] font-bold cursor-pointer transition-colors hover:bg-white/5" type="button" onclick="clearLocal('all')">ล้างแคชทั้งหมด</button>
+        </div>
+        <button class="set-danger mt-[8px] h-[40px] rounded-[12px] border border-red-500/30 bg-red-500/10 text-red-500 font-label text-[13px] font-bold cursor-pointer flex items-center justify-center gap-[6px] transition-colors hover:bg-red-500/20" type="button" onclick="deleteAccountAndData()"><span class="material-symbols-outlined text-[16px]">delete_forever</span>ลบบัญชีถาวร</button>
+      </section>
 
-    <section class="set-card set-export-card">
-      <h2><span class="material-symbols-outlined">download</span><span data-i18n="exportData">ดาวน์โหลดข้อมูล</span></h2>
-      <div class="set-export-grid">
-        <button id="export-expense" type="button" onclick="exportCSV('expense')"><span class="material-symbols-outlined">receipt_long</span><strong>รายจ่าย</strong><small>ส่งออกเป็น CSV</small></button>
-        <button id="export-income" type="button" onclick="exportCSV('income')"><span class="material-symbols-outlined">account_balance_wallet</span><strong>รายรับ</strong><small>ส่งออกเป็น CSV</small></button>
-        <button id="export-credit" type="button" onclick="exportCSV('credit')"><span class="material-symbols-outlined">credit_card</span><strong>บัตรและสินเชื่อ</strong><small>ส่งออกเป็น CSV</small></button>
-      </div>
-    </section>
-    <div class="set-version">App Version 4.1.2 • DB: Supabase • Hosted on Vercel</div>
+      <section class="set-card set-export-card bg-card border border-bdr rounded-[24px] p-[24px] shadow-[0_8px_24px_rgba(0,0,0,0.12)]">
+        <h2 class="font-headline text-[18px] font-bold text-tx m-0 mb-[16px] flex items-center gap-[8px] pb-[16px] border-b border-white/10"><span class="material-symbols-outlined text-[20px] text-primary">download</span><span data-i18n="exportData">ดาวน์โหลดข้อมูล</span></h2>
+        <div class="set-export-grid flex flex-col gap-[12px]">
+          <button class="h-[60px] rounded-[16px] border border-bdr bg-bg text-left p-[0_16px] flex items-center gap-[12px] cursor-pointer transition-colors hover:bg-card2 hover:border-white/20" id="export-expense" type="button" onclick="exportCSV('expense')"><span class="material-symbols-outlined text-[24px] text-primary">receipt_long</span><div class="flex flex-col flex-1"><strong class="font-label text-[14px] font-bold text-tx">รายจ่าย</strong><small class="font-label text-[11px] text-sub">ส่งออกเป็น CSV</small></div></button>
+          <button class="h-[60px] rounded-[16px] border border-bdr bg-bg text-left p-[0_16px] flex items-center gap-[12px] cursor-pointer transition-colors hover:bg-card2 hover:border-white/20" id="export-income" type="button" onclick="exportCSV('income')"><span class="material-symbols-outlined text-[24px] text-secondary">account_balance_wallet</span><div class="flex flex-col flex-1"><strong class="font-label text-[14px] font-bold text-tx">รายรับ</strong><small class="font-label text-[11px] text-sub">ส่งออกเป็น CSV</small></div></button>
+          <button class="h-[60px] rounded-[16px] border border-bdr bg-bg text-left p-[0_16px] flex items-center gap-[12px] cursor-pointer transition-colors hover:bg-card2 hover:border-white/20" id="export-credit" type="button" onclick="exportCSV('credit')"><span class="material-symbols-outlined text-[24px] text-tertiary">credit_card</span><div class="flex flex-col flex-1"><strong class="font-label text-[14px] font-bold text-tx">บัตรและสินเชื่อ</strong><small class="font-label text-[11px] text-sub">ส่งออกเป็น CSV</small></div></button>
+        </div>
+      </section>
+      <div class="set-version text-center font-label text-[11px] text-sub/50 mt-[8px]">App Version 4.1.2 • DB: Supabase • Hosted on Vercel</div>
+    </div>
   </div>
-  <div class="set-hub">
-    <div class="set-hub-profile">
-      <div class="set-avatar">BX</div>
-      <div>
-        <div class="set-hub-name">บัญชี BridgeX</div>
-        <div>เมนูและการตั้งค่า</div>
+  <div class="set-hub block md:hidden p-[16px] pb-[100px] flex flex-col gap-[24px]">
+    <div class="set-hub-profile bg-card border border-bdr rounded-[24px] p-[24px] shadow-[0_4px_16px_rgba(0,0,0,0.15)] flex items-center gap-[16px] relative overflow-hidden before:content-[''] before:absolute before:inset-0 before:bg-[linear-gradient(135deg,rgba(76,53,196,0.15),transparent)] before:pointer-events-none">
+      <div class="set-avatar w-[56px] h-[56px] rounded-full bg-gradient-to-br from-primary to-secondary text-white flex items-center justify-center font-headline text-[20px] font-bold shadow-[0_8px_16px_rgba(0,0,0,0.2)] z-10">BX</div>
+      <div class="z-10 flex flex-col gap-[4px]">
+        <div class="set-hub-name font-headline text-[18px] font-bold text-tx m-0">บัญชี BridgeX</div>
+        <div class="font-label text-[13px] text-sub m-0">เมนูและการตั้งค่า</div>
       </div>
     </div>
 
-    <div class="set-hub-section">
-      <div class="set-hub-label">รายการ</div>
-      <button class="set-hub-item" onclick="goTab('hist',document.querySelector('.tbtn[onclick*=hist]'))">
-        <span class="material-symbols-outlined">history</span> ประวัติย้อนหลัง
-        <span class="set-hub-chev">›</span>
+    <div class="set-hub-section flex flex-col gap-[8px]">
+      <div class="set-hub-label font-label text-[12px] font-bold text-sub px-[12px]">รายการ</div>
+      <button class="set-hub-item w-full h-[60px] bg-card border border-white/5 rounded-[16px] px-[20px] flex items-center text-tx font-label text-[14px] font-bold cursor-pointer transition-transform active:scale-[0.98] shadow-[0_2px_8px_rgba(0,0,0,0.1)] gap-[16px]" onclick="goTab('hist',document.querySelector('.tbtn[onclick*=hist]'))">
+        <span class="material-symbols-outlined text-[24px] text-primary">history</span> ประวัติย้อนหลัง
+        <span class="set-hub-chev ml-auto text-[20px] text-sub/50 font-normal">›</span>
       </button>
-      <button class="set-hub-item" onclick="exportCSV('expense')">
-        <span class="material-symbols-outlined">download</span> ส่งออกข้อมูล CSV
-        <span class="set-hub-chev">›</span>
-      </button>
-    </div>
-
-    <div class="set-hub-section">
-      <div class="set-hub-label">ตั้งค่าการใช้งาน</div>
-      <button class="set-hub-item" type="button" onclick="document.getElementById('pg-set').classList.remove('on');document.getElementById('pg-account-family-mobile').classList.add('on');renderAccountFamilyMobile()">
-        <span class="material-symbols-outlined">manage_accounts</span> บัญชีและครอบครัว
-        <span class="set-hub-chev">›</span>
-      </button>
-      <button class="set-hub-item" type="button" onclick="openBudgetManager()">
-        <span class="material-symbols-outlined">account_balance_wallet</span> จัดการงบประมาณ
-        <span class="set-hub-chev">›</span>
-      </button>
-      <button class="set-hub-item" onclick="">
-        <span class="material-symbols-outlined">category</span> จัดการหมวดหมู่
-        <span class="set-hub-chev">›</span>
-      </button>
-      <button class="set-hub-item" onclick="">
-        <span class="material-symbols-outlined">credit_card</span> จัดการบัตรเครดิต
-        <span class="set-hub-chev">›</span>
+      <button class="set-hub-item w-full h-[60px] bg-card border border-white/5 rounded-[16px] px-[20px] flex items-center text-tx font-label text-[14px] font-bold cursor-pointer transition-transform active:scale-[0.98] shadow-[0_2px_8px_rgba(0,0,0,0.1)] gap-[16px]" onclick="exportCSV('expense')">
+        <span class="material-symbols-outlined text-[24px] text-primary">download</span> ส่งออกข้อมูล CSV
+        <span class="set-hub-chev ml-auto text-[20px] text-sub/50 font-normal">›</span>
       </button>
     </div>
 
-    <div class="set-hub-section">
-      <div class="set-hub-label">อื่นๆ</div>
-      <button class="set-hub-item" onclick="toggleTheme()">
-        <span class="material-symbols-outlined">dark_mode</span> ธีม
-        <span class="set-hub-chev">›</span>
+    <div class="set-hub-section flex flex-col gap-[8px]">
+      <div class="set-hub-label font-label text-[12px] font-bold text-sub px-[12px]">ตั้งค่าการใช้งาน</div>
+      <button class="set-hub-item w-full h-[60px] bg-card border border-white/5 rounded-[16px] px-[20px] flex items-center text-tx font-label text-[14px] font-bold cursor-pointer transition-transform active:scale-[0.98] shadow-[0_2px_8px_rgba(0,0,0,0.1)] gap-[16px]" type="button" onclick="document.getElementById('pg-set').classList.remove('on');document.getElementById('pg-account-family-mobile').classList.add('on');renderAccountFamilyMobile()">
+        <span class="material-symbols-outlined text-[24px] text-primary">manage_accounts</span> บัญชีและครอบครัว
+        <span class="set-hub-chev ml-auto text-[20px] text-sub/50 font-normal">›</span>
       </button>
-      <button class="set-hub-item danger" onclick="doLogout()">
-        <span class="material-symbols-outlined">logout</span> ออกจากระบบ
+      <button class="set-hub-item w-full h-[60px] bg-card border border-white/5 rounded-[16px] px-[20px] flex items-center text-tx font-label text-[14px] font-bold cursor-pointer transition-transform active:scale-[0.98] shadow-[0_2px_8px_rgba(0,0,0,0.1)] gap-[16px]" type="button" onclick="openBudgetManager()">
+        <span class="material-symbols-outlined text-[24px] text-primary">account_balance_wallet</span> จัดการงบประมาณ
+        <span class="set-hub-chev ml-auto text-[20px] text-sub/50 font-normal">›</span>
+      </button>
+      <button class="set-hub-item w-full h-[60px] bg-card border border-white/5 rounded-[16px] px-[20px] flex items-center text-tx font-label text-[14px] font-bold cursor-pointer transition-transform active:scale-[0.98] shadow-[0_2px_8px_rgba(0,0,0,0.1)] gap-[16px]" onclick="">
+        <span class="material-symbols-outlined text-[24px] text-primary">category</span> จัดการหมวดหมู่
+        <span class="set-hub-chev ml-auto text-[20px] text-sub/50 font-normal">›</span>
+      </button>
+      <button class="set-hub-item w-full h-[60px] bg-card border border-white/5 rounded-[16px] px-[20px] flex items-center text-tx font-label text-[14px] font-bold cursor-pointer transition-transform active:scale-[0.98] shadow-[0_2px_8px_rgba(0,0,0,0.1)] gap-[16px]" onclick="">
+        <span class="material-symbols-outlined text-[24px] text-primary">credit_card</span> จัดการบัตรเครดิต
+        <span class="set-hub-chev ml-auto text-[20px] text-sub/50 font-normal">›</span>
       </button>
     </div>
 
-    <div class="set-version">App Version 4.1.2</div>
+    <div class="set-hub-section flex flex-col gap-[8px]">
+      <div class="set-hub-label font-label text-[12px] font-bold text-sub px-[12px]">อื่นๆ</div>
+      <button class="set-hub-item w-full h-[60px] bg-card border border-white/5 rounded-[16px] px-[20px] flex items-center text-tx font-label text-[14px] font-bold cursor-pointer transition-transform active:scale-[0.98] shadow-[0_2px_8px_rgba(0,0,0,0.1)] gap-[16px]" onclick="toggleTheme()">
+        <span class="material-symbols-outlined text-[24px] text-primary">dark_mode</span> ธีม
+        <span class="set-hub-chev ml-auto text-[20px] text-sub/50 font-normal">›</span>
+      </button>
+      <button class="set-hub-item danger w-full h-[60px] bg-red-500/10 border border-red-500/20 rounded-[16px] px-[20px] flex items-center text-red-500 font-label text-[14px] font-bold cursor-pointer transition-transform active:scale-[0.98] shadow-[0_2px_8px_rgba(0,0,0,0.1)] gap-[16px] mt-[8px]" onclick="doLogout()">
+        <span class="material-symbols-outlined text-[24px] text-red-500">logout</span> ออกจากระบบ
+      </button>
+    </div>
+
+    <div class="set-version text-center font-label text-[11px] text-sub/50 mt-[8px]">App Version 4.1.2</div>
   </div>
 </div>
 
-<div class="pg account-family-mobile-page" id="pg-account-family-mobile">
-  <div id="account-family-mobile">
-    <header class="account-family-head">
-      <button type="button" onclick="document.getElementById('pg-account-family-mobile').classList.remove('on');goTab('set')" aria-label="กลับไปหน้าตั้งค่า"><span class="material-symbols-outlined">arrow_back</span></button>
-      <h1>บัญชีและครอบครัว</h1>
-      <img src="assets/bridgex-logo.png" alt="BridgeX.Wallet">
+<div class="pg hidden [&.on]:block pt-[60px] md:pt-[72px] md:pl-[250px] min-h-screen w-full box-border md:hidden account-family-mobile-page" id="pg-account-family-mobile">
+  <div id="account-family-mobile" class="p-[16px] pb-[40px] flex flex-col gap-[20px]">
+    <header class="account-family-head flex items-center justify-between mb-[8px]">
+      <button class="w-[40px] h-[40px] rounded-full border-none bg-card2 text-tx flex items-center justify-center cursor-pointer transition-colors hover:bg-white/5 active:scale-95" type="button" onclick="document.getElementById('pg-account-family-mobile').classList.remove('on');goTab('set')" aria-label="กลับไปหน้าตั้งค่า"><span class="material-symbols-outlined text-[20px]">arrow_back</span></button>
+      <h1 class="font-headline text-[18px] font-bold text-tx m-0 text-center flex-1">บัญชีและครอบครัว</h1>
+      <img class="h-[24px] opacity-20 object-contain w-[40px]" src="assets/bridgex-logo.png" alt="BridgeX.Wallet">
     </header>
 
-    <section class="account-family-card account-profile-card">
-      <div class="account-profile-top">
-        <div class="account-avatar-wrap">
-          <div class="account-family-avatar" id="account-family-avatar">BX</div>
-          <label class="account-avatar-edit" for="user-avatar-uploader" aria-label="เปลี่ยนรูปโปรไฟล์"><span class="material-symbols-outlined">photo_camera</span></label>
+    <section class="account-family-card account-profile-card bg-card border border-bdr rounded-[24px] p-[24px] shadow-[0_4px_16px_rgba(0,0,0,0.15)] flex flex-col gap-[16px] relative overflow-hidden text-center before:content-[''] before:absolute before:inset-0 before:bg-[linear-gradient(135deg,rgba(76,53,196,0.15),transparent)] before:pointer-events-none">
+      <div class="account-profile-top flex flex-col items-center gap-[16px] z-10">
+        <div class="account-avatar-wrap relative w-[88px] h-[88px]">
+          <div class="account-family-avatar w-full h-full rounded-full bg-card2 border-[2px] border-white/10 flex items-center justify-center font-headline text-[32px] font-bold text-tx shadow-[0_8px_16px_rgba(0,0,0,0.2)] bg-gradient-to-br from-primary to-secondary text-white" id="account-family-avatar">BX</div>
+          <label class="account-avatar-edit absolute bottom-[-4px] right-[-4px] w-[32px] h-[32px] rounded-full bg-primary text-white flex items-center justify-center cursor-pointer border-[2px] border-card shadow-[0_2px_8px_rgba(76,53,196,0.3)] transition-transform active:scale-95" for="user-avatar-uploader" aria-label="เปลี่ยนรูปโปรไฟล์"><span class="material-symbols-outlined text-[16px]">photo_camera</span></label>
           <input type="file" id="user-avatar-uploader" accept="image/*" hidden>
         </div>
-        <div class="account-profile-copy">
-          <h2 id="account-family-name">-</h2>
-          <div class="account-family-pill">แชร์บัญชีครอบครัว</div>
-          <p id="account-family-status">-</p>
+        <div class="account-profile-copy flex flex-col items-center gap-[6px]">
+          <h2 class="font-headline text-[22px] font-bold text-tx m-0" id="account-family-name">-</h2>
+          <div class="account-family-pill text-[11px] font-bold text-primary bg-primary/10 border border-primary/20 px-[10px] py-[4px] rounded-[8px] tracking-wide inline-flex items-center gap-[4px] before:content-[''] before:w-[6px] before:h-[6px] before:bg-primary before:rounded-full before:animate-pulse">แชร์บัญชีครอบครัว</div>
+          <p class="font-label text-[13px] text-sub m-0 mt-[4px]" id="account-family-status">-</p>
         </div>
       </div>
     </section>
 
-    <section class="account-family-card account-family-card-main">
-      <div class="account-card-title">
-        <span class="material-symbols-outlined">family_restroom</span>
-        <div>
-          <h2>ครอบครัวของคุณ</h2>
-          <p>จัดการสมาชิกที่แชร์ข้อมูลร่วมกัน</p>
+    <section class="account-family-card account-family-card-main bg-card border border-bdr rounded-[24px] p-[24px] shadow-[0_4px_16px_rgba(0,0,0,0.15)] flex flex-col gap-[16px]">
+      <div class="account-card-title flex items-start gap-[12px] pb-[16px] border-b border-white/5">
+        <span class="material-symbols-outlined text-[24px] text-primary mt-[2px]">family_restroom</span>
+        <div class="flex flex-col gap-[2px]">
+          <h2 class="font-headline text-[18px] font-bold text-tx m-0">ครอบครัวของคุณ</h2>
+          <p class="font-label text-[13px] text-sub m-0">จัดการสมาชิกที่แชร์ข้อมูลร่วมกัน</p>
         </div>
       </div>
-      <label class="account-family-label" for="account-family-id-view">Family ID</label>
-      <div class="account-family-id-row">
-        <input id="account-family-id-view" type="text" readonly value="">
-        <button type="button" onclick="copyFamilyIdValue(document.getElementById('account-family-id-view').value)"><span class="material-symbols-outlined">content_copy</span>คัดลอก ID</button>
+      <label class="account-family-label block text-[12px] font-bold text-tx mb-[4px] mt-[8px]" for="account-family-id-view">Family ID</label>
+      <div class="account-family-id-row flex gap-[8px]">
+        <input class="flex-1 h-[48px] bg-bg2 border border-bdr rounded-[12px] px-[16px] text-tx font-headline text-[15px] font-bold tracking-widest text-center pointer-events-none" id="account-family-id-view" type="text" readonly value="">
+        <button class="h-[48px] px-[16px] rounded-[12px] border border-bdr bg-card2 text-tx font-label text-[13px] font-bold cursor-pointer flex items-center gap-[6px] transition-colors hover:bg-white/5 active:scale-95 whitespace-nowrap" type="button" onclick="copyFamilyIdValue(document.getElementById('account-family-id-view').value)"><span class="material-symbols-outlined text-[18px]">content_copy</span>คัดลอก ID</button>
       </div>
-      <div class="account-family-members" id="account-family-members-list"></div>
-      <div class="account-family-join-row">
-        <input id="account-family-join-id" type="text" placeholder="กรอก Family ID">
-        <button type="button" onclick="joinFamilyMobile()"><span class="material-symbols-outlined">group_add</span>เพิ่มสมาชิก</button>
+      <div class="account-family-members flex flex-col gap-[12px] mt-[12px]" id="account-family-members-list"></div>
+      <div class="account-family-join-row flex gap-[8px] mt-[16px] pt-[16px] border-t border-white/5">
+        <input class="flex-1 h-[48px] bg-bg2 border border-bdr rounded-[12px] px-[16px] text-tx font-label text-[14px] focus:outline-none focus:border-primary" id="account-family-join-id" type="text" placeholder="กรอก Family ID">
+        <button class="h-[48px] px-[16px] rounded-[12px] border-none bg-primary/10 text-primary font-label text-[14px] font-bold cursor-pointer flex items-center gap-[6px] transition-colors active:scale-95 whitespace-nowrap hover:bg-primary/20" type="button" onclick="joinFamilyMobile()"><span class="material-symbols-outlined text-[18px]">group_add</span>เพิ่มสมาชิก</button>
       </div>
     </section>
 
-    <section class="account-family-card account-connection-card">
-      <div class="account-connection-row">
-        <span class="account-line-icon">LINE</span>
-        <div>
-          <h2>LINE Official Account</h2>
-          <p>เชื่อมต่อเพื่อรับการแจ้งเตือน</p>
+    <section class="account-family-card account-connection-card bg-card border border-bdr rounded-[24px] p-[24px] shadow-[0_4px_16px_rgba(0,0,0,0.15)] flex flex-col gap-[16px]">
+      <div class="account-connection-row flex items-center justify-between gap-[16px]">
+        <span class="account-line-icon w-[44px] h-[44px] rounded-[12px] bg-[#06C755] flex items-center justify-center font-headline text-[13px] font-bold text-white flex-shrink-0 shadow-[0_4px_12px_rgba(6,199,85,0.3)]">LINE</span>
+        <div class="flex flex-col gap-[2px] flex-1">
+          <h2 class="font-headline text-[15px] font-bold text-tx m-0">LINE Official Account</h2>
+          <p class="font-label text-[12px] text-sub m-0">เชื่อมต่อเพื่อรับการแจ้งเตือน</p>
         </div>
-        <button class="account-line-toggle" id="line-oa-toggle" type="button" aria-pressed="false" aria-label="เชื่อมต่อ LINE Official Account"><i></i></button>
+        <button class="account-line-toggle relative w-[48px] h-[26px] rounded-full border-none bg-bg2 cursor-pointer transition-colors [&[aria-pressed=true]]:bg-[#06C755]" id="line-oa-toggle" type="button" aria-pressed="false" aria-label="เชื่อมต่อ LINE Official Account"><i class="absolute top-[2px] left-[2px] w-[22px] h-[22px] rounded-full bg-white shadow-[0_2px_4px_rgba(0,0,0,0.2)] transition-transform [&[aria-pressed=true]]:translate-x-[22px]"></i></button>
       </div>
     </section>
   </div>
 </div>
 
-<div class="pg budget-mobile-page" id="pg-budget-mobile">
-  <header class="mobile-budget-head">
-    <button type="button" onclick="closeBudgetManager()" aria-label="กลับไปหน้าตั้งค่า"><span class="material-symbols-outlined">arrow_back</span></button>
-    <h1>งบประมาณ</h1>
-    <img src="assets/bridgex-logo.png" alt="BridgeX.Wallet">
+<div class="pg hidden [&.on]:block pt-[60px] md:pt-[72px] md:pl-[250px] min-h-screen w-full box-border md:hidden budget-mobile-page" id="pg-budget-mobile">
+  <header class="mobile-budget-head flex items-center justify-between p-[16px] pb-[8px]">
+    <button class="w-[40px] h-[40px] rounded-full border-none bg-card2 text-tx flex items-center justify-center cursor-pointer transition-colors hover:bg-white/5 active:scale-95" type="button" onclick="closeBudgetManager()" aria-label="กลับไปหน้าตั้งค่า"><span class="material-symbols-outlined text-[20px]">arrow_back</span></button>
+    <h1 class="font-headline text-[18px] font-bold text-tx m-0 text-center flex-1">งบประมาณ</h1>
+    <img class="h-[24px] opacity-20 object-contain w-[40px]" src="assets/bridgex-logo.png" alt="BridgeX.Wallet">
   </header>
-  <section class="mobile-budget-summary" id="mobile-budget-summary">
-    <span>งบประมาณรวมรายเดือน</span>
-    <strong>฿ 0</strong>
-    <small>คงเหลือ ฿ 0</small>
-    <div class="mobile-budget-track"><i></i></div>
+  <section class="mobile-budget-summary bg-card border border-bdr rounded-[24px] m-[16px] p-[24px] flex flex-col gap-[8px] text-center shadow-[0_4px_16px_rgba(0,0,0,0.15)] relative overflow-hidden before:content-[''] before:absolute before:inset-0 before:bg-[linear-gradient(45deg,rgba(76,53,196,0.15),transparent)] before:pointer-events-none" id="mobile-budget-summary">
+    <span class="font-label text-[13px] font-bold text-sub z-10">งบประมาณรวมรายเดือน</span>
+    <strong class="font-headline text-[32px] font-bold text-tx m-[4px_0] z-10">฿ 0</strong>
+    <small class="font-label text-[12px] text-tx/80 z-10">คงเหลือ ฿ 0</small>
+    <div class="mobile-budget-track w-full h-[6px] bg-bg2 rounded-full overflow-hidden mt-[12px] z-10"><i class="block h-full bg-primary rounded-full transition-all duration-500 w-[0%]"></i></div>
   </section>
-  <div class="mobile-budget-section-head">
-    <h2>งบแต่ละหมวดหมู่</h2>
-    <span>ต่อเดือน</span>
+  <div class="mobile-budget-section-head flex justify-between items-end p-[0_20px_12px] border-b border-white/5 mt-[8px]">
+    <h2 class="font-headline text-[16px] font-bold text-tx m-0">งบแต่ละหมวดหมู่</h2>
+    <span class="font-label text-[12px] font-bold text-sub">ต่อเดือน</span>
   </div>
-  <div class="mobile-budget-grid" id="mobile-budget-grid"></div>
+  <div class="mobile-budget-grid grid grid-cols-2 gap-[12px] p-[16px] pb-[100px]" id="mobile-budget-grid"></div>
 </div>
 
-<div class="mobile-budget-editor" id="mobile-budget-editor" onclick="mobileBudgetEditorBg(event)">
-  <section class="mobile-budget-sheet">
-    <div class="mobile-budget-handle"></div>
-    <div class="mobile-budget-sheet-head">
-      <span class="mobile-budget-edit-icon material-symbols-outlined" id="mobile-budget-edit-icon">category</span>
-      <div>
-        <small>งบรายเดือน</small>
-        <h2 id="mobile-budget-edit-name">หมวดหมู่</h2>
+<div class="mobile-budget-editor fixed inset-0 bg-black/60 z-[960] hidden [&.on]:flex flex-col justify-end opacity-0 transition-opacity duration-300 [&.on]:opacity-100" id="mobile-budget-editor" onclick="mobileBudgetEditorBg(event)">
+  <section class="mobile-budget-sheet bg-card border-t border-bdr rounded-[28px_28px_0_0] p-[24px_24px_32px] w-full max-w-[500px] mx-auto relative flex flex-col gap-[20px] transition-transform duration-300 translate-y-full [&.open]:translate-y-0" onclick="event.stopPropagation()">
+    <div class="mobile-budget-handle w-[40px] h-[5px] bg-white/20 rounded-full mx-auto -mt-[12px] mb-[4px]"></div>
+    <div class="mobile-budget-sheet-head flex items-center gap-[12px] mb-[8px]">
+      <span class="mobile-budget-edit-icon material-symbols-outlined w-[48px] h-[48px] rounded-[16px] bg-card2 border border-white/5 flex items-center justify-center text-[24px] text-tx" id="mobile-budget-edit-icon">category</span>
+      <div class="flex flex-col flex-1">
+        <small class="font-label text-[12px] text-sub">งบรายเดือน</small>
+        <h2 class="font-headline text-[18px] font-bold text-tx m-0 mt-[2px]" id="mobile-budget-edit-name">หมวดหมู่</h2>
       </div>
-      <button type="button" onclick="closeMobileBudgetEditor()" aria-label="ปิด"><span class="material-symbols-outlined">close</span></button>
+      <button class="w-[36px] h-[36px] rounded-full border border-white/10 bg-card2 text-sub flex items-center justify-center cursor-pointer transition-colors hover:text-tx active:scale-95" type="button" onclick="closeMobileBudgetEditor()" aria-label="ปิด"><span class="material-symbols-outlined text-[20px]">close</span></button>
     </div>
-    <label class="mobile-budget-input-label" for="mobile-budget-amount">จำนวนเงินต่อเดือน</label>
-    <div class="mobile-budget-input-wrap">
-      <span>฿</span>
-      <input id="mobile-budget-amount" type="number" min="0" step="1" placeholder="0">
+    <label class="mobile-budget-input-label block text-[13px] font-bold text-tx text-center mb-[-12px]" for="mobile-budget-amount">จำนวนเงินต่อเดือน</label>
+    <div class="mobile-budget-input-wrap flex items-center bg-bg border border-primary/30 rounded-[20px] p-[12px_20px] shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] focus-within:border-primary focus-within:shadow-[0_0_0_2px_rgba(76,53,196,0.2),inset_0_2px_4px_rgba(0,0,0,0.2)] transition-all">
+      <span class="font-headline text-[24px] font-bold text-sub mr-[12px]">฿</span>
+      <input class="flex-1 bg-transparent border-none text-[32px] font-headline font-bold text-tx w-full min-w-0 focus:outline-none" id="mobile-budget-amount" type="number" min="0" step="1" placeholder="0">
     </div>
-    <button class="mobile-budget-save" type="button" onclick="saveMobileBudget()">บันทึกงบประมาณ</button>
+    <button class="mobile-budget-save h-[56px] rounded-[16px] border-none bg-primary text-white font-label text-[16px] font-bold cursor-pointer flex items-center justify-center gap-[8px] mt-[12px] shadow-[0_4px_16px_rgba(76,53,196,0.3)] transition-transform active:scale-95" type="button" onclick="saveMobileBudget()">บันทึกงบประมาณ</button>
   </section>
 </div>
 
-<div class="mobile-picker-modal hidden" id="mobile-picker-modal" onclick="mobilePickerBg(event)">
-  <div class="mobile-picker-sheet">
-    <div class="mobile-picker-head">
-      <h2 id="mobile-picker-title">เลือก</h2>
-      <button id="mobile-picker-close" type="button" onclick="closeMobilePicker()"><span class="material-symbols-outlined">close</span></button>
+<div class="mobile-picker-modal fixed inset-0 bg-black/60 z-[960] hidden [&.on]:flex flex-col justify-end opacity-0 transition-opacity duration-300 [&.on]:opacity-100" id="mobile-picker-modal" onclick="mobilePickerBg(event)">
+  <div class="mobile-picker-sheet bg-card border-t border-bdr rounded-[24px_24px_0_0] w-full max-w-[500px] mx-auto flex flex-col h-[70vh] transition-transform duration-300 translate-y-full [&.open]:translate-y-0" onclick="event.stopPropagation()">
+    <div class="mobile-picker-head flex items-center justify-between p-[16px_20px] border-b border-white/10 shrink-0">
+      <h2 class="font-headline text-[18px] font-bold text-tx m-0" id="mobile-picker-title">เลือก</h2>
+      <button class="w-[36px] h-[36px] rounded-full border border-white/10 bg-card2 text-sub flex items-center justify-center cursor-pointer transition-colors hover:text-tx active:scale-95" id="mobile-picker-close" type="button" onclick="closeMobilePicker()"><span class="material-symbols-outlined text-[20px]">close</span></button>
     </div>
-    <div class="mobile-picker-list" id="mobile-picker-list"></div>
+    <div class="mobile-picker-list flex-1 overflow-y-auto p-[12px] flex flex-col gap-[8px]" id="mobile-picker-list"></div>
   </div>
 </div>
 
-<div class="success-modal hidden" id="success-modal" onclick="successModalBg(event)">
-  <div class="success-card">
-    <div class="success-glow"></div>
-    <div class="success-icon"><span class="material-symbols-outlined">check_circle</span></div>
-    <h2 id="success-modal-title">บันทึกรายการสำเร็จ</h2>
-    <p id="success-modal-message">ข้อมูลของคุณถูกบันทึกเรียบร้อยแล้ว</p>
-    <div class="success-summary" id="success-modal-details">
-      <div><span class="material-symbols-outlined">verified</span><span>สถานะ</span><strong>สำเร็จ</strong></div>
-      <div><span class="material-symbols-outlined">sync</span><span>ระบบ</span><strong>BridgeX</strong></div>
+<div class="success-modal fixed inset-0 bg-black/80 z-[1000] hidden [&.on]:flex items-center justify-center p-[20px] backdrop-blur-[4px] opacity-0 transition-opacity duration-300 [&.on]:opacity-100" id="success-modal" onclick="successModalBg(event)">
+  <div class="success-card bg-card border border-bdr rounded-[32px] p-[40px_32px] w-full max-w-[420px] relative overflow-hidden flex flex-col items-center text-center shadow-[0_24px_48px_rgba(0,0,0,0.4)] transition-all duration-300 scale-95 opacity-0 [&.open]:scale-100 [&.open]:opacity-100" onclick="event.stopPropagation()">
+    <div class="success-glow absolute top-[-50%] left-[-50%] w-[200%] h-[200%] bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.15)_0%,transparent_50%)] pointer-events-none z-0"></div>
+    <div class="success-icon w-[88px] h-[88px] rounded-full bg-secondary/10 border border-secondary/20 flex items-center justify-center text-secondary mb-[24px] relative z-10 shadow-[0_0_32px_rgba(16,185,129,0.3)] animate-[successPop_0.5s_cubic-bezier(0.175,0.885,0.32,1.275)_forwards]"><span class="material-symbols-outlined text-[48px]">check_circle</span></div>
+    <h2 class="font-headline text-[24px] font-bold text-tx m-0 mb-[12px] relative z-10" id="success-modal-title">บันทึกรายการสำเร็จ</h2>
+    <p class="font-label text-[14px] text-sub m-0 mb-[32px] relative z-10" id="success-modal-message">ข้อมูลของคุณถูกบันทึกเรียบร้อยแล้ว</p>
+    <div class="success-summary w-full bg-bg border border-bdr rounded-[16px] p-[16px] flex flex-col gap-[12px] mb-[32px] relative z-10" id="success-modal-details">
+      <div class="flex items-center justify-between text-[13px] font-label"><div class="flex items-center gap-[8px] text-sub"><span class="material-symbols-outlined text-[16px]">verified</span><span>สถานะ</span></div><strong class="text-secondary font-bold">สำเร็จ</strong></div>
+      <div class="flex items-center justify-between text-[13px] font-label"><div class="flex items-center gap-[8px] text-sub"><span class="material-symbols-outlined text-[16px]">sync</span><span>ระบบ</span></div><strong class="text-tx font-bold">BridgeX</strong></div>
     </div>
-    <div class="success-actions">
-      <button type="button" class="success-primary" id="success-modal-continue" onclick="hideSuccessModal()"><span class="material-symbols-outlined">add_circle</span> บันทึกรายการอื่นต่อ</button>
-      <div>
-        <button type="button" id="success-modal-close" onclick="hideSuccessModal()">ตกลง</button>
-        <button type="button" onclick="hideSuccessModal();goTab('hist',document.querySelector('.tbtn[onclick*=hist]'))"><span class="material-symbols-outlined">history</span> ไปที่ประวัติ</button>
+    <div class="success-actions w-full flex flex-col gap-[12px] relative z-10">
+      <button class="success-primary h-[52px] rounded-[14px] border-none bg-primary text-white font-label text-[15px] font-bold cursor-pointer flex items-center justify-center gap-[8px] transition-transform active:scale-95 shadow-[0_4px_16px_rgba(76,53,196,0.3)]" type="button" id="success-modal-continue" onclick="hideSuccessModal()"><span class="material-symbols-outlined text-[20px]">add_circle</span> บันทึกรายการอื่นต่อ</button>
+      <div class="flex gap-[12px] mt-[4px]">
+        <button class="flex-1 h-[48px] rounded-[14px] border border-bdr bg-card2 text-tx font-label text-[14px] font-bold cursor-pointer transition-colors hover:bg-white/5 active:scale-95" type="button" id="success-modal-close" onclick="hideSuccessModal()">ตกลง</button>
+        <button class="flex-[1.2] h-[48px] rounded-[14px] border border-bdr bg-card2 text-tx font-label text-[14px] font-bold cursor-pointer flex items-center justify-center gap-[6px] transition-colors hover:bg-white/5 active:scale-95" type="button" onclick="hideSuccessModal();goTab('hist',document.querySelector('.tbtn[onclick*=hist]'))"><span class="material-symbols-outlined text-[18px]">history</span> ไปที่ประวัติ</button>
       </div>
     </div>
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
-<div class="bn">
-  <button class="tbtn" onclick="goTab('dash',this)">
-    <span class="ico material-symbols-outlined">dashboard</span>
-    <span>ภาพรวม</span>
+<div class="toast fixed top-[20px] left-1/2 -translate-x-1/2 bg-card border border-white/10 rounded-[12px] p-[12px_24px] font-label text-[14px] text-tx shadow-[0_8px_24px_rgba(0,0,0,0.3)] z-[2000] flex items-center justify-center opacity-0 transition-opacity duration-300 [&.show]:opacity-100 pointer-events-none" id="toast"></div>
+<div class="bn fixed bottom-0 left-0 w-full h-[70px] bg-card border-t border-bdr flex justify-around items-center px-[8px] pb-[calc(env(safe-area-inset-bottom,0px))] z-[800] md:hidden shadow-[0_-4px_16px_rgba(0,0,0,0.1)]">
+  <button class="tbtn flex-1 flex flex-col items-center justify-center gap-[4px] h-full border-none bg-transparent text-sub cursor-pointer transition-colors [&.active]:text-primary" onclick="goTab('dash',this)">
+    <span class="ico material-symbols-outlined text-[24px] [&.active]:text-primary [&.active]:font-[300] [&.active]:[font-variation-settings:'FILL'_1]">dashboard</span>
+    <span class="font-label text-[10px] font-bold">ภาพรวม</span>
   </button>
-  <button class="tbtn" onclick="goTab('debt',this)">
-    <span class="ico material-symbols-outlined">credit_card</span>
-    <span>สินเชื่อ</span>
+  <button class="tbtn flex-1 flex flex-col items-center justify-center gap-[4px] h-full border-none bg-transparent text-sub cursor-pointer transition-colors [&.active]:text-primary" onclick="goTab('debt',this)">
+    <span class="ico material-symbols-outlined text-[24px] [&.active]:text-primary [&.active]:font-[300] [&.active]:[font-variation-settings:'FILL'_1]">credit_card</span>
+    <span class="font-label text-[10px] font-bold">สินเชื่อ</span>
   </button>
-  <button class="tbtn add-fab active" onclick="goTab('add',this)">
-    <span class="ico material-symbols-outlined">add_circle</span>
-    <span>บันทึก</span>
+  <button class="tbtn add-fab active flex flex-col items-center justify-center gap-[4px] h-[56px] w-[56px] rounded-full border-none bg-primary text-white cursor-pointer -translate-y-[20px] shadow-[0_8px_16px_rgba(76,53,196,0.3)] transition-transform active:scale-95" onclick="goTab('add',this)">
+    <span class="ico material-symbols-outlined text-[28px] mt-[8px]">add_circle</span>
+    <span class="font-label text-[10px] font-bold mt-[2px] mb-[6px] hidden">บันทึก</span>
   </button>
-  <button class="tbtn" onclick="goTab('set',this)">
-    <span class="ico material-symbols-outlined">menu</span>
-    <span>เมนู</span>
+  <button class="tbtn flex-1 flex flex-col items-center justify-center gap-[4px] h-full border-none bg-transparent text-sub cursor-pointer transition-colors [&.active]:text-primary" onclick="goTab('set',this)">
+    <span class="ico material-symbols-outlined text-[24px] [&.active]:text-primary [&.active]:font-[300] [&.active]:[font-variation-settings:'FILL'_1]">menu</span>
+    <span class="font-label text-[10px] font-bold">เมนู</span>
   </button>
 </div>
-<script src="app.js" defer></script>
+<script src="config.js"></script>
+<script src="helpers.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
