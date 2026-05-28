@@ -390,11 +390,29 @@ function withTimeout(promise, ms, label){
   });
   return Promise.race([promise,timeout]).finally(function(){ clearTimeout(timer); });
 }
-function stopLoading(){ document.getElementById('loading')?.classList.add('off'); }
-function showBootstrapRetryError(msg){
+function hideAuthScreen(){
   var auth=document.getElementById('auth-screen');
-  if(auth&&!S.user) auth.classList.remove('off');
-  if(auth&&S.user) auth.classList.add('off');
+  if(!auth) return;
+  auth.classList.add('off','hidden');
+}
+function showAuthScreen(){
+  var auth=document.getElementById('auth-screen');
+  if(!auth) return;
+  auth.classList.remove('off','hidden');
+}
+function showLoading(){
+  var loading=document.getElementById('loading');
+  if(!loading) return;
+  loading.classList.remove('off','hidden');
+}
+function stopLoading(){
+  var loading=document.getElementById('loading');
+  if(!loading) return;
+  loading.classList.add('off','hidden');
+}
+function showBootstrapRetryError(msg){
+  if(!S.user) showAuthScreen();
+  if(S.user) hideAuthScreen();
   toast(msg||'โหลดโปรไฟล์ไม่สำเร็จ กรุณาลองใหม่','err');
   var title=document.getElementById('legal-title');
   var body=document.getElementById('legal-body');
@@ -413,8 +431,7 @@ function showBootstrapRetryError(msg){
   }
 }
 async function retryBootstrap(){
-  var loading=document.getElementById('loading');
-  if(loading) loading.classList.remove('off');
+  showLoading();
   try{
     var sess=await sb.auth.getSession();
     if(sess.data.session){
@@ -510,13 +527,12 @@ async function doLogin(){
   var email=document.getElementById('auth-email').value.trim();
   var pw=document.getElementById('auth-pw').value;
   var btn=document.getElementById('login-btn');
-  var loading=document.getElementById('loading');
   if(!email||!pw){ showAuthErr('กรุณากรอกอีเมลและรหัสผ่าน'); return; }
   if(authMode==='signup'&&!hasPdpaConsent()){ showAuthErr('กรุณายอมรับข้อตกลงและนโยบายความเป็นส่วนตัวก่อนสมัคร'); return; }
   btn.textContent=authMode==='signup'?'⏳ กำลังสมัคร...':'⏳ กำลังเข้าสู่ระบบ...'; btn.disabled=true;
   S._loginBusy=true;
   bootstrappedUserId=null; _lastSessionUid=null; // allow fresh onLogin for explicit sign-in
-  if(loading) loading.classList.remove('off');
+  showLoading();
   try{
     var authPromise = authMode==='signup'
       ? sb.auth.signUp({email:email,password:pw})
@@ -535,7 +551,7 @@ async function doLogin(){
   }finally{
     btn.textContent=authMode==='signup'?'สมัครสมาชิก':'เข้าสู่ระบบ'; btn.disabled=false;
     S._loginBusy=false;
-    if(loading) loading.classList.add('off');
+    stopLoading();
   }
 }
 function toggleAuthMode(){
@@ -573,8 +589,8 @@ function openLegalModal(type){
   document.getElementById('legal-modal').classList.add('on');
 }
 function showAuthErr(msg){
-  var e=document.getElementById('auth-err'); e.textContent=msg; e.classList.add('show');
-  setTimeout(function(){ e.classList.remove('show'); },3000);
+  var e=document.getElementById('auth-err'); e.textContent=msg; e.classList.add('show'); e.classList.remove('hidden');
+  setTimeout(function(){ e.classList.remove('show'); e.classList.add('hidden'); },3000);
 }
 async function onLogin(){
   if(!S.user) return Promise.resolve();
@@ -584,12 +600,13 @@ async function onLogin(){
   }
   if(bootstrappedUserId===S.user.id&&S.profile){
     console.log('[BX Auth] onLogin() skipped — user already bootstrapped');
+    hideAuthScreen();
     stopLoading();
     return Promise.resolve();
   }
   bootstrapPromise=(async function(){
     isBootstrapping=true; _isBootstrapping=true;
-    document.getElementById('auth-screen').classList.add('off');
+    hideAuthScreen();
     try{
       logStep('onLogin start');
       var profile=await ensureProfile();
@@ -608,6 +625,7 @@ async function onLogin(){
       renderHist(); renderCR(); renderDash(); renderIncSum(); renderSetStats(); renderAddSummary();
       document.getElementById('set-user').textContent=S.user?S.user.email:'';
       await loadFromSupabase(profile);
+      hideAuthScreen();
       bootstrappedUserId=S.user.id; _lastSessionUid=S.user.id;
     }catch(e){
       console.error('profile bootstrap failed raw:',{
@@ -635,7 +653,7 @@ async function doLogout(){
   isBootstrapping=false; _isBootstrapping=false;
   bootstrappedUserId=null; _lastSessionUid=null;
   bootstrapPromise=null;
-  document.getElementById('auth-screen').classList.remove('off');
+  showAuthScreen();
   toast('ออกจากระบบแล้ว');
 }
 
@@ -771,7 +789,7 @@ async function loadFromSupabase(preloadedProfile){
     toast('โหลดข้อมูลจาก Supabase ไม่สำเร็จ ใช้ข้อมูลในเครื่องไปก่อน','err');
   } finally {
     loadFromSupabase._running = false;
-    document.getElementById('loading')?.classList.add('off');
+    stopLoading();
   }
 }
 async function loadFamilyData(){ return loadFromSupabase(); }
@@ -2602,6 +2620,16 @@ function renderLineOaToggle(){
   if(!toggle) return;
   var enabled=localStorage.getItem('lineOaEnabled')==='true';
   toggle.classList.toggle('on',enabled);
+  toggle.classList.toggle('bg-[#06C755]',enabled);
+  toggle.classList.toggle('border-[#06C755]',enabled);
+  toggle.classList.toggle('bg-card2',!enabled);
+  toggle.classList.toggle('border-border',!enabled);
+  var knob=toggle.querySelector('i');
+  if(knob){
+    knob.classList.toggle('translate-x-5',enabled);
+    knob.classList.toggle('bg-white',enabled);
+    knob.classList.toggle('bg-textMuted',!enabled);
+  }
   toggle.setAttribute('aria-pressed',enabled?'true':'false');
 }
 function bindLineOaToggle(){
@@ -2907,7 +2935,7 @@ async function deleteAccountAndData(){
     localStorage.removeItem('crStatus');
     localStorage.removeItem('crInfo');
     S.user=null; S.profile=null;
-    document.getElementById('auth-screen').classList.remove('off');
+    showAuthScreen();
     toast('ลบข้อมูลผู้ใช้แล้ว หากต้องการลบ Auth user ให้ใช้ Edge Function/RPC ที่ปลอดภัย','ok');
   }catch(e){
     console.error('delete account failed:',e);

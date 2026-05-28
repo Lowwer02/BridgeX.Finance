@@ -224,7 +224,7 @@ body.light .theme-btn{background:var(--pbg);border-color:var(--bdr);color:var(--
 .status-ok{display:flex;align-items:center;gap:10px;padding:12px;background:var(--gbg);border:1px solid rgba(34,201,138,.2);border-radius:var(--rds);margin-bottom:12px}
 .sec-lbl{font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.08em;margin:14px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--bdr)}
 .loading{position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
-.loading.off{display:none}
+.loading.off,#loading.off{display:none!important}
 .spin-ico{font-size:32px;animation:rot 1s linear infinite}
 .loading p{font-size:13px;font-weight:600;color:var(--sub)}
 
