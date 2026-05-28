@@ -415,6 +415,20 @@ function hideLoading(){
 function stopLoading(){
   hideLoading();
 }
+function toast(msg,type){
+  var t=document.getElementById('toast');
+  if(!t) return;
+  t.textContent=msg;
+  t.classList.remove('ok','err','info','opacity-0','translate-y-2','pointer-events-none');
+  t.classList.add('toast','on','opacity-100','translate-y-0','pointer-events-auto');
+  if(type) t.classList.add(type);
+  clearTimeout(t._t);
+  t._t=setTimeout(function(){
+    t.classList.remove('on','opacity-100','translate-y-0','pointer-events-auto');
+    t.classList.add('opacity-0','translate-y-2','pointer-events-none');
+  },2800);
+}
+window.toast=toast;
 function showBootstrapRetryError(msg){
   if(!S.user) showAuthScreen();
   if(S.user) hideAuthScreen();
