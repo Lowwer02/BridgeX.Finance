@@ -228,11 +228,6 @@
           <span class="flex flex-col"><strong class="font-inter text-sm font-black text-primary md:text-textMain">สแกนสลิป / ใบเสร็จ</strong><small class="text-xs font-bold text-slate-500 md:text-textMuted">แตะเพื่ออ่านยอดเงินและวันที่อัตโนมัติ</small><small class="text-xs font-black text-primary" id="slip-status"></small></span>
         </button>
       </div>
-      <button class="flex w-full items-center gap-4 rounded-[22px] border border-slate-200 bg-white px-4 py-4 text-left shadow-[0_14px_34px_rgba(15,23,42,.06)] md:hidden" id="mobile-pay-trigger" type="button" onclick="openMobilePicker('pay')">
-        <span class="material-symbols-outlined flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600" id="mobile-pay-icon">account_balance</span>
-        <span class="flex flex-1 flex-col"><small class="font-inter text-xs font-black text-slate-500" data-i18n="paymentMethod">จ่ายผ่าน</small><strong class="font-notoThai text-lg font-black text-[#0b1b32]" id="mobile-pay-label">เลือกช่องทางชำระเงิน</strong></span>
-        <span class="material-symbols-outlined text-slate-300">expand_more</span>
-      </button>
       <div class="grid grid-cols-2 gap-3 md:grid-cols-2 md:gap-5">
         <div class="order-2 rounded-[22px] border border-slate-200 bg-white p-4 shadow-[0_14px_34px_rgba(15,23,42,.06)] md:order-none md:rounded-2xl md:border-white/10 md:bg-surfaceLow/80 md:p-5 md:shadow-xl md:backdrop-blur-xl">
           <div class="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary md:hidden"><span class="material-symbols-outlined" id="mobile-cat-icon">layers</span></div>
@@ -248,11 +243,16 @@
           <label class="mb-1 block font-inter text-sm font-black text-slate-500 md:text-xs md:uppercase md:tracking-wide md:text-textMuted" data-i18n="date">วันที่</label>
           <input class="w-full rounded-xl border-0 bg-transparent p-0 font-notoThai text-xl font-black text-[#0b1b32] outline-none md:border md:border-border md:bg-card2 md:px-4 md:py-3 md:text-sm md:text-textMain md:focus:border-primary" type="date" id="f-dt">
         </div>
+        <button class="order-3 col-span-2 flex w-full items-center gap-4 rounded-[22px] border border-slate-200 bg-white px-4 py-4 text-left shadow-[0_14px_34px_rgba(15,23,42,.06)] md:hidden" id="mobile-pay-trigger" type="button" onclick="openMobilePicker('pay')">
+          <span class="material-symbols-outlined flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600" id="mobile-pay-icon">account_balance</span>
+          <span class="flex flex-1 flex-col"><small class="font-inter text-xs font-black text-slate-500" data-i18n="paymentMethod">จ่ายผ่าน</small><strong class="font-notoThai text-lg font-black text-[#0b1b32]" id="mobile-pay-label">เลือกช่องทางชำระเงิน</strong></span>
+          <span class="material-symbols-outlined text-slate-300">expand_more</span>
+        </button>
         <div class="hidden rounded-2xl border border-white/10 bg-surfaceLow/80 p-5 shadow-xl backdrop-blur-xl md:block">
           <div class="mb-4 font-inter text-xs font-extrabold uppercase tracking-[.14em] text-textMuted" data-i18n="paymentMethod">จ่ายผ่าน</div>
           <div class="grid grid-cols-2 gap-2 sm:grid-cols-3" id="pay-chips"></div>
         </div>
-        <div class="order-3 col-span-2 rounded-[22px] border border-slate-200 bg-white p-4 shadow-[0_14px_34px_rgba(15,23,42,.06)] md:order-none md:col-span-1 md:rounded-2xl md:border-white/10 md:bg-surfaceLow/80 md:p-5 md:shadow-xl md:backdrop-blur-xl">
+        <div class="order-4 col-span-2 rounded-[22px] border border-slate-200 bg-white p-4 shadow-[0_14px_34px_rgba(15,23,42,.06)] md:order-none md:col-span-1 md:rounded-2xl md:border-white/10 md:bg-surfaceLow/80 md:p-5 md:shadow-xl md:backdrop-blur-xl">
           <div class="flex gap-4 md:block">
             <span class="material-symbols-outlined flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-slate-600 md:hidden">sticky_note_2</span>
             <div class="min-w-0 flex-1">
