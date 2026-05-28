@@ -953,6 +953,14 @@ function addPayIcon(id){
   id=String(id||'');
   return id==='cash'?'payments':id==='xfer'?'account_balance':id.indexOf('crpay_')===0?'credit_card':'account_balance_wallet';
 }
+function addIncomeCatIcon(id,label){
+  var iconMap={sal:'work',bon:'redeem',free:'business_center',inv:'trending_up',oth:'more_horiz'};
+  label=String(label||'');
+  return iconMap[id]||(label.indexOf('ลงทุน')>-1?'trending_up':label.indexOf('โบนัส')>-1?'redeem':label.indexOf('เงินเดือน')>-1?'work':'more_horiz');
+}
+function addIncomeChannelIcon(id){
+  return id==='cash'?'payments':id==='prompt'?'qr_code_2':'account_balance_wallet';
+}
 function renderCats(){
   var w=document.getElementById('cat-chips');
   renderMobilePickers();
@@ -987,10 +995,18 @@ function renderMobilePickers(){
   var payLabel=document.getElementById('mobile-pay-label');
   var inccLabel=document.getElementById('mobile-incc-label');
   var inchLabel=document.getElementById('mobile-inch-label');
+  var catIcon=document.getElementById('mobile-cat-icon');
+  var payIcon=document.getElementById('mobile-pay-icon');
+  var inccIcon=document.getElementById('mobile-incc-icon');
+  var inchIcon=document.getElementById('mobile-inch-icon');
   if(catLabel) catLabel.textContent=cat?cleanAddLabel(cat.l):t('selectCategory');
   if(payLabel) payLabel.textContent=pay?pay.l:t('selectPayment');
   if(inccLabel) inccLabel.textContent=incc?cleanAddLabel(incc.l):t('selectIncomeCategory');
   if(inchLabel) inchLabel.textContent=inch?cleanAddLabel(inch.l):t('selectIncomeChannel');
+  if(catIcon) catIcon.textContent=cat?(addCatIconMap[cat.id]||'more_horiz'):'layers';
+  if(payIcon) payIcon.textContent=pay?addPayIcon(pay.id):'account_balance';
+  if(inccIcon) inccIcon.textContent=incc?addIncomeCatIcon(incc.id,incc.l):'work';
+  if(inchIcon) inchIcon.textContent=inch?addIncomeChannelIcon(inch.id):'account_balance_wallet';
   var typeEl=document.getElementById('cs-type'), providerEl=document.getElementById('cs-provider'), linkedEl=document.getElementById('cs-linked-credit');
   var typeLabel=document.getElementById('mobile-cr-type-label'), providerLabel=document.getElementById('mobile-cr-provider-label'), linkedLabel=document.getElementById('mobile-cr-linked-label');
   if(typeLabel&&typeEl) typeLabel.textContent=typeEl.options[typeEl.selectedIndex]&&typeEl.options[typeEl.selectedIndex].text||t('selectCreditType');
@@ -1000,7 +1016,6 @@ function renderMobilePickers(){
 function openMobilePicker(type){
   var modal=document.getElementById('mobile-picker-modal'), title=document.getElementById('mobile-picker-title'), list=document.getElementById('mobile-picker-list');
   if(!modal||!title||!list) return;
-  var iconMap={sal:'work',bon:'redeem',free:'business_center',inv:'trending_up',oth:'more_horiz'};
   var arr=[], selectedId='', pickerTitle='';
   if(type==='cat'){ arr=orderedExpenseCats(S.cats); selectedId=S.fc.cat; pickerTitle=t('selectCategory'); }
   else if(type==='pay'){ arr=S.pays; selectedId=S.fc.pay; pickerTitle=t('selectPayment'); }
@@ -1029,8 +1044,8 @@ function openMobilePicker(type){
     btn.onclick=function(){ selectMobilePickerItem(type,item.id); };
     var icon=type==='cat'?(addCatIconMap[item.id]||'more_horiz'):
       type==='pay'?addPayIcon(item.id):
-      type==='inc-cat'?(iconMap[item.id]||'more_horiz'):
-      type==='inc-ch'?(item.id==='cash'?'payments':item.id==='prompt'?'qr_code_2':'account_balance_wallet'):
+      type==='inc-cat'?addIncomeCatIcon(item.id,item.l):
+      type==='inc-ch'?addIncomeChannelIcon(item.id):
       type==='cr-type'?(item.id==='fixed'?'account_balance':'credit_card'):
       type==='cr-linked'?'link':'credit_card';
     btn.innerHTML='<span class="mobile-picker-icon material-symbols-outlined flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-card2 text-primary shadow-lg">'+icon+'</span><strong class="line-clamp-2 text-xs font-bold leading-snug">'+esc(cleanAddLabel(item.l))+'</strong>';
@@ -1073,10 +1088,9 @@ function selectMobilePickerItem(type,id){
 }
 function renderIncc(){
   var w=document.getElementById('incc-chips'); if(!w) return; w.innerHTML='';
-  var iconMap={sal:'work',bon:'redeem',free:'business_center',inv:'trending_up',oth:'more_horiz'};
   S.incc.forEach(function(c){
     var b=document.createElement('button');
-    var icon=iconMap[c.id]||(String(c.l||'').indexOf('ลงทุน')>-1?'trending_up':String(c.l||'').indexOf('โบนัส')>-1?'redeem':String(c.l||'').indexOf('เงินเดือน')>-1?'work':'more_horiz');
+    var icon=addIncomeCatIcon(c.id,c.l);
     b.className='flex min-h-12 items-center gap-2 rounded-xl border border-border bg-card2 px-3 py-2 text-left font-inter text-xs font-bold text-textMuted transition '+(S.fi.cat===c.id?' on border-green bg-green/15 text-green':'');
     b.dataset.icon=icon;
     b.innerHTML='<span class="material-symbols-outlined text-lg">'+icon+'</span><span class="min-w-0 truncate">'+esc(String(c.l||'').replace(/^[^\wก-๙]+/,'').trim()||c.l)+'</span>';
@@ -1089,7 +1103,7 @@ function renderInch(){
   var w=document.getElementById('inch-chips'); if(!w) return; w.innerHTML='';
   S.inch.forEach(function(c){
     var b=document.createElement('button');
-    var icon=c.id==='cash'?'payments':c.id==='prompt'?'qr_code_2':'account_balance_wallet';
+    var icon=addIncomeChannelIcon(c.id);
     b.className='flex min-h-12 items-center gap-2 rounded-xl border border-border bg-card2 px-3 py-2 text-left font-inter text-xs font-bold text-textMuted transition '+(S.fi.ch===c.id?' on border-green bg-green/15 text-green':'');
     b.dataset.icon=icon;
     b.innerHTML='<span class="material-symbols-outlined text-lg">'+icon+'</span><span class="min-w-0 truncate">'+esc(String(c.l||'').replace(/^[^\wก-๙]+/,'').trim()||c.l)+'</span>';
@@ -1281,19 +1295,25 @@ function slipFileKey(file){
 }
 function setPaymentToTransfer(){
   var transfer=(S.pays||[]).find(function(p){
-    return p.id==='xfer'||String(p.l||p.label||'').indexOf('โอนเงิน')>-1;
+    var label=String(p.l||p.label||'');
+    return p.id==='xfer'||label.indexOf('โอนเงิน')>-1||label.indexOf('โอน')>-1;
   });
   if(!transfer) return false;
   S.fc.pay=transfer.id;
+  syncPaymentUI();
+  return true;
+}
+function syncPaymentUI(){
   renderPays();
   if(typeof renderMobilePickers==='function') renderMobilePickers();
-  return true;
 }
 function fillScannedData(data,source){
   data=data||{};
   var hasAmount=data.amount!=null;
   var hasDate=!!data.date;
-  if(!hasAmount&&!hasDate) return false;
+  var hasBankSlip=!!data.bankSlip;
+  if(hasBankSlip) setPaymentToTransfer();
+  if(!hasAmount&&!hasDate) return hasBankSlip;
   if(hasAmount) document.getElementById('f-amt').value=data.amount;
   if(hasDate) document.getElementById('f-dt').value=data.date;
   toast('เติมข้อมูลจากสลิปแล้ว','ok');
@@ -1322,10 +1342,12 @@ async function scanSlipImage(file){
   var input=document.getElementById('slip-upload');
   var key=slipFileKey(file);
   var detectedDate=null;
+  var bankSlipDetected=false;
   try{
     if(slipScanCache[key]){
       var cached=slipScanCache[key];
       if(cached.amount!=null||cached.date) fillScannedData(cached,'ผลสแกนเดิม');
+      else if(cached.bankSlip) fillScannedData(cached,'ผลสแกนเดิม');
       else toast('ไฟล์นี้เคยสแกนแล้ว ไม่พบยอดเงิน กรุณากรอกเอง','err');
       return;
     }
@@ -1341,7 +1363,9 @@ async function scanSlipImage(file){
       var result=jsQR(imageData.data,imageData.width,imageData.height);
       console.log('[Slip] QR found',!!result);
       if(result&&result.data){
-        if(isBankSlipText(result.data)) setPaymentToTransfer();
+        var qrBankSlip=isBankSlipText(result.data);
+        bankSlipDetected=bankSlipDetected||qrBankSlip;
+        if(qrBankSlip) setPaymentToTransfer();
         var qrAmount=parseEMVAmount(result.data);
         var qrDate=parseDateFromText(result.data);
         console.log('[Slip] QR amount',qrAmount);
@@ -1351,7 +1375,7 @@ async function scanSlipImage(file){
           document.getElementById('f-dt').value=qrDate;
         }
         if(qrAmount!=null||qrDate){
-          slipScanCache[key]={amount:qrAmount,date:qrDate};
+          slipScanCache[key]={amount:qrAmount,date:qrDate,bankSlip:qrBankSlip};
           fillScannedData(slipScanCache[key],'QR');
           return;
         }
@@ -1366,11 +1390,13 @@ async function scanSlipImage(file){
     });
     console.log('[Slip] Tesseract amount',localData&&localData.amount);
     console.log('[Slip] Tesseract date',localData&&localData.date);
-    if(localData&&isBankSlipText(localData.text)) setPaymentToTransfer();
+    var localBankSlip=!!(localData&&isBankSlipText(localData.text));
+    bankSlipDetected=bankSlipDetected||localBankSlip;
+    if(localBankSlip) setPaymentToTransfer();
     if(localData&&localData.date) detectedDate=localData.date;
     if(localData&&(localData.amount!=null||localData.date)){
       if(status) status.textContent='กำลังเติมข้อมูล...';
-      slipScanCache[key]={amount:localData.amount,date:detectedDate};
+      slipScanCache[key]={amount:localData.amount,date:detectedDate,bankSlip:localBankSlip};
       fillScannedData(slipScanCache[key],'OCR');
       return;
     }
@@ -1379,14 +1405,16 @@ async function scanSlipImage(file){
     var base64=await fileToBase64(file);
     const { data, error } = await sb.functions.invoke('scan-vision',{ body:{ image: base64 } });
     if(error||!data||!data.success){
-      slipScanCache[key]={amount:null};
+      slipScanCache[key]={amount:null,bankSlip:bankSlipDetected};
       toast('ไม่พบยอดเงิน กรุณากรอกเอง','err');
       return;
     }
-    if(data.text&&isBankSlipText(data.text)) setPaymentToTransfer();
-    var visionData={amount:data.amount!=null?Number(data.amount):null,date:data.date||parseDateFromText(data.text||'')||detectedDate};
+    var visionBankSlip=!!(data.text&&isBankSlipText(data.text));
+    bankSlipDetected=bankSlipDetected||visionBankSlip;
+    if(visionBankSlip) setPaymentToTransfer();
+    var visionData={amount:data.amount!=null?Number(data.amount):null,date:data.date||parseDateFromText(data.text||'')||detectedDate,bankSlip:bankSlipDetected};
     if(visionData.amount==null&&!visionData.date){
-      slipScanCache[key]={amount:null};
+      slipScanCache[key]={amount:null,bankSlip:bankSlipDetected};
       toast('ไม่พบยอดเงิน กรุณากรอกเอง','err');
       return;
     }
