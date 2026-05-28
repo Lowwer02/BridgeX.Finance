@@ -2999,6 +2999,7 @@ function applyTheme(theme){
   var isLight=theme==='light';
   document.body.classList.toggle('light',isLight);
   document.body.classList.toggle('theme-light',isLight);
+  document.body.classList.toggle('theme-dark',!isLight);
   document.body.dataset.theme=isLight?'light':'dark';
   var btn=document.getElementById('theme-btn');
   if(btn) btn.textContent=isLight?'☀️':'🌙';

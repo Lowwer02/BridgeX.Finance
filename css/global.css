@@ -4,7 +4,7 @@ html{font-size:16px;-webkit-text-size-adjust:100%}
 body{font-family:var(--font);background:var(--bg);color:var(--tx);min-height:100vh;padding-bottom:84px;overscroll-behavior:none}
 
 /* ── App Layout / Navigation ── */
-body{background:#13121b;color:#e5e0ed;padding-bottom:0}
+body{background:var(--bg);color:var(--tx);padding-bottom:0}
 .app-sidebar{position:fixed;left:0;top:0;bottom:0;width:250px;background:rgba(28,27,35,.86);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-right:1px solid rgba(255,255,255,.10);z-index:310;padding:28px 18px;display:flex;flex-direction:column}
 .sidebar-backdrop{display:none}
 .side-brand{font-family:var(--font-headline);font-size:25px;font-weight:700;color:#c7bfff;margin:16px 4px 56px}
