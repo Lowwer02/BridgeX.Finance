@@ -58,23 +58,29 @@
 </div>
 
 <!-- Auth Screen -->
-<div class="auth-screen" id="auth-screen">
-  <div class="auth-wrap">
-    <div class="auth-box">
-      <div class="auth-logo-big">BX</div>
-      <div class="auth-title">Bridge<span>X</span>.Wallet</div>
-      <div class="auth-sub">Premium Wealth Management</div>
-      <div class="auth-form">
-        <div class="auth-err" id="auth-err">อีเมลหรือรหัสผ่านไม่ถูกต้อง</div>
-        <div class="fld"><label>Email Address</label><input type="email" id="auth-email" placeholder="you@example.com" autocomplete="email"></div>
-        <div class="fld"><label>Password <a class="auth-forgot">Forgot Password?</a></label><input type="password" id="auth-pw" placeholder="••••••••" autocomplete="current-password"></div>
-        <label class="pdpa-consent">
+<div class="auth-screen !fixed !inset-0 !z-[900] !flex !items-center !justify-center !overflow-hidden !bg-surface !bg-[radial-gradient(at_0%_0%,rgba(76,53,196,.18)_0,transparent_50%),radial-gradient(at_100%_100%,rgba(199,191,255,.12)_0,transparent_52%)] !p-6 before:!hidden after:!hidden" id="auth-screen">
+  <div class="relative z-[1] w-full max-w-[480px]">
+    <div class="w-full rounded-xl border border-white/10 border-t-primary/35 bg-[rgba(25,25,35,.72)] p-8 text-center shadow-2xl backdrop-blur-xl md:p-12">
+      <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-xl border border-white/10 bg-primaryContainer font-spaceGrotesk text-3xl font-bold text-primary shadow-xl">BX</div>
+      <div class="font-spaceGrotesk text-[32px] font-semibold leading-tight text-textMain">Bridge<span class="text-primary">X</span>.Wallet</div>
+      <div class="mb-8 mt-1 text-base leading-7 text-textMuted">Premium Wealth Management</div>
+      <div class="text-left">
+        <div class="auth-err hidden rounded-xl border border-danger/30 bg-danger/20 px-4 py-3 text-sm text-red-100" id="auth-err">อีเมลหรือรหัสผ่านไม่ถูกต้อง</div>
+        <div class="mb-4">
+          <label class="mb-1.5 block font-inter text-sm font-bold text-textMuted">Email Address</label>
+          <input class="w-full rounded-xl border border-border bg-surfaceLow/60 px-4 py-3 text-base text-textMain outline-none placeholder:text-textMuted/40 focus:border-primary focus:ring-1 focus:ring-primary" type="email" id="auth-email" placeholder="you@example.com" autocomplete="email">
+        </div>
+        <div class="mb-4">
+          <label class="mb-1.5 flex items-center justify-between font-inter text-sm font-bold text-textMuted">Password <a class="cursor-pointer text-xs font-bold text-primary">Forgot Password?</a></label>
+          <input class="w-full rounded-xl border border-border bg-surfaceLow/60 px-4 py-3 text-base text-textMain outline-none placeholder:text-textMuted/40 focus:border-primary focus:ring-1 focus:ring-primary" type="password" id="auth-pw" placeholder="••••••••" autocomplete="current-password">
+        </div>
+        <label class="my-3 flex items-start gap-2 text-sm leading-6 text-textMuted">
           <input type="checkbox" id="pdpa-consent" onchange="updateAuthButtons()">
-          <span>ฉันยอมรับ <a onclick="openLegalModal('terms')">ข้อตกลงการใช้งาน</a> และ <a onclick="openLegalModal('privacy')">นโยบายความเป็นส่วนตัว</a></span>
+          <span>ฉันยอมรับ <a class="cursor-pointer text-primary" onclick="openLegalModal('terms')">ข้อตกลงการใช้งาน</a> และ <a class="cursor-pointer text-primary" onclick="openLegalModal('privacy')">นโยบายความเป็นส่วนตัว</a></span>
         </label>
-        <button class="btn-go" id="login-btn" onclick="doLogin()">Log In</button>
-        <div class="auth-divider"><span>Or continue with</span></div>
-        <button class="btn-sm google-btn" id="google-btn" onclick="loginWithGoogle()" style="margin-top:8px;text-align:center">
+        <button class="mt-8 flex h-14 w-full items-center justify-center rounded-xl bg-primaryContainer px-4 py-3 font-inter text-[17px] font-extrabold text-primary shadow-lg shadow-primaryContainer/25 transition hover:bg-[#6040e2] disabled:cursor-not-allowed disabled:opacity-55" id="login-btn" onclick="doLogin()">Log In</button>
+        <div class="my-6 flex items-center gap-3 text-center font-inter text-xs font-extrabold uppercase tracking-[.12em] text-textMuted"><span class="h-px flex-1 bg-border"></span><span>Or continue with</span><span class="h-px flex-1 bg-border"></span></div>
+        <button class="flex w-full items-center justify-center gap-2.5 rounded-xl border border-border bg-transparent px-4 py-3.5 text-center text-base font-bold text-textMain transition hover:border-primary/60 hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-55" id="google-btn" onclick="loginWithGoogle()">
           <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
             <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -83,11 +89,11 @@
           </svg>
           <span>Log in with Google</span>
         </button>
-        <button class="btn-sm" id="auth-toggle-btn" onclick="toggleAuthMode()">Don't have an account? Sign Up</button>
+        <button class="mt-5 w-full bg-transparent px-4 py-2 text-center text-base font-medium text-primary" id="auth-toggle-btn" onclick="toggleAuthMode()">Don't have an account? Sign Up</button>
       </div>
     </div>
-    <div class="auth-trust-section">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4.5 5.4v5.2c0 4.8 3.2 9.3 7.5 10.6 4.3-1.3 7.5-5.8 7.5-10.6V5.4L12 2Zm-.8 13.2-3-3 1.4-1.4 1.6 1.6 3.7-3.7 1.4 1.4-5.1 5.1Z"/></svg>
+    <div class="mt-7 flex items-center justify-center gap-3 font-inter text-sm font-extrabold uppercase tracking-[.12em] text-textMuted/70">
+      <svg class="h-[18px] w-[18px] shrink-0 fill-current" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4.5 5.4v5.2c0 4.8 3.2 9.3 7.5 10.6 4.3-1.3 7.5-5.8 7.5-10.6V5.4L12 2Zm-.8 13.2-3-3 1.4-1.4 1.6 1.6 3.7-3.7 1.4 1.4-5.1 5.1Z"/></svg>
       <span>Secure &amp; Encrypted Connection</span>
     </div>
   </div>
@@ -567,7 +573,7 @@
       <h1 class="mb-2 font-spaceGrotesk text-5xl font-extrabold leading-tight text-textMain" data-i18n="settings">ตั้งค่า</h1>
       <p class="m-0 text-base leading-7 text-textMuted" data-i18n="settingsIntro">จัดการบัญชี ความปลอดภัย และการแชร์ข้อมูลครอบครัว</p>
     </div>
-    <button class="flex items-center gap-2 rounded-xl border border-white/15 bg-transparent px-4 py-3 font-inter text-sm font-extrabold text-textMain transition hover:border-primary/40 hover:text-primary" id="set-export-top" type="button" onclick="exportCSV('expense')"><span class="material-symbols-outlined text-[22px]">download</span><span data-i18n="exportData">ดาวน์โหลดข้อมูล</span></button>
+    <button class="set-export-top flex items-center gap-2 rounded-xl border border-white/15 bg-transparent px-4 py-3 font-inter text-sm font-extrabold text-textMain transition hover:border-primary/40 hover:text-primary" id="set-export-top" type="button" onclick="exportCSV('expense')"><span class="material-symbols-outlined text-[22px]">download</span><span data-i18n="exportData">ดาวน์โหลดข้อมูล</span></button>
   </header>
   <div class="set-grid relative z-[1] mx-auto grid w-full max-w-[1180px] grid-cols-12 gap-5">
     <section class="col-span-12 flex min-h-[292px] items-start gap-7 rounded-xl border border-white/10 bg-surfaceLow/80 p-7 shadow-xl backdrop-blur-xl lg:col-span-8">
@@ -755,57 +761,57 @@
   </div>
 </div>
 
-<div class="pg account-family-mobile-page !ml-0 min-h-screen px-4 pb-24 md:!ml-[250px]" id="pg-account-family-mobile">
-  <div id="account-family-mobile">
-    <header class="account-family-head">
-      <button type="button" onclick="document.getElementById('pg-account-family-mobile').classList.remove('on');goTab('set')" aria-label="กลับไปหน้าตั้งค่า"><span class="material-symbols-outlined">arrow_back</span></button>
-      <h1>บัญชีและครอบครัว</h1>
-      <img src="assets/bridgex-logo.png" alt="BridgeX.Wallet">
+<div class="pg !ml-0 min-h-screen w-full max-w-[480px] px-4 pb-24 md:!ml-[250px]" id="pg-account-family-mobile">
+  <div class="mx-auto w-full max-w-[480px]" id="account-family-mobile">
+    <header class="mb-5 flex items-center justify-between gap-3">
+      <button class="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-surfaceLow text-textMain shadow-lg" type="button" onclick="document.getElementById('pg-account-family-mobile').classList.remove('on');goTab('set')" aria-label="กลับไปหน้าตั้งค่า"><span class="material-symbols-outlined">arrow_back</span></button>
+      <h1 class="font-spaceGrotesk text-2xl font-extrabold text-textMain">บัญชีและครอบครัว</h1>
+      <img class="h-10 w-10 rounded-xl border border-white/10 object-cover shadow-lg" src="assets/bridgex-logo.png" alt="BridgeX.Wallet">
     </header>
 
-    <section class="account-family-card account-profile-card">
-      <div class="account-profile-top">
-        <div class="account-avatar-wrap">
-          <div class="account-family-avatar" id="account-family-avatar">BX</div>
-          <label class="account-avatar-edit" for="user-avatar-uploader" aria-label="เปลี่ยนรูปโปรไฟล์"><span class="material-symbols-outlined">photo_camera</span></label>
+    <section class="mb-4 rounded-3xl border border-white/10 bg-surfaceLow/85 p-5 shadow-xl backdrop-blur-xl">
+      <div class="flex items-center gap-4">
+        <div class="relative h-[82px] w-[82px] shrink-0">
+          <div class="flex h-full w-full items-center justify-center overflow-hidden rounded-3xl border border-white/10 bg-[radial-gradient(circle_at_35%_25%,#4edea3,#4c35c4_48%,#0e0d15)] text-center font-spaceGrotesk text-base font-black text-textMain" id="account-family-avatar">BX</div>
+          <label class="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-primaryContainer text-white shadow-lg" for="user-avatar-uploader" aria-label="เปลี่ยนรูปโปรไฟล์"><span class="material-symbols-outlined text-base">photo_camera</span></label>
           <input type="file" id="user-avatar-uploader" accept="image/*" hidden>
         </div>
-        <div class="account-profile-copy">
-          <h2 id="account-family-name">-</h2>
-          <div class="account-family-pill">แชร์บัญชีครอบครัว</div>
-          <p id="account-family-status">-</p>
+        <div class="min-w-0 flex-1">
+          <h2 class="truncate font-spaceGrotesk text-2xl font-extrabold text-textMain" id="account-family-name">-</h2>
+          <div class="mt-2 inline-flex rounded-full border border-green/30 bg-green/15 px-3 py-1 text-[11px] font-black text-green">แชร์บัญชีครอบครัว</div>
+          <p class="mt-2 text-sm font-bold text-textMuted" id="account-family-status">-</p>
         </div>
       </div>
     </section>
 
-    <section class="account-family-card account-family-card-main">
-      <div class="account-card-title">
-        <span class="material-symbols-outlined">family_restroom</span>
+    <section class="mb-4 rounded-3xl border border-white/10 bg-surfaceLow/85 p-5 shadow-xl backdrop-blur-xl">
+      <div class="mb-5 flex items-start gap-3">
+        <span class="material-symbols-outlined flex h-11 w-11 items-center justify-center rounded-2xl bg-primaryContainer/20 text-primary">family_restroom</span>
         <div>
-          <h2>ครอบครัวของคุณ</h2>
-          <p>จัดการสมาชิกที่แชร์ข้อมูลร่วมกัน</p>
+          <h2 class="font-spaceGrotesk text-xl font-extrabold text-textMain">ครอบครัวของคุณ</h2>
+          <p class="mt-1 text-sm text-textMuted">จัดการสมาชิกที่แชร์ข้อมูลร่วมกัน</p>
         </div>
       </div>
-      <label class="account-family-label" for="account-family-id-view">Family ID</label>
-      <div class="account-family-id-row">
-        <input id="account-family-id-view" type="text" readonly value="">
-        <button type="button" onclick="copyFamilyIdValue(document.getElementById('account-family-id-view').value)"><span class="material-symbols-outlined">content_copy</span>คัดลอก ID</button>
+      <label class="mb-2 block text-xs font-extrabold uppercase tracking-wide text-textMuted" for="account-family-id-view">Family ID</label>
+      <div class="mb-4 grid grid-cols-[1fr_auto] gap-2">
+        <input class="min-w-0 rounded-xl border border-border bg-card2 px-3 py-3 font-mono text-sm text-textMain outline-none" id="account-family-id-view" type="text" readonly value="">
+        <button class="flex items-center justify-center gap-1.5 rounded-xl bg-primaryContainer px-3 py-3 text-xs font-bold text-white shadow-lg shadow-primaryContainer/25" type="button" onclick="copyFamilyIdValue(document.getElementById('account-family-id-view').value)"><span class="material-symbols-outlined text-base">content_copy</span>คัดลอก ID</button>
       </div>
-      <div class="account-family-members" id="account-family-members-list"></div>
-      <div class="account-family-join-row">
-        <input id="account-family-join-id" type="text" placeholder="กรอก Family ID">
-        <button type="button" onclick="joinFamilyMobile()"><span class="material-symbols-outlined">group_add</span>เพิ่มสมาชิก</button>
+      <div class="mb-4 flex flex-col gap-3" id="account-family-members-list"></div>
+      <div class="grid grid-cols-[1fr_auto] gap-2">
+        <input class="min-w-0 rounded-xl border border-border bg-card2 px-3 py-3 text-sm text-textMain outline-none placeholder:text-subtle" id="account-family-join-id" type="text" placeholder="กรอก Family ID">
+        <button class="flex items-center justify-center gap-1.5 rounded-xl border border-dashed border-primary/35 bg-primaryContainer/10 px-3 py-3 text-xs font-bold text-primary" type="button" onclick="joinFamilyMobile()"><span class="material-symbols-outlined text-lg">group_add</span>เพิ่มสมาชิก</button>
       </div>
     </section>
 
-    <section class="account-family-card account-connection-card">
-      <div class="account-connection-row">
-        <span class="account-line-icon">LINE</span>
+    <section class="rounded-3xl border border-white/10 bg-surfaceLow/85 p-5 shadow-xl backdrop-blur-xl">
+      <div class="flex items-center gap-3">
+        <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#06C755]/15 text-sm font-black text-[#06C755]">LINE</span>
         <div>
-          <h2>LINE Official Account</h2>
-          <p>เชื่อมต่อเพื่อรับการแจ้งเตือน</p>
+          <h2 class="font-spaceGrotesk text-lg font-extrabold text-textMain">LINE Official Account</h2>
+          <p class="mt-1 text-sm text-textMuted">เชื่อมต่อเพื่อรับการแจ้งเตือน</p>
         </div>
-        <button class="account-line-toggle" id="line-oa-toggle" type="button" aria-pressed="false" aria-label="เชื่อมต่อ LINE Official Account"><i></i></button>
+        <button class="ml-auto flex h-7 w-12 items-center rounded-full border border-border bg-card2 p-1 transition" id="line-oa-toggle" type="button" aria-pressed="false" aria-label="เชื่อมต่อ LINE Official Account"><i class="block h-5 w-5 rounded-full bg-textMuted transition"></i></button>
       </div>
     </section>
   </div>
