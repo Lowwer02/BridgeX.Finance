@@ -340,7 +340,7 @@ async function saveOnboarding(){
   var res=await sb.from('profiles').update({full_name:name,updated_at:new Date().toISOString()}).eq('id',S.user.id).select('*').single();
   if(res.error) return toast(res.error.message,'err');
   S.profile=res.data;
-  document.getElementById('onboard-modal').classList.remove('on');
+  closeOverlay('onboard-modal');
   applyCurrentProfileToPayers();
   updateHeader();
   renderPersonFilters();
@@ -353,7 +353,7 @@ function checkAccess(){
   S.hasAccess=pass;
   S.accessReason=pass?'ok':'blocked';
   var pw=document.getElementById('paywall');
-  if(pw) pw.classList.toggle('on',!pass);
+  if(pw) setOverlayState(pw,!pass);
   return pass;
 }
 function applyCurrentProfileToPayers(){
@@ -429,6 +429,25 @@ function toast(msg,type){
   },2800);
 }
 window.toast=toast;
+function setOverlayState(target,open){
+  var el=typeof target==='string'?document.getElementById(target):target;
+  if(!el) return;
+  var isModal=el.classList.contains('modal-overlay');
+  var isDrawer=el.classList.contains('drawer');
+  el.classList.toggle('on',!!open);
+  if(isModal){
+    el.classList.toggle('hidden',!open);
+    el.classList.toggle('flex',!!open);
+  }
+  if(isDrawer){
+    el.classList.toggle('opacity-100',!!open);
+    el.classList.toggle('pointer-events-auto',!!open);
+    el.classList.toggle('opacity-0',!open);
+    el.classList.toggle('pointer-events-none',!open);
+  }
+}
+function openOverlay(target){ setOverlayState(target,true); }
+function closeOverlay(target){ setOverlayState(target,false); }
 function showBootstrapRetryError(msg){
   if(!S.user) showAuthScreen();
   if(S.user) hideAuthScreen();
@@ -438,7 +457,7 @@ function showBootstrapRetryError(msg){
   if(S.user&&title&&body){
     title.textContent='โหลดโปรไฟล์ไม่สำเร็จ';
     body.innerHTML=esc(msg||'โหลดโปรไฟล์ไม่สำเร็จ กรุณาลองใหม่')+'<br><br><button type="button" onclick="retryBootstrap()" class="btn-go">ลองอีกครั้ง</button>';
-    document.getElementById('legal-modal').classList.add('on');
+    openOverlay('legal-modal');
     return;
   }
   var e=document.getElementById('auth-err');
@@ -605,7 +624,7 @@ function openLegalModal(type){
     title.textContent='ข้อตกลงการใช้งาน';
     body.textContent='Placeholder: จะเพิ่มเงื่อนไขการใช้งาน บริการสมาชิก และข้อจำกัดความรับผิดชอบในขั้นตอนถัดไป';
   }
-  document.getElementById('legal-modal').classList.add('on');
+  openOverlay('legal-modal');
 }
 function showAuthErr(msg){
   var e=document.getElementById('auth-err'); e.textContent=msg; e.classList.add('show'); e.classList.remove('hidden');
@@ -635,7 +654,7 @@ async function onLogin(){
       checkAccess();
       if(!S.profile.full_name){
         document.getElementById('onboard-name').value=(S.user.user_metadata&&S.user.user_metadata.full_name)||'';
-        document.getElementById('onboard-modal').classList.add('on');
+        openOverlay('onboard-modal');
       }
       applyCurrentProfileToPayers();
       updateHeader();
@@ -790,7 +809,7 @@ async function loadFromSupabase(preloadedProfile){
       }
     });
     loadCreditOptions();
-    if(Object.keys(S.crInfo||{}).length>0) document.getElementById('credit-setup-modal').classList.remove('on');
+    if(Object.keys(S.crInfo||{}).length>0) closeOverlay('credit-setup-modal');
     recomputeMatchedCreditBalances();
     renderPersonFilters();
     sv();
@@ -1784,7 +1803,7 @@ function openCreditSetupModal(type){
   limitEl.value=''; rateEl.value=''; minEl.value=''; billEl.value=''; dueEl.value='';
   var title=modal.querySelector('.modal-title');
   if(title) title.textContent=t==='revolving'?'เพิ่มสินเชื่อหมุนเวียน':'เพิ่มสินเชื่อหลักประกัน';
-  modal.classList.add('on');
+  openOverlay(modal);
 }
 function addCR(t){ openCreditSetupModal(t); }
 async function saveFirstCredit(){
@@ -1880,7 +1899,7 @@ function openPay(id){
   document.getElementById('dr-title').textContent='ชำระ '+cr.n;
   document.getElementById('dr-sub').textContent='วงเงินคงเหลือ: ฿ '+fmt2(st.remaining||0)+(info.minPay?' · ขั้นต่ำ ฿ '+fmt(info.minPay):'');
   document.getElementById('dr-amt').value=''; document.getElementById('dr-rem').value=st.remaining||''; document.getElementById('dr-dt').value=today();
-  document.getElementById('pay-drawer').classList.add('on');
+  openOverlay('pay-drawer');
 }
 async function submitCredit(){
   var amt=parseFloat(document.getElementById('dr-amt').value);
@@ -1910,7 +1929,7 @@ function openInfo(id){
   document.getElementById('inf-credit_limit').value=info.limit||''; document.getElementById('inf-rate').value=info.rate||'';
   document.getElementById('inf-min').value=info.minPay||''; document.getElementById('inf-bill').value=info.billCycle||'';
   document.getElementById('inf-due').value=info.dueDate||'';
-  document.getElementById('info-drawer').classList.add('on');
+  openOverlay('info-drawer');
 }
 async function saveInfo(){
   var cr=allCR().find(function(c){ return c.id===activeInfoId; });
@@ -1924,7 +1943,7 @@ async function saveInfo(){
   ],'บันทึกข้อมูลสินเชื่อสำเร็จ');
   saveToSupabase('credit_info',{credit_name:cr.n,type:cr.t,credit_limit:info.limit,rate:info.rate,min_pay:info.minPay,bill_cycle:info.billCycle,due_date:info.dueDate});
 }
-function closeD(id){ document.getElementById(id).classList.remove('on'); }
+function closeD(id){ closeOverlay(id); }
 function closeDrBg(e,id){ if(e.target===document.getElementById(id)) closeD(id); }
 function closeModalBg(e,id){ if(e.target===document.getElementById(id)) closeD(id); }
 
@@ -2913,8 +2932,7 @@ async function joinFamily(){
     if(body) body.innerHTML=names.length
       ? 'สมาชิกครอบครัว:<br>'+names.map(esc).join('<br>')
       : 'เชื่อมต่อครอบครัวนี้เรียบร้อยแล้ว';
-    var modal=document.getElementById('legal-modal');
-    if(modal) modal.classList.add('on');
+    openOverlay('legal-modal');
     var inp=document.getElementById('join-family-id');
     if(inp) inp.value='';
     toast('เชื่อมครอบครัวสำเร็จ','ok');
