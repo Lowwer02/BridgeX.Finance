@@ -401,14 +401,19 @@ function showAuthScreen(){
   auth.classList.remove('off','hidden');
 }
 function showLoading(){
-  var loading=document.getElementById('loading');
+  var loading=document.getElementById('loading')||document.querySelector('.loading');
   if(!loading) return;
   loading.classList.remove('off','hidden');
+  loading.classList.add('flex');
 }
-function stopLoading(){
-  var loading=document.getElementById('loading');
+function hideLoading(){
+  var loading=document.getElementById('loading')||document.querySelector('.loading');
   if(!loading) return;
   loading.classList.add('off','hidden');
+  loading.classList.remove('flex');
+}
+function stopLoading(){
+  hideLoading();
 }
 function showBootstrapRetryError(msg){
   if(!S.user) showAuthScreen();
