@@ -1204,10 +1204,12 @@ function toggleAddMode(mode){
     var btn=document.getElementById(id);
     if(!btn) return;
     var isOn=(id==='tog-exp'&&mode==='expense')||(id==='tog-inc'&&mode==='income');
-    btn.classList.toggle('bg-card2',isOn);
-    btn.classList.toggle('text-textMain',isOn);
+    var isExpense=id==='tog-exp';
+    btn.classList.toggle('bg-white',isOn);
+    btn.classList.toggle('text-danger',isOn&&isExpense);
+    btn.classList.toggle('text-green',isOn&&!isExpense);
     btn.classList.toggle('shadow-sm',isOn);
-    btn.classList.toggle('text-textMuted',!isOn);
+    btn.classList.toggle('text-slate-500',!isOn);
   });
 }
 

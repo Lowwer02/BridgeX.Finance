@@ -202,60 +202,65 @@
 </div>
 
 <!-- ADD EXPENSE -->
-<div class="pg on !ml-0 min-h-screen px-4 pb-24 md:!ml-[250px]" id="pg-add">
+<div class="pg on !ml-0 min-h-screen bg-[#f7f9ff] px-4 pb-28 pt-5 text-[#0b1b32] md:!ml-[250px] md:bg-transparent md:pb-24 md:pt-0 md:text-textMain" id="pg-add">
   <header class="mb-5 flex items-center justify-between md:hidden">
-    <button class="material-symbols-outlined flex h-11 w-11 items-center justify-center rounded-full border border-border bg-card2 text-textMuted" type="button" onclick="toggleSidebar()">menu</button>
-    <h1 class="font-spaceGrotesk text-2xl font-bold text-textMain">บันทึกรายการ</h1>
-    <span class="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-primaryContainer/20 font-spaceGrotesk font-black text-primary">BX</span>
+    <button class="material-symbols-outlined flex h-12 w-12 items-center justify-center rounded-full border border-slate-200 bg-white text-2xl text-[#0b1b32] shadow-sm" type="button" onclick="goTab('dash')">arrow_back</button>
+    <h1 class="font-spaceGrotesk text-[26px] font-black text-[#0b1b32]">บันทึกรายการ</h1>
+    <img class="h-11 w-11 rounded-2xl border border-slate-200 object-cover shadow-sm" src="assets/bridgex-logo.png" alt="BridgeX">
   </header>
-  <div class="mb-5 grid grid-cols-2 rounded-2xl border border-border bg-surfaceLow p-1 md:hidden">
-    <button id="tog-exp" class="on rounded-xl bg-card2 px-4 py-3 font-inter text-sm font-extrabold text-textMain shadow-sm transition" onclick="toggleAddMode('expense')">รายจ่าย</button>
-    <button id="tog-inc" class="rounded-xl px-4 py-3 font-inter text-sm font-extrabold text-textMuted transition" onclick="toggleAddMode('income')">รายรับ</button>
+  <div class="mb-7 grid grid-cols-2 rounded-full bg-slate-200/80 p-1.5 shadow-inner md:hidden">
+    <button id="tog-exp" class="on rounded-full bg-white px-4 py-3 font-inter text-sm font-black text-danger shadow-sm transition" onclick="toggleAddMode('expense')">รายจ่าย (Expense)</button>
+    <button id="tog-inc" class="rounded-full px-4 py-3 font-inter text-sm font-black text-slate-500 transition" onclick="toggleAddMode('income')">รายรับ (Income)</button>
   </div>
   <div id="mode-expense">
   <div class="mx-auto grid w-full max-w-[1180px] gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-    <div class="flex min-w-0 flex-col gap-5">
-      <div class="rounded-3xl border border-white/10 bg-gradient-to-br from-surfaceLow to-card2 p-6 shadow-2xl md:p-8">
+    <div class="flex min-w-0 flex-col gap-4 md:gap-5">
+      <div class="rounded-[28px] border border-slate-200/80 bg-white/70 p-6 shadow-[0_18px_48px_rgba(76,53,196,.10)] backdrop-blur-xl md:rounded-3xl md:border-white/10 md:bg-gradient-to-br md:from-surfaceLow md:to-card2 md:p-8 md:shadow-2xl">
         <div class="text-center">
-        <div class="mb-2 font-inter text-xs font-extrabold uppercase tracking-[.18em] text-textMuted" data-i18n="amount">จำนวนเงิน</div>
-        <div class="flex items-center justify-center gap-3"><span class="font-spaceGrotesk text-4xl font-bold text-primary">฿ </span><input class="w-[220px] bg-transparent text-center font-spaceGrotesk text-6xl font-bold text-textMain outline-none placeholder:text-textMuted/30 md:text-7xl" id="f-amt" type="number" placeholder="0.00" inputmode="decimal"></div>
-        </div>
-        <div class="flex w-full items-center gap-3">
-          <input type="file" id="slip-upload" accept="image/*" hidden>
-          <button type="button" class="flex flex-1 items-center gap-3 rounded-xl border border-primary/30 bg-primaryContainer/10 px-4 py-3 text-left text-primary" onclick="document.getElementById('slip-upload').click()">
-            <span class="material-symbols-outlined flex h-10 w-10 items-center justify-center rounded-full bg-primaryContainer/20">document_scanner</span>
-            <span class="flex flex-1 flex-col"><strong class="font-inter text-sm font-bold text-textMain">สแกนสลิป / ใบเสร็จ</strong><small class="text-xs text-textMuted">แตะเพื่ออ่านยอดเงินและวันที่อัตโนมัติ</small></span>
-            <span class="material-symbols-outlined text-textMuted">chevron_right</span>
-          </button>
-          <span class="text-xs font-bold text-textMuted" id="slip-status"></span>
-        </div>
-        <div class="mt-5 grid gap-4 md:grid-cols-[1fr_auto]">
-          <div><label class="mb-2 block font-inter text-xs font-extrabold uppercase tracking-wide text-textMuted" data-i18n="date">วันที่</label><input class="w-full rounded-xl border border-border bg-card2 px-4 py-3 font-notoThai text-sm text-textMain outline-none focus:border-primary" type="date" id="f-dt"></div>
-          <div class="hidden items-center rounded-full border border-border bg-card2 p-1 md:flex"><span class="on rounded-full bg-primaryContainer px-4 py-2 text-xs font-bold text-white">Joint</span><span class="px-4 py-2 text-xs font-bold text-textMuted">Personal</span></div>
+          <div class="mx-auto mb-5 inline-flex rounded-full bg-primary/10 px-5 py-2 font-inter text-sm font-black text-slate-600 md:mb-2 md:bg-transparent md:px-0 md:py-0 md:text-xs md:uppercase md:tracking-[.18em] md:text-textMuted" data-i18n="amount">THB (฿)</div>
+          <div class="flex items-center justify-center gap-2"><span class="font-spaceGrotesk text-3xl font-black text-danger md:text-4xl md:text-primary">฿</span><input class="w-[210px] bg-transparent text-center font-spaceGrotesk text-[76px] font-black leading-none text-danger outline-none placeholder:text-danger/25 md:w-[220px] md:text-7xl md:text-textMain md:placeholder:text-textMuted/30" id="f-amt" type="number" placeholder="0" inputmode="decimal"></div>
         </div>
       </div>
-      <div class="grid gap-5 md:grid-cols-2">
-        <div class="rounded-2xl border border-white/10 bg-surfaceLow/80 p-5 shadow-xl backdrop-blur-xl">
-          <div class="mb-4 font-inter text-xs font-extrabold uppercase tracking-[.14em] text-textMuted" data-i18n="category">หมวดหมู่</div>
-          <div class="grid grid-cols-2 gap-2 sm:grid-cols-3" id="cat-chips"></div>
-          <button class="mt-4 flex w-full items-center gap-3 rounded-xl border border-primary/30 bg-primaryContainer/10 px-4 py-3 text-left md:hidden" id="mobile-cat-trigger" type="button" onclick="openMobilePicker('cat')">
-            <span class="material-symbols-outlined flex h-10 w-10 items-center justify-center rounded-full bg-primaryContainer/20 text-primary">grid_view</span>
-            <strong class="flex-1 font-inter text-sm font-bold text-textMain">เลือกหมวดหมู่</strong>
-            <em class="text-xs font-bold not-italic text-primary" id="mobile-cat-label">เลือกหมวดหมู่</em>
+      <button class="flex w-full items-center gap-4 rounded-[22px] border border-slate-200 bg-white px-4 py-4 text-left shadow-[0_14px_34px_rgba(15,23,42,.06)] md:hidden" id="mobile-pay-trigger" type="button" onclick="openMobilePicker('pay')">
+        <span class="material-symbols-outlined flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600">account_balance</span>
+        <span class="flex flex-1 flex-col"><small class="font-inter text-xs font-black text-slate-500" data-i18n="paymentMethod">จ่ายผ่าน</small><strong class="font-notoThai text-lg font-black text-[#0b1b32]" id="mobile-pay-label">เลือกช่องทางชำระเงิน</strong></span>
+        <span class="material-symbols-outlined text-slate-300">expand_more</span>
+      </button>
+      <div class="grid grid-cols-2 gap-3 md:grid-cols-2 md:gap-5">
+        <div class="rounded-[22px] border border-slate-200 bg-white p-4 shadow-[0_14px_34px_rgba(15,23,42,.06)] md:rounded-2xl md:border-white/10 md:bg-surfaceLow/80 md:p-5 md:shadow-xl md:backdrop-blur-xl">
+          <div class="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary md:hidden"><span class="material-symbols-outlined">layers</span></div>
+          <div class="mb-1 font-inter text-sm font-black text-slate-500 md:mb-4 md:text-xs md:uppercase md:tracking-[.14em] md:text-textMuted" data-i18n="category">หมวดหมู่</div>
+          <div class="hidden grid-cols-2 gap-2 sm:grid-cols-3 md:grid" id="cat-chips"></div>
+          <button class="flex w-full items-center gap-2 text-left md:hidden" id="mobile-cat-trigger" type="button" onclick="openMobilePicker('cat')">
+            <strong class="min-w-0 flex-1 truncate font-notoThai text-xl font-black text-[#0b1b32]" id="mobile-cat-label">เลือกหมวดหมู่</strong>
+            <span class="material-symbols-outlined text-slate-300">expand_more</span>
           </button>
         </div>
-        <div class="rounded-2xl border border-white/10 bg-surfaceLow/80 p-5 shadow-xl backdrop-blur-xl">
-          <div>
+        <div class="rounded-[22px] border border-slate-200 bg-white p-4 shadow-[0_14px_34px_rgba(15,23,42,.06)] md:rounded-2xl md:border-white/10 md:bg-surfaceLow/80 md:p-5 md:shadow-xl md:backdrop-blur-xl">
+          <div class="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-100 text-orange-400 md:hidden"><span class="material-symbols-outlined">calendar_today</span></div>
+          <label class="mb-1 block font-inter text-sm font-black text-slate-500 md:text-xs md:uppercase md:tracking-wide md:text-textMuted" data-i18n="date">วันที่</label>
+          <input class="w-full rounded-xl border-0 bg-transparent p-0 font-notoThai text-xl font-black text-[#0b1b32] outline-none md:border md:border-border md:bg-card2 md:px-4 md:py-3 md:text-sm md:text-textMain md:focus:border-primary" type="date" id="f-dt">
+        </div>
+        <div class="hidden rounded-2xl border border-white/10 bg-surfaceLow/80 p-5 shadow-xl backdrop-blur-xl md:block">
           <div class="mb-4 font-inter text-xs font-extrabold uppercase tracking-[.14em] text-textMuted" data-i18n="paymentMethod">จ่ายผ่าน</div>
           <div class="grid grid-cols-2 gap-2 sm:grid-cols-3" id="pay-chips"></div>
-          <button class="mt-4 flex w-full items-center gap-3 rounded-xl border border-primary/30 bg-primaryContainer/10 px-4 py-3 text-left md:hidden" id="mobile-pay-trigger" type="button" onclick="openMobilePicker('pay')">
-            <span class="material-symbols-outlined flex h-10 w-10 items-center justify-center rounded-full bg-primaryContainer/20 text-primary">account_balance_wallet</span>
-            <strong class="flex-1 font-inter text-sm font-bold text-textMain">เลือกช่องทางชำระเงิน</strong>
-            <em class="text-xs font-bold not-italic text-primary" id="mobile-pay-label">เลือกช่องทางชำระเงิน</em>
-          </button>
-          </div>
-          <div class="mt-5"><label class="mb-2 block font-inter text-xs font-extrabold uppercase tracking-wide text-textMuted" data-i18n="note">บันทึกช่วยจำ</label><textarea class="h-24 w-full resize-none rounded-xl border border-border bg-card2 px-4 py-3 font-notoThai text-sm leading-6 text-textMain outline-none placeholder:text-textMuted/60 focus:border-primary" id="f-det" placeholder="เช่น ข้าวมันไก่, ค่า Grab"></textarea></div>
         </div>
+        <div class="col-span-2 rounded-[22px] border border-slate-200 bg-white p-4 shadow-[0_14px_34px_rgba(15,23,42,.06)] md:col-span-1 md:rounded-2xl md:border-white/10 md:bg-surfaceLow/80 md:p-5 md:shadow-xl md:backdrop-blur-xl">
+          <div class="flex gap-4 md:block">
+            <span class="material-symbols-outlined flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-slate-600 md:hidden">sticky_note_2</span>
+            <div class="min-w-0 flex-1">
+              <label class="mb-1 block font-inter text-sm font-black text-slate-500 md:mb-2 md:text-xs md:uppercase md:tracking-wide md:text-textMuted" data-i18n="note">บันทึกช่วยจำ</label>
+              <textarea class="h-12 w-full resize-none bg-transparent p-0 font-notoThai text-lg font-bold leading-6 text-[#0b1b32] outline-none placeholder:text-slate-400 md:h-24 md:rounded-xl md:border md:border-border md:bg-card2 md:px-4 md:py-3 md:text-sm md:font-normal md:text-textMain md:placeholder:text-textMuted/60 md:focus:border-primary" id="f-det" placeholder="เช่น ข้าวมันไก่ป้าศรี..."></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="rounded-[22px] border-2 border-dashed border-slate-300 bg-white/55 p-5 text-center shadow-[0_14px_34px_rgba(15,23,42,.04)] md:rounded-xl md:border md:border-primary/30 md:bg-primaryContainer/10 md:p-0 md:text-left md:shadow-none">
+        <input type="file" id="slip-upload" accept="image/*" hidden>
+        <button type="button" class="flex w-full flex-col items-center justify-center gap-2 text-primary md:flex-row md:justify-start md:gap-3 md:px-4 md:py-3" onclick="document.getElementById('slip-upload').click()">
+          <span class="material-symbols-outlined flex h-12 w-12 items-center justify-center rounded-full bg-primary/20 text-primary md:h-10 md:w-10 md:bg-primaryContainer/20">cloud_upload</span>
+          <span class="flex flex-col"><strong class="font-inter text-sm font-black text-primary md:text-textMain">สแกนสลิป / ใบเสร็จ</strong><small class="text-xs font-bold text-slate-500 md:text-textMuted">แตะเพื่ออ่านยอดเงินและวันที่อัตโนมัติ</small><small class="text-xs font-black text-primary" id="slip-status"></small></span>
+        </button>
       </div>
       <div class="hidden">
         <div>ผู้จ่าย</div>
@@ -264,9 +269,9 @@
           <div id="py-f" onclick="selP('แฟง')"><div>ฟ</div><div class="nm">แฟง</div><div class="rl">แฟน</div></div>
         </div>
       </div>
-      <div class="grid grid-cols-2 gap-3">
-        <button class="rounded-xl border border-border bg-card2 px-4 py-4 font-inter text-sm font-bold text-textMain" onclick="resetExpenseForm()" data-i18n="cancel">ยกเลิก</button>
-        <button class="rounded-xl bg-primaryContainer px-4 py-4 font-inter text-sm font-extrabold text-white shadow-lg shadow-primaryContainer/30" onclick="submitExp()" data-i18n="saveTransaction">บันทึกรายการ</button>
+      <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+        <button class="hidden rounded-xl border border-border bg-card2 px-4 py-4 font-inter text-sm font-bold text-textMain md:block" onclick="resetExpenseForm()" data-i18n="cancel">ยกเลิก</button>
+        <button class="flex items-center justify-center gap-3 rounded-[22px] bg-[#0b1b32] px-4 py-5 font-inter text-lg font-black text-white shadow-[0_18px_42px_rgba(11,27,50,.22)] md:rounded-xl md:bg-primaryContainer md:py-4 md:text-sm md:shadow-lg md:shadow-primaryContainer/30" onclick="submitExp()" data-i18n="saveTransaction"><span class="material-symbols-outlined">check</span>บันทึกรายจ่าย</button>
       </div>
     </div>
     <aside class="hidden rounded-2xl border border-white/10 bg-surfaceLow/80 p-5 shadow-xl backdrop-blur-xl lg:block">
