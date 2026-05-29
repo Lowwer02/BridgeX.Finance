@@ -448,7 +448,21 @@ function setOverlayState(target,open){
 }
 function openOverlay(target){ setOverlayState(target,true); }
 function closeOverlay(target){ setOverlayState(target,false); }
-function showBootstrapRetryError(msg){
+function closeProfileErrorModalIfOpen(){
+  var title=document.getElementById('legal-title');
+  if(title&&title.textContent==='โหลดโปรไฟล์ไม่สำเร็จ') closeOverlay('legal-modal');
+}
+function hasUsableProfile(){
+  return !!(S.profile&&S.user&&S.profile.id===S.user.id)||!!window.__profileLoaded;
+}
+function isStaleProfileBootstrapError(runId){
+  return !!(runId&&runId!==profileBootstrapRunId)||hasUsableProfile();
+}
+function showBootstrapRetryError(msg,runId){
+  if(isStaleProfileBootstrapError(runId)){
+    console.warn('[BX Auth] ignored stale profile error:',msg);
+    return;
+  }
   if(!S.user) showAuthScreen();
   if(S.user) hideAuthScreen();
   toast(msg||'โหลดโปรไฟล์ไม่สำเร็จ กรุณาลองใหม่','err');
@@ -475,6 +489,7 @@ async function retryBootstrap(){
     if(sess.data.session){
       S.user=sess.data.session.user;
       S.profile=null;
+      window.__profileLoaded=false;
       bootstrappedUserId=null;
       await onLogin();
     }
@@ -511,6 +526,8 @@ function throwSb(label,res){
 var isBootstrapping = false;
 var bootstrappedUserId = null;
 var bootstrapPromise = null;
+var profileBootstrapRunId = 0;
+window.__profileLoaded = false;
 var _isBootstrapping = false;   // legacy alias
 var _lastSessionUid  = null;    // legacy alias
 // ─────────────────────────────────────────────────────
@@ -569,6 +586,7 @@ async function doLogin(){
   if(authMode==='signup'&&!hasPdpaConsent()){ showAuthErr('กรุณายอมรับข้อตกลงและนโยบายความเป็นส่วนตัวก่อนสมัคร'); return; }
   btn.textContent=authMode==='signup'?'⏳ กำลังสมัคร...':'⏳ กำลังเข้าสู่ระบบ...'; btn.disabled=true;
   S._loginBusy=true;
+  window.__profileLoaded=false;
   bootstrappedUserId=null; _lastSessionUid=null; // allow fresh onLogin for explicit sign-in
   showLoading();
   try{
@@ -642,13 +660,20 @@ async function onLogin(){
     stopLoading();
     return Promise.resolve();
   }
-  bootstrapPromise=(async function(){
+  var runId=++profileBootstrapRunId;
+  if(!S.profile||S.profile.id!==S.user.id) window.__profileLoaded=false;
+  var promise=(async function(){
     isBootstrapping=true; _isBootstrapping=true;
     hideAuthScreen();
     try{
       logStep('onLogin start');
       var profile=await ensureProfile();
+      if(runId!==profileBootstrapRunId) return;
+      S.profile=profile;
+      window.__profileLoaded=true;
+      closeProfileErrorModalIfOpen();
       await ensureFamily();
+      if(runId!==profileBootstrapRunId) return;
       profile=S.profile||profile;
       logStep('onLogin checkAccess');
       checkAccess();
@@ -663,7 +688,9 @@ async function onLogin(){
       renderHist(); renderCR(); renderDash(); renderIncSum(); renderSetStats(); renderAddSummary();
       document.getElementById('set-user').textContent=S.user?S.user.email:'';
       await loadFromSupabase(profile);
+      if(runId!==profileBootstrapRunId) return;
       hideAuthScreen();
+      closeProfileErrorModalIfOpen();
       bootstrappedUserId=S.user.id; _lastSessionUid=S.user.id;
     }catch(e){
       console.error('profile bootstrap failed raw:',{
@@ -674,19 +701,25 @@ async function onLogin(){
         status:e&&e.status,
         raw:e
       });
-      showBootstrapRetryError('โหลดโปรไฟล์ไม่สำเร็จ กรุณาลองอีกครั้ง');
+      if(isStaleProfileBootstrapError(runId)){
+        console.warn('[BX Auth] ignored stale profile bootstrap failure:',e);
+        return;
+      }
+      showBootstrapRetryError('โหลดโปรไฟล์ไม่สำเร็จ กรุณาลองอีกครั้ง',runId);
     }finally{
-      stopLoading();
+      if(runId===profileBootstrapRunId) stopLoading();
       isBootstrapping=false; _isBootstrapping=false;
-      bootstrapPromise=null;
+      if(bootstrapPromise===promise) bootstrapPromise=null;
     }
   })();
+  bootstrapPromise=promise;
   return bootstrapPromise;
 }
 async function doLogout(){
   if(!confirm('ออกจากระบบ?')) return;
   await sb.auth.signOut();
   S.user=null;
+  window.__profileLoaded=false;
   // PATCH v4.1.2: reset boot guards so next login runs cleanly
   isBootstrapping=false; _isBootstrapping=false;
   bootstrappedUserId=null; _lastSessionUid=null;
