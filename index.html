@@ -218,7 +218,10 @@
       <div class="rounded-[28px] border border-primary/15 bg-white/75 p-6 shadow-[0_18px_48px_rgba(76,53,196,.10)] backdrop-blur-xl md:rounded-3xl md:border-white/10 md:bg-gradient-to-br md:from-surfaceLow md:to-card2 md:p-8 md:shadow-2xl">
         <div class="text-center">
           <div class="mb-2 hidden font-inter text-xs font-extrabold uppercase tracking-[.18em] text-textMuted md:block" data-i18n="amount">จำนวนเงิน</div>
-          <div class="flex items-center justify-center gap-3"><span class="font-spaceGrotesk text-3xl font-black text-primary md:text-4xl">฿ </span><input class="w-[210px] bg-transparent text-center font-spaceGrotesk text-[76px] font-black leading-none tracking-normal text-primary outline-none placeholder:text-primary/25 md:w-[220px] md:text-7xl md:text-textMain md:placeholder:text-textMuted/30" id="f-amt" type="number" placeholder="0" inputmode="decimal"></div>
+          <div class="flex items-center justify-center gap-3">
+            <span class="font-spaceGrotesk text-3xl font-black text-primary md:text-4xl">฿ </span>
+            <input class="w-[210px] bg-transparent text-center font-spaceGrotesk text-[76px] font-black leading-none tracking-normal text-primary outline-none placeholder:text-primary/25 md:w-[220px] md:text-7xl md:text-textMain md:placeholder:text-textMuted/30" id="f-amt" type="number" placeholder="0" inputmode="decimal">
+          </div>
         </div>
       </div>
       <div class="rounded-[22px] border-2 border-dashed border-slate-300 bg-white/55 p-5 text-center shadow-[0_14px_34px_rgba(15,23,42,.04)] md:order-none md:rounded-xl md:border md:border-primary/30 md:bg-primaryContainer/10 md:p-0 md:text-left md:shadow-none">
@@ -517,14 +520,10 @@
     <div class="flex min-w-0 flex-col gap-4 md:gap-5">
       <div class="rounded-[28px] border border-emerald-100/80 bg-white/75 p-6 shadow-[0_18px_48px_rgba(5,150,105,.10)] backdrop-blur-xl md:rounded-3xl md:border-white/10 md:bg-gradient-to-br md:from-surfaceLow md:to-card2 md:p-8 md:shadow-2xl">
         <div class="text-center">
-          <label class="mb-2 hidden font-inter text-xs font-extrabold uppercase tracking-[.18em] text-textMuted md:block" data-i18n="amount">จำนวนเงิน</label>
+          <div class="mb-2 hidden font-inter text-xs font-extrabold uppercase tracking-[.18em] text-textMuted md:block" data-i18n="amount">จำนวนเงิน</div>
           <div class="flex items-center justify-center gap-3">
             <span class="font-spaceGrotesk text-3xl font-black text-green md:text-4xl">฿ </span>
             <input class="w-[210px] bg-transparent text-center font-spaceGrotesk text-[76px] font-black leading-none tracking-normal text-green outline-none placeholder:text-green/25 md:w-[220px] md:text-7xl md:text-textMain md:placeholder:text-textMuted/30" id="i-amt" type="number" placeholder="0" inputmode="decimal">
-          </div>
-          <div class="mt-5 hidden flex-wrap justify-center gap-2 md:flex">
-            <button class="rounded-full border border-green/30 bg-green/10 px-4 py-2 font-inter text-xs font-bold text-green" type="button" onclick="document.getElementById('i-amt').value=(Number(document.getElementById('i-amt').value)||0)+1000">+ ฿ 1,000</button>
-            <button class="rounded-full border border-green/30 bg-green/10 px-4 py-2 font-inter text-xs font-bold text-green" type="button" onclick="document.getElementById('i-amt').value=(Number(document.getElementById('i-amt').value)||0)+5000">+ ฿ 5,000</button>
           </div>
         </div>
       </div>
