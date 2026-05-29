@@ -280,8 +280,10 @@ body.light .theme-btn{background:var(--pbg);border-color:var(--bdr);color:var(--
   position:relative;
   z-index:12001;
   width:100%;
-  max-height:75vh;
-  overflow-y:auto;
+  max-height:82vh;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
   pointer-events:auto;
   background:rgba(28,27,35,.96);
   border:1px solid rgba(255,255,255,.12);
@@ -296,6 +298,7 @@ body.light .theme-btn{background:var(--pbg);border-color:var(--bdr);color:var(--
   position:sticky;
   top:0;
   z-index:2;
+  flex-shrink:0;
   display:flex;
   align-items:center;
   justify-content:space-between;
@@ -326,7 +329,11 @@ body.light .theme-btn{background:var(--pbg);border-color:var(--bdr);color:var(--
   display:grid;
   grid-template-columns:repeat(4,1fr);
   gap:22px 14px;
-  padding:24px 18px max(28px,env(safe-area-inset-bottom));
+  flex:1;
+  min-height:0;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  padding:28px 18px max(120px,calc(env(safe-area-inset-bottom) + 72px));
 }
 .mobile-picker-item{
   min-width:0;
