@@ -168,6 +168,297 @@
   #pg-debt .mobile-debt-bento{grid-template-columns:1fr}
 }
 
+/* Session 3: mobile Credit/Debt compact light redesign */
+@media (max-width:768px){
+  #pg-debt{
+    width:100%;
+    max-width:480px;
+    min-height:100vh;
+    margin:0 auto !important;
+    padding:18px 16px 104px !important;
+    overflow-x:hidden;
+    color:#0b1b32;
+    background:
+      radial-gradient(circle at 80% 0,rgba(199,191,255,.30),transparent 34%),
+      linear-gradient(180deg,#f8f9ff 0%,#eef3ff 100%) !important;
+  }
+  #pg-debt .mobile-debt-bento{
+    display:grid !important;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:12px;
+    margin:0 0 16px;
+  }
+  #pg-debt .mobile-debt-bento-card{
+    min-width:0;
+    padding:13px 14px;
+    border:1px solid #dbe6ff;
+    border-radius:16px;
+    background:rgba(255,255,255,.86) !important;
+    box-shadow:0 12px 30px rgba(31,45,80,.08);
+  }
+  #pg-debt .mobile-debt-bento-card span{
+    display:block;
+    color:#475569;
+    font:800 11px/1.35 var(--font-label);
+  }
+  #pg-debt .mobile-debt-bento-card strong{
+    display:block;
+    margin-top:8px;
+    color:#0b1b32;
+    font:900 21px/1.08 var(--font-headline);
+    letter-spacing:0;
+    white-space:nowrap;
+  }
+  #pg-debt .mobile-debt-bento-card.paid strong,
+  #pg-debt .mobile-debt-bento-card.saved strong{
+    color:#059669;
+  }
+  #pg-debt .mobile-debt-bento-card.faster strong{
+    color:#4c35c4;
+  }
+  #pg-debt .debt-type-toggle{
+    width:100%;
+    display:flex;
+    gap:6px;
+    margin:0 0 16px;
+    padding:5px;
+    border:1px solid #dbe6ff;
+    border-radius:16px;
+    background:#e7edf7 !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.75);
+  }
+  #pg-debt .debt-type-toggle .tog-btn{
+    flex:1;
+    min-height:42px;
+    border:0;
+    border-radius:12px;
+    background:transparent;
+    color:#64748b;
+    font:900 14px/1 var(--font-label);
+  }
+  #pg-debt .debt-type-toggle .tog-btn.on{
+    border:0;
+    background:#4c35c4 !important;
+    color:#fff !important;
+    box-shadow:0 10px 20px rgba(76,53,196,.24);
+  }
+  #pg-debt #debt-mode-credit,
+  #pg-debt #debt-mode-plan,
+  #pg-debt .cr-shell,
+  #pg-debt .debtp-shell{
+    width:100%;
+    max-width:100%;
+    min-width:0;
+    box-sizing:border-box;
+  }
+  #pg-debt #debt-mode-credit .cr-shell > .mb-5{
+    display:flex;
+    flex-wrap:nowrap;
+    gap:8px;
+    overflow-x:auto;
+    margin-bottom:12px;
+    padding-bottom:2px;
+    scrollbar-width:none;
+  }
+  #pg-debt #debt-mode-credit .cr-shell > .mb-5::-webkit-scrollbar{display:none}
+  #pg-debt #debt-mode-credit .cr-shell > .mb-5 button{
+    flex:0 0 auto;
+    border-color:#dbe6ff !important;
+    background:rgba(255,255,255,.72) !important;
+    color:#64748b !important;
+  }
+  #pg-debt #debt-mode-credit .cr-shell > .mb-5 button.on{
+    background:#4c35c4 !important;
+    color:#fff !important;
+    border-color:#4c35c4 !important;
+  }
+  #pg-debt #debt-mode-credit #debt-overview-card,
+  #pg-debt #debt-mode-credit #match-summary-card{
+    display:none !important;
+  }
+  #pg-debt #debt-mode-credit .cr-shell section{
+    padding:0 !important;
+    border:0 !important;
+    border-radius:0 !important;
+    background:transparent !important;
+    box-shadow:none !important;
+  }
+  #pg-debt #debt-mode-credit .cr-shell section > .mb-5{
+    margin:0 0 12px !important;
+  }
+  #pg-debt #debt-mode-credit .cr-shell h2{
+    color:#0b1b32 !important;
+    font-size:20px !important;
+    font-weight:900 !important;
+  }
+  #pg-debt #debt-mode-credit .cr-shell section > .mb-5 button{
+    background:#ede7ff !important;
+    color:#4c35c4 !important;
+    box-shadow:none !important;
+  }
+  #pg-debt .mobile-compact-credit-card{
+    width:100%;
+    max-width:100%;
+    min-width:0;
+    padding:16px !important;
+    border:1px solid #dbe6ff !important;
+    border-radius:16px !important;
+    background:rgba(255,255,255,.92) !important;
+    box-shadow:0 14px 34px rgba(31,45,80,.09) !important;
+  }
+  #pg-debt .mobile-compact-credit-card .text-textMain,
+  #pg-debt .mobile-compact-credit-card .text-textMuted{
+    color:inherit;
+  }
+  #pg-debt .mobile-compact-credit-card .text-textMuted,
+  #pg-debt .mobile-compact-credit-card .text-xs{
+    color:#64748b !important;
+  }
+  #pg-debt .mobile-compact-credit-card .font-notoThai,
+  #pg-debt .mobile-compact-credit-card .text-3xl{
+    color:#0b1b32 !important;
+  }
+  #pg-debt .mobile-compact-credit-card .pay{
+    flex:1;
+    min-height:44px;
+    border-radius:12px !important;
+    background:#4c35c4 !important;
+    color:#fff !important;
+    box-shadow:0 10px 22px rgba(76,53,196,.22) !important;
+  }
+  #pg-debt .mobile-compact-credit-card .edit{
+    flex:1;
+    min-height:44px;
+    border-radius:12px !important;
+    border-color:#cbd5e1 !important;
+    background:#fff !important;
+    color:#334155 !important;
+  }
+  #pg-debt #debt-mode-plan .debtp-hero{
+    display:none !important;
+  }
+  #pg-debt #debt-mode-plan .debtp-grid,
+  #pg-debt #debt-mode-plan .debtp-main{
+    display:flex !important;
+    flex-direction:column !important;
+    gap:14px !important;
+  }
+  #pg-debt #debt-mode-plan .debtp-side,
+  #pg-debt #debt-mode-plan .debtp-controls-panel,
+  #pg-debt #debt-mode-plan .debtp-impact{
+    border:1px solid #dbe6ff !important;
+    border-radius:16px !important;
+    background:rgba(255,255,255,.9) !important;
+    box-shadow:0 14px 34px rgba(31,45,80,.08) !important;
+  }
+  #pg-debt #debt-mode-plan .debtp-controls-panel,
+  #pg-debt #debt-mode-plan .debtp-impact{
+    padding:15px !important;
+  }
+  #pg-debt #debt-mode-plan .debtp-panel-title,
+  #pg-debt #debt-mode-plan .debtp-impact h2{
+    color:#0b1b32 !important;
+    font-size:18px !important;
+  }
+  #pg-debt #debt-mode-plan .debtp-list-card,
+  #pg-debt #debt-mode-plan .debtp-list-head{
+    display:none !important;
+  }
+  #pg-debt #debt-mode-plan #smart-results{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+  #pg-debt #debt-mode-plan .debt-focus-card{
+    position:relative;
+    overflow:hidden;
+    padding:18px !important;
+    border:0 !important;
+    border-radius:18px !important;
+    background:#4c35c4 !important;
+    color:#fff !important;
+    box-shadow:0 18px 40px rgba(76,53,196,.28) !important;
+  }
+  #pg-debt #debt-mode-plan .debt-focus-card::after{
+    content:'';
+    position:absolute;
+    inset:0;
+    background:radial-gradient(circle at 85% 10%,rgba(255,255,255,.26),transparent 28%);
+    pointer-events:none;
+  }
+  #pg-debt #debt-mode-plan .debt-focus-card .text-textMain,
+  #pg-debt #debt-mode-plan .debt-focus-card .text-textMuted,
+  #pg-debt #debt-mode-plan .debt-focus-card .text-primary{
+    color:#fff !important;
+  }
+  #pg-debt #debt-mode-plan .debt-focus-card button{
+    position:relative;
+    min-height:48px;
+    border-radius:14px !important;
+    background:#fff !important;
+    color:#4c35c4 !important;
+    box-shadow:none !important;
+  }
+  #debt-order-sheet.debt-sheet-overlay.on{
+    z-index:12500;
+    align-items:flex-end;
+    background:rgba(15,23,42,.38) !important;
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+  }
+  #debt-order-sheet .debt-bottom-sheet{
+    max-height:82vh;
+    border-color:#e2e8f0 !important;
+    background:#fff !important;
+    box-shadow:0 -20px 60px rgba(15,23,42,.18) !important;
+  }
+  #debt-order-sheet .debt-sheet-head{
+    padding-bottom:14px;
+    border-bottom:1px solid #e2e8f0;
+  }
+  #debt-order-sheet .debt-sheet-head h2{
+    color:#0b1b32 !important;
+    font-size:20px !important;
+  }
+  #debt-order-sheet .debt-sheet-list{
+    overflow-y:auto;
+    padding:14px 0 max(96px,env(safe-area-inset-bottom));
+  }
+  #debt-order-sheet .debt-premium-card{
+    display:grid !important;
+    grid-template-columns:34px 42px minmax(0,1fr) auto 22px;
+    gap:10px;
+    align-items:center;
+    padding:13px 10px !important;
+    border:1px solid #dbe6ff !important;
+    border-radius:16px !important;
+    background:#fff !important;
+    box-shadow:0 10px 26px rgba(31,45,80,.08) !important;
+  }
+  #debt-order-sheet .debt-premium-card.priority{
+    border-color:rgba(78,222,163,.55) !important;
+    background:#f0fdf8 !important;
+  }
+  #debt-order-sheet .debt-rank-badge{
+    border-color:#dbe6ff !important;
+    background:#f1f5ff !important;
+    color:#4c35c4 !important;
+  }
+  #debt-order-sheet .debt-card-copy strong{
+    color:#0b1b32 !important;
+  }
+  #debt-order-sheet .debt-card-copy small,
+  #debt-order-sheet .debt-card-pay small{
+    color:#64748b !important;
+  }
+  #debt-order-sheet .debt-card-pay strong{
+    color:#4c35c4 !important;
+  }
+  #debt-order-sheet .debt-card-status{
+    color:#059669 !important;
+  }
+}
+
 /* ── Auth Screen ── */
 .auth-screen{position:fixed;inset:0;background-color:#13121b;background-image:radial-gradient(at 0% 0%,rgba(76,53,196,.18) 0,transparent 50%),radial-gradient(at 100% 100%,rgba(199,191,255,.12) 0,transparent 52%);z-index:900;transition:background .3s;display:flex;align-items:center;justify-content:center;padding:24px;overflow:hidden}
 .auth-screen::before{content:'';position:absolute;top:-22%;left:-12%;width:54vw;height:54vw;min-width:280px;min-height:280px;background:var(--color-primary);border-radius:var(--radius-full);filter:blur(120px);opacity:.18;pointer-events:none}
@@ -3128,4 +3419,180 @@ body.theme-light .google-btn{border-color:var(--bdr)}
     color:var(--pl);
     font-weight:800;
   }
+}
+
+/* Session 3 final mobile Credit/Debt overrides kept last for cascade safety */
+@media (max-width:768px){
+  #pg-debt{
+    max-width:480px !important;
+    padding:18px 16px 104px !important;
+    color:#0b1b32 !important;
+    background:radial-gradient(circle at 80% 0,rgba(199,191,255,.30),transparent 34%),linear-gradient(180deg,#f8f9ff 0%,#eef3ff 100%) !important;
+  }
+  #pg-debt .mobile-debt-bento{
+    display:grid !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:12px !important;
+    margin:0 0 16px !important;
+  }
+  #pg-debt .mobile-debt-bento-card{
+    padding:13px 14px !important;
+    border:1px solid #dbe6ff !important;
+    border-radius:16px !important;
+    background:rgba(255,255,255,.86) !important;
+    box-shadow:0 12px 30px rgba(31,45,80,.08) !important;
+  }
+  #pg-debt .mobile-debt-bento-card span{color:#475569 !important}
+  #pg-debt .mobile-debt-bento-card strong{color:#0b1b32 !important;font-size:21px !important}
+  #pg-debt .mobile-debt-bento-card.paid strong,
+  #pg-debt .mobile-debt-bento-card.saved strong{color:#059669 !important}
+  #pg-debt .mobile-debt-bento-card.faster strong{color:#4c35c4 !important}
+  #pg-debt .debt-type-toggle{
+    margin:0 0 16px !important;
+    padding:5px !important;
+    border:1px solid #dbe6ff !important;
+    border-radius:16px !important;
+    background:#e7edf7 !important;
+  }
+  #pg-debt .debt-type-toggle .tog-btn{
+    min-height:42px !important;
+    border:0 !important;
+    border-radius:12px !important;
+    background:transparent !important;
+    color:#64748b !important;
+  }
+  #pg-debt .debt-type-toggle .tog-btn.on{
+    background:#4c35c4 !important;
+    color:#fff !important;
+    box-shadow:0 10px 20px rgba(76,53,196,.24) !important;
+  }
+  #pg-debt #debt-mode-credit #debt-overview-card,
+  #pg-debt #debt-mode-credit #match-summary-card{display:none !important}
+  #pg-debt #debt-mode-credit .cr-shell section{
+    padding:0 !important;
+    border:0 !important;
+    background:transparent !important;
+    box-shadow:none !important;
+  }
+  #pg-debt #debt-mode-credit .cr-shell h2{color:#0b1b32 !important}
+  #pg-debt #debt-mode-credit .cr-shell section > .mb-5 button{
+    background:#ede7ff !important;
+    color:#4c35c4 !important;
+    box-shadow:none !important;
+  }
+  #pg-debt .mobile-compact-credit-card{
+    width:100% !important;
+    padding:16px !important;
+    border:1px solid #dbe6ff !important;
+    border-radius:16px !important;
+    background:rgba(255,255,255,.92) !important;
+    box-shadow:0 14px 34px rgba(31,45,80,.09) !important;
+  }
+  #pg-debt .mobile-compact-credit-card .font-notoThai,
+  #pg-debt .mobile-compact-credit-card .text-3xl{color:#0b1b32 !important}
+  #pg-debt .mobile-compact-credit-card .text-textMuted,
+  #pg-debt .mobile-compact-credit-card .text-xs{color:#64748b !important}
+  #pg-debt .mobile-compact-credit-card .pay{
+    flex:1;
+    min-height:44px;
+    background:#4c35c4 !important;
+    color:#fff !important;
+    border-radius:12px !important;
+  }
+  #pg-debt .mobile-compact-credit-card .edit{
+    flex:1;
+    min-height:44px;
+    border-color:#cbd5e1 !important;
+    background:#fff !important;
+    color:#334155 !important;
+    border-radius:12px !important;
+  }
+  #pg-debt .mobile-compact-credit-card .cr-pay-badge{
+    padding:6px 10px !important;
+    border-radius:999px !important;
+    font-size:11px !important;
+    white-space:nowrap;
+  }
+  #pg-debt .mobile-compact-credit-card .cr-pay-badge.paid{
+    background:rgba(5,150,105,.12) !important;
+    color:#059669 !important;
+  }
+  #pg-debt .mobile-compact-credit-card .cr-pay-badge.due{
+    background:rgba(245,158,11,.14) !important;
+    color:#d97706 !important;
+  }
+  #pg-debt #debt-mode-plan .debtp-hero,
+  #pg-debt #debt-mode-plan .debtp-list-card,
+  #pg-debt #debt-mode-plan .debtp-list-head{display:none !important}
+  #pg-debt #debt-mode-plan .debtp-side,
+  #pg-debt #debt-mode-plan .debtp-controls-panel,
+  #pg-debt #debt-mode-plan .debtp-impact{
+    border:1px solid #dbe6ff !important;
+    border-radius:16px !important;
+    background:rgba(255,255,255,.9) !important;
+    box-shadow:0 14px 34px rgba(31,45,80,.08) !important;
+  }
+  #pg-debt #debt-mode-plan .debtp-panel-title,
+  #pg-debt #debt-mode-plan .debtp-impact h2{color:#0b1b32 !important}
+  #pg-debt #debt-mode-plan #smart-results{display:flex;flex-direction:column;gap:12px}
+  #pg-debt #debt-mode-plan .debt-focus-card{
+    border:0 !important;
+    border-radius:18px !important;
+    background:#4c35c4 !important;
+    color:#fff !important;
+    box-shadow:0 18px 40px rgba(76,53,196,.28) !important;
+  }
+  #pg-debt #debt-mode-plan .debt-focus-card .text-textMain,
+  #pg-debt #debt-mode-plan .debt-focus-card .text-textMuted,
+  #pg-debt #debt-mode-plan .debt-focus-card .text-primary{color:#fff !important}
+  #pg-debt #debt-mode-plan .debt-focus-card button{
+    background:#fff !important;
+    color:#4c35c4 !important;
+    border-radius:14px !important;
+  }
+  #debt-order-sheet.debt-sheet-overlay.on{
+    z-index:12500;
+    background:rgba(15,23,42,.38) !important;
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+  }
+  #debt-order-sheet .debt-bottom-sheet{
+    max-height:82vh !important;
+    border-color:#e2e8f0 !important;
+    background:#fff !important;
+    box-shadow:0 -20px 60px rgba(15,23,42,.18) !important;
+  }
+  #debt-order-sheet .debt-sheet-head{
+    padding-bottom:14px;
+    border-bottom:1px solid #e2e8f0;
+  }
+  #debt-order-sheet .debt-sheet-head h2{color:#0b1b32 !important}
+  #debt-order-sheet .debt-sheet-list{
+    overflow-y:auto;
+    padding:14px 0 max(96px,env(safe-area-inset-bottom));
+  }
+  #debt-order-sheet .debt-premium-card{
+    display:grid !important;
+    grid-template-columns:34px 42px minmax(0,1fr) auto 22px;
+    gap:10px;
+    align-items:center;
+    border:1px solid #dbe6ff !important;
+    border-radius:16px !important;
+    background:#fff !important;
+    box-shadow:0 10px 26px rgba(31,45,80,.08) !important;
+  }
+  #debt-order-sheet .debt-premium-card.priority{
+    border-color:rgba(78,222,163,.55) !important;
+    background:#f0fdf8 !important;
+  }
+  #debt-order-sheet .debt-rank-badge{
+    border-color:#dbe6ff !important;
+    background:#f1f5ff !important;
+    color:#4c35c4 !important;
+  }
+  #debt-order-sheet .debt-card-copy strong{color:#0b1b32 !important}
+  #debt-order-sheet .debt-card-copy small,
+  #debt-order-sheet .debt-card-pay small{color:#64748b !important}
+  #debt-order-sheet .debt-card-pay strong{color:#4c35c4 !important}
+  #debt-order-sheet .debt-card-status{color:#059669 !important}
 }

@@ -1303,6 +1303,14 @@ function updateMobileDebtBento(values){
     var el=document.getElementById(ids[key]);
     if(el) el.textContent=values[key];
   });
+  if(values&&values.interestLabel){
+    var interestLabel=document.getElementById('mobile-debt-interest-label');
+    if(interestLabel) interestLabel.textContent=values.interestLabel;
+  }
+  if(values&&values.fasterLabel){
+    var fasterLabel=document.getElementById('mobile-debt-faster-label');
+    if(fasterLabel) fasterLabel.textContent=values.fasterLabel;
+  }
 }
 
 function openDebtOrderSheet(){
@@ -1817,15 +1825,15 @@ function renderCreditLine(cr){
   var due=info.dueDate||'-';
   var rate=info.rate||cr.rate||0;
   var logo=getCreditLogoMeta(cr);
-  return '<div class="rounded-2xl border border-border bg-card2/60 p-4 shadow-lg">'+
+  return '<div class="mobile-compact-credit-card rounded-2xl border border-border bg-card2/60 p-4 shadow-lg">'+
     '<div class="flex flex-wrap items-start gap-3">'+
       '<div class="inline-flex h-[42px] w-[42px] min-w-[42px] items-center justify-center rounded-xl border border-white/15 text-xs font-black tracking-wide text-white shadow-lg" style="background-color:'+esc(logo.color)+'">'+esc(logo.label)+'</div>'+
       '<div class="min-w-0 flex-1"><div class="truncate font-notoThai text-base font-bold text-textMain">'+esc(cr.n)+'</div><div class="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs font-semibold text-textMuted"><span>'+(getLang()==='th'?'ครบกำหนด: ':'Due: ')+esc(due)+'</span><span>'+(getLang()==='th'?'ดอกเบี้ย: ':'Rate: ')+esc(rate)+'%</span></div></div>'+
-      '<div class="inline-flex max-w-max items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold '+(isPaid?'bg-green/15 text-green':'bg-warning/15 text-warning')+'"><span class="material-symbols-outlined text-base">'+(isPaid?'check_circle':'warning')+'</span><em class="not-italic">'+t(isPaid?'paid':'due')+'</em></div>'+
+      '<div class="cr-pay-badge '+(isPaid?'paid':'due')+' inline-flex max-w-max items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold '+(isPaid?'bg-green/15 text-green':'bg-warning/15 text-warning')+'"><span class="material-symbols-outlined text-base">'+(isPaid?'check_circle':'warning')+'</span><em class="not-italic">'+t(isPaid?'paid':'due')+'</em></div>'+
     '</div>'+
     '<div class="mt-4 grid gap-3 md:grid-cols-[1fr_auto] md:items-end">'+
       '<div><div class="font-spaceGrotesk text-3xl font-bold '+(!isPaid&&bal>0?'text-warning':'text-textMain')+'">฿ '+fmt(bal)+'</div><div class="text-xs font-bold text-textMuted">'+t('currentBalance')+'</div></div>'+
-      '<div class="flex gap-2"><button class="rounded-xl border border-border bg-surfaceLow px-4 py-2 text-xs font-bold text-textMain" onclick="openInfo(\''+cr.id+'\')">'+t('editInfo')+'</button><button class="rounded-xl bg-primaryContainer px-4 py-2 text-xs font-bold text-white shadow-lg shadow-primaryContainer/25" onclick="openPay(\''+cr.id+'\')">'+t('payBill')+'</button></div>'+
+      '<div class="flex gap-2"><button class="edit rounded-xl border border-border bg-surfaceLow px-4 py-2 text-xs font-bold text-textMain" onclick="openInfo(\''+cr.id+'\')">'+t('editInfo')+'</button><button class="pay rounded-xl bg-primaryContainer px-4 py-2 text-xs font-bold text-white shadow-lg shadow-primaryContainer/25" onclick="openPay(\''+cr.id+'\')">'+t('payBill')+'</button></div>'+
     '</div>'+
     '</div>';
 }
@@ -1965,7 +1973,7 @@ function renderDebtOverview(){
   });
   var pct=totLimit>0?Math.min(100,Math.max(0,Math.round(totUsed/totLimit*100))):0;
   var avail=Math.max(0,totLimit-totUsed),availPct=totLimit>0?Math.max(0,Math.round(avail/totLimit*100)):0;
-  updateMobileDebtBento({total:'฿ '+fmt(totUsed),monthly:'฿ '+fmt(monthPaid)});
+  updateMobileDebtBento({total:'฿ '+fmt(totUsed),monthly:'฿ '+fmt(monthPaid),interest:'฿ '+fmt(avail),faster:paidCount+'/'+crCount+' จ่ายแล้ว',interestLabel:'วงเงินคงเหลือ',fasterLabel:'สถานะเดือนนี้'});
   w.innerHTML='<div class="mb-5 rounded-2xl border border-white/10 bg-gradient-to-br from-primaryContainer/20 to-surfaceLow p-5 shadow-xl backdrop-blur-xl"><div class="mb-3 flex items-center gap-3"><span class="material-symbols-outlined flex h-10 w-10 items-center justify-center rounded-full bg-green/15 text-green">verified</span><p class="font-inter text-xs font-extrabold uppercase tracking-[.14em] text-textMuted">'+t('creditPaidMonth')+'</p></div><strong class="block font-spaceGrotesk text-4xl font-bold text-textMain">฿ '+fmt(monthPaid)+'</strong><small class="mt-2 block text-xs font-bold text-textMuted">'+thaiMo(mo)+'</small></div>'+
     '<div class="mb-5 grid gap-3 md:grid-cols-3">'+
     '<div class="rounded-2xl border border-white/10 bg-surfaceLow/80 p-5 shadow-xl backdrop-blur-xl"><div class="text-xs font-extrabold uppercase tracking-[.14em] text-textMuted">'+t('totalApprovedLimit')+'</div><div class="mt-3 font-spaceGrotesk text-3xl font-bold text-textMain">฿ '+fmt(totLimit)+'</div><div class="mt-4 flex items-center gap-2 text-xs font-bold text-primary"><span class="material-symbols-outlined text-base">trending_up</span>'+paidCount+'/'+crCount+' '+t('paidThisMonth')+'</div></div>'+
@@ -2213,7 +2221,9 @@ function updateSmartResults(){
       total:'฿ '+fmt(totalRem),
       monthly:'฿ '+fmt(totalMinPay+extra),
       interest:'฿ '+fmt(savedInt),
-      faster:savedMo?Math.floor(savedMo/12)+' ปี '+(savedMo%12)+' เดือน':'0 เดือน'
+      faster:savedMo?Math.floor(savedMo/12)+' ปี '+(savedMo%12)+' เดือน':'0 เดือน',
+      interestLabel:'ประหยัดดอกเบี้ย',
+      fasterLabel:'ปิดหนี้เร็วขึ้น'
     });
     var impact=document.getElementById('debtp-impact');
     if(impact){
@@ -2273,7 +2283,7 @@ function updateSmartResults(){
       var debtLogo=getCreditLogoMeta(d.cr);
       if(isTop){
         var focus=document.createElement('section');
-        focus.className='rounded-2xl border border-primary/25 bg-gradient-to-br from-primaryContainer/20 to-surfaceLow p-5 shadow-xl';
+        focus.className='debt-focus-card rounded-2xl border border-primary/25 bg-gradient-to-br from-primaryContainer/20 to-surfaceLow p-5 shadow-xl';
         focus.innerHTML='<div class="mb-3 inline-flex items-center gap-2 rounded-full bg-green/15 px-3 py-1 text-xs font-extrabold text-green"><span class="material-symbols-outlined text-base">bolt</span> แนะนำเดือนนี้</div>'+
           '<div class="font-spaceGrotesk text-xl font-extrabold text-textMain">หนี้ที่ควรเร่งโปะเดือนนี้</div>'+
           '<div class="mt-2 text-sm font-bold text-textMuted">'+esc(d.cr.n)+'</div>'+
@@ -2282,12 +2292,12 @@ function updateSmartResults(){
         resultsWrap.appendChild(focus);
       }
       var premiumRow=document.createElement('article');
-      premiumRow.className='flex items-center gap-3 rounded-2xl border border-white/10 bg-surfaceLow/90 p-4 shadow-xl'+(isTop?' border-green/35 bg-green/10':'');
-      premiumRow.innerHTML='<div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-border bg-card2 font-spaceGrotesk text-sm font-extrabold text-textMain">'+(idx+1)+'</div>'+
+      premiumRow.className='debt-premium-card flex items-center gap-3 rounded-2xl border border-white/10 bg-surfaceLow/90 p-4 shadow-xl'+(isTop?' priority border-green/35 bg-green/10':'');
+      premiumRow.innerHTML='<div class="debt-rank-badge flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-border bg-card2 font-spaceGrotesk text-sm font-extrabold text-textMain">'+(idx+1)+'</div>'+
         (d.cr.t==='revolving'?'<div class="inline-flex h-[42px] w-[42px] min-w-[42px] items-center justify-center rounded-xl border border-white/15 text-xs font-black tracking-wide text-white shadow-lg" style="background-color:'+esc(debtLogo.color)+'">'+esc(debtLogo.label)+'</div>':'<span class="material-symbols-outlined flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-xl border border-border bg-card2 text-primary">'+debtMaterialIcon(d.cr)+'</span>')+
-        '<div class="min-w-0 flex-1"><strong class="block truncate text-sm font-extrabold text-textMain">'+esc(d.cr.n)+'</strong><small class="mt-1 block text-xs font-bold text-textMuted">'+(extraForThis>0?'จ่ายขั้นต่ำ + โปะพิเศษ':'จ่ายขั้นต่ำตามแผน')+'</small></div>'+
-        '<div class="text-right"><strong class="block font-spaceGrotesk text-base font-extrabold text-primary">฿ '+fmt(monthPay)+'</strong><small class="text-xs text-textMuted">/ เดือน</small></div>'+
-        '<span class="material-symbols-outlined text-green">'+(isTop?'verified':'schedule')+'</span>';
+        '<div class="debt-card-copy min-w-0 flex-1"><strong class="block truncate text-sm font-extrabold text-textMain">'+esc(d.cr.n)+'</strong><small class="mt-1 block text-xs font-bold text-textMuted">'+(extraForThis>0?'จ่ายขั้นต่ำ + โปะพิเศษ':'จ่ายขั้นต่ำตามแผน')+'</small></div>'+
+        '<div class="debt-card-pay text-right"><strong class="block font-spaceGrotesk text-base font-extrabold text-primary">฿ '+fmt(monthPay)+'</strong><small class="text-xs text-textMuted">/ เดือน</small></div>'+
+        '<span class="debt-card-status material-symbols-outlined text-green">'+(isTop?'verified':'schedule')+'</span>';
       debtSheetList.appendChild(premiumRow);
       return;
     }
