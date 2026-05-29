@@ -1307,15 +1307,41 @@ function syncPaymentUI(){
   renderPays();
   if(typeof renderMobilePickers==='function') renderMobilePickers();
 }
+function isIncomeAddMode(){
+  var add=document.getElementById('pg-add');
+  var income=document.getElementById('mode-income');
+  return !!(add&&add.classList.contains('income-mode'))||!!(income&&income.style.display!=='none'&&income.offsetParent!==null);
+}
+function setIncomeChannelToTransfer(){
+  var channel=(S.inch||[]).find(function(c){
+    var label=String(c.l||c.label||'');
+    return c.id==='bank'||c.id==='xfer'||c.id==='prompt'||label.indexOf('โอนเข้าบัญชี')>-1||label.indexOf('โอนเงิน')>-1||label.indexOf('พร้อมเพย์')>-1||label.indexOf('บัญชี')>-1;
+  });
+  if(!channel) return false;
+  S.fi.ch=channel.id;
+  renderInch();
+  if(typeof renderMobilePickers==='function') renderMobilePickers();
+  return true;
+}
+function setBankSlipChannelForActiveMode(){
+  return isIncomeAddMode()?setIncomeChannelToTransfer():setPaymentToTransfer();
+}
+function setScannedAmountDate(data){
+  data=data||{};
+  var incomeMode=isIncomeAddMode();
+  var amountEl=document.getElementById(incomeMode?'i-amt':'f-amt');
+  var dateEl=document.getElementById(incomeMode?'i-dt':'f-dt');
+  if(data.amount!=null&&amountEl) amountEl.value=data.amount;
+  if(data.date&&dateEl) dateEl.value=data.date;
+}
 function fillScannedData(data,source){
   data=data||{};
   var hasAmount=data.amount!=null;
   var hasDate=!!data.date;
   var hasBankSlip=!!data.bankSlip;
-  if(hasBankSlip) setPaymentToTransfer();
+  if(hasBankSlip) setBankSlipChannelForActiveMode();
   if(!hasAmount&&!hasDate) return hasBankSlip;
-  if(hasAmount) document.getElementById('f-amt').value=data.amount;
-  if(hasDate) document.getElementById('f-dt').value=data.date;
+  setScannedAmountDate(data);
   toast('เติมข้อมูลจากสลิปแล้ว','ok');
   return true;
 }
@@ -1365,14 +1391,14 @@ async function scanSlipImage(file){
       if(result&&result.data){
         var qrBankSlip=isBankSlipText(result.data);
         bankSlipDetected=bankSlipDetected||qrBankSlip;
-        if(qrBankSlip) setPaymentToTransfer();
+        if(qrBankSlip) setBankSlipChannelForActiveMode();
         var qrAmount=parseEMVAmount(result.data);
         var qrDate=parseDateFromText(result.data);
         console.log('[Slip] QR amount',qrAmount);
         console.log('[Slip] QR date',qrDate);
         if(qrDate){
           detectedDate=qrDate;
-          document.getElementById('f-dt').value=qrDate;
+          setScannedAmountDate({date:qrDate});
         }
         if(qrAmount!=null||qrDate){
           slipScanCache[key]={amount:qrAmount,date:qrDate,bankSlip:qrBankSlip};
@@ -1392,7 +1418,7 @@ async function scanSlipImage(file){
     console.log('[Slip] Tesseract date',localData&&localData.date);
     var localBankSlip=!!(localData&&isBankSlipText(localData.text));
     bankSlipDetected=bankSlipDetected||localBankSlip;
-    if(localBankSlip) setPaymentToTransfer();
+    if(localBankSlip) setBankSlipChannelForActiveMode();
     if(localData&&localData.date) detectedDate=localData.date;
     if(localData&&(localData.amount!=null||localData.date)){
       if(status) status.textContent='กำลังเติมข้อมูล...';
@@ -1411,7 +1437,7 @@ async function scanSlipImage(file){
     }
     var visionBankSlip=!!(data.text&&isBankSlipText(data.text));
     bankSlipDetected=bankSlipDetected||visionBankSlip;
-    if(visionBankSlip) setPaymentToTransfer();
+    if(visionBankSlip) setBankSlipChannelForActiveMode();
     var visionData={amount:data.amount!=null?Number(data.amount):null,date:data.date||parseDateFromText(data.text||'')||detectedDate,bankSlip:bankSlipDetected};
     if(visionData.amount==null&&!visionData.date){
       slipScanCache[key]={amount:null,bankSlip:bankSlipDetected};
