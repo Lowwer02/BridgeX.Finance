@@ -208,17 +208,17 @@
     <h1 class="font-spaceGrotesk text-[26px] font-black text-[#0b1b32]">บันทึกรายการ</h1>
     <img class="h-11 w-11 rounded-2xl border border-slate-200 object-cover shadow-sm" src="assets/bridgex-logo.png" alt="BridgeX">
   </header>
-  <div class="mb-7 grid grid-cols-2 rounded-full bg-slate-200/80 p-1.5 shadow-inner md:hidden">
+  <div class="mb-4 grid grid-cols-2 rounded-full bg-slate-200/80 p-1.5 shadow-inner md:hidden">
     <button id="tog-exp" class="on rounded-full bg-white px-4 py-3 font-inter text-sm font-black text-danger shadow-sm transition" onclick="toggleAddMode('expense')">รายจ่าย (Expense)</button>
     <button id="tog-inc" class="rounded-full px-4 py-3 font-inter text-sm font-black text-slate-500 transition" onclick="toggleAddMode('income')">รายรับ (Income)</button>
   </div>
   <div id="mode-expense">
   <div class="mx-auto grid w-full max-w-[1180px] gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
     <div class="flex min-w-0 flex-col gap-4 md:gap-5">
-      <div class="rounded-[28px] border border-slate-200/80 bg-white/70 p-6 shadow-[0_18px_48px_rgba(76,53,196,.10)] backdrop-blur-xl md:rounded-3xl md:border-white/10 md:bg-gradient-to-br md:from-surfaceLow md:to-card2 md:p-8 md:shadow-2xl">
+      <div class="rounded-[28px] border border-primary/15 bg-white/75 p-6 shadow-[0_18px_48px_rgba(76,53,196,.10)] backdrop-blur-xl md:rounded-3xl md:border-white/10 md:bg-gradient-to-br md:from-surfaceLow md:to-card2 md:p-8 md:shadow-2xl">
         <div class="text-center">
           <div class="mb-2 hidden font-inter text-xs font-extrabold uppercase tracking-[.18em] text-textMuted md:block" data-i18n="amount">จำนวนเงิน</div>
-          <div class="flex items-center justify-center gap-2"><span class="font-spaceGrotesk text-3xl font-black text-primary md:text-4xl">฿</span><input class="w-[210px] bg-transparent text-center font-spaceGrotesk text-[76px] font-black leading-none tracking-normal text-primary outline-none placeholder:text-primary/25 md:w-[220px] md:text-7xl md:text-textMain md:placeholder:text-textMuted/30" id="f-amt" type="number" placeholder="0" inputmode="decimal"></div>
+          <div class="flex items-center justify-center gap-3"><span class="font-spaceGrotesk text-3xl font-black text-primary md:text-4xl">฿ </span><input class="w-[210px] bg-transparent text-center font-spaceGrotesk text-[76px] font-black leading-none tracking-normal text-primary outline-none placeholder:text-primary/25 md:w-[220px] md:text-7xl md:text-textMain md:placeholder:text-textMuted/30" id="f-amt" type="number" placeholder="0" inputmode="decimal"></div>
         </div>
       </div>
       <div class="rounded-[22px] border-2 border-dashed border-slate-300 bg-white/55 p-5 text-center shadow-[0_14px_34px_rgba(15,23,42,.04)] md:order-none md:rounded-xl md:border md:border-primary/30 md:bg-primaryContainer/10 md:p-0 md:text-left md:shadow-none">
@@ -241,7 +241,7 @@
         <div class="order-1 rounded-[22px] border border-slate-200 bg-white p-4 shadow-[0_14px_34px_rgba(15,23,42,.06)] md:order-none md:rounded-2xl md:border-white/10 md:bg-surfaceLow/80 md:p-5 md:shadow-xl md:backdrop-blur-xl">
           <div class="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-100 text-orange-400 md:hidden"><span class="material-symbols-outlined">calendar_today</span></div>
           <label class="mb-1 block font-inter text-sm font-black text-slate-500 md:text-xs md:uppercase md:tracking-wide md:text-textMuted" data-i18n="date">วันที่</label>
-          <input class="w-full rounded-xl border-0 bg-transparent p-0 font-notoThai text-xl font-black text-[#0b1b32] outline-none md:border md:border-border md:bg-card2 md:px-4 md:py-3 md:text-sm md:text-textMain md:focus:border-primary" type="date" id="f-dt">
+          <input class="w-full rounded-xl border-0 bg-transparent p-0 text-left font-notoThai text-xl font-black text-[#0b1b32] outline-none md:border md:border-border md:bg-card2 md:px-4 md:py-3 md:text-sm md:text-textMain md:focus:border-primary" type="date" id="f-dt">
         </div>
         <button class="order-3 col-span-2 flex w-full items-center gap-4 rounded-[22px] border border-slate-200 bg-white px-4 py-4 text-left shadow-[0_14px_34px_rgba(15,23,42,.06)] md:hidden" id="mobile-pay-trigger" type="button" onclick="openMobilePicker('pay')">
           <span class="material-symbols-outlined flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600" id="mobile-pay-icon">account_balance</span>
@@ -535,19 +535,19 @@
         </button>
       </div>
       <div class="grid grid-cols-2 gap-3 md:mt-1 md:grid-cols-2 md:gap-5">
-        <div class="order-1 col-span-2 rounded-[22px] border border-emerald-100 bg-white p-4 shadow-[0_14px_34px_rgba(15,23,42,.06)] md:order-none md:col-span-1 md:rounded-2xl md:border-white/10 md:bg-surfaceLow/80 md:p-5 md:shadow-xl md:backdrop-blur-xl">
-          <label class="mb-2 block font-inter text-xs font-extrabold uppercase tracking-wide text-textMuted">ช่องทางรับเงิน</label>
-          <div class="hidden flex-wrap gap-2 md:flex" id="inch-chips"></div>
-          <button class="flex w-full items-center gap-3 rounded-xl border border-green/30 bg-green/10 px-4 py-3 text-left md:hidden" id="mobile-inch-trigger" type="button" onclick="openMobilePicker('inc-ch')">
-            <span class="material-symbols-outlined flex h-12 w-12 items-center justify-center rounded-2xl bg-green/15 text-green" id="mobile-inch-icon">account_balance_wallet</span>
-            <span class="flex flex-1 flex-col"><strong class="font-inter text-sm font-bold text-textMain">เลือกช่องทางรับเงิน</strong><em class="text-xs font-bold not-italic text-green" id="mobile-inch-label">เลือกช่องทางรับเงิน</em></span>
-            <span class="material-symbols-outlined text-emerald-300">expand_more</span>
-          </button>
+        <button class="order-1 col-span-2 flex w-full items-center gap-4 rounded-[22px] border border-emerald-100 bg-white px-4 py-4 text-left shadow-[0_14px_34px_rgba(15,23,42,.06)] md:hidden" id="mobile-inch-trigger" type="button" onclick="openMobilePicker('inc-ch')">
+          <span class="material-symbols-outlined flex h-14 w-14 items-center justify-center rounded-2xl bg-green/15 text-green" id="mobile-inch-icon">account_balance_wallet</span>
+          <span class="flex flex-1 flex-col"><small class="font-inter text-xs font-black text-slate-500">ช่องทางรับเงิน</small><strong class="font-notoThai text-lg font-black text-[#0b1b32]" id="mobile-inch-label">เลือกช่องทางรับเงิน</strong></span>
+          <span class="material-symbols-outlined text-emerald-300">expand_more</span>
+        </button>
+        <div class="hidden rounded-2xl border border-white/10 bg-surfaceLow/80 p-5 shadow-xl backdrop-blur-xl md:block">
+          <div class="mb-4 font-inter text-xs font-extrabold uppercase tracking-[.14em] text-textMuted">ช่องทางรับเงิน</div>
+          <div class="flex flex-wrap gap-2" id="inch-chips"></div>
         </div>
         <div class="order-2 rounded-[22px] border border-emerald-100 bg-white p-4 shadow-[0_14px_34px_rgba(15,23,42,.06)] md:order-none md:rounded-2xl md:border-white/10 md:bg-surfaceLow/80 md:p-5 md:shadow-xl md:backdrop-blur-xl">
           <div class="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-100 text-orange-400 md:hidden"><span class="material-symbols-outlined">calendar_today</span></div>
           <label class="mb-1 block font-inter text-sm font-black text-slate-500 md:mb-2 md:text-xs md:uppercase md:tracking-wide md:text-textMuted" data-i18n="date">วันที่</label>
-          <input class="w-full rounded-xl border-0 bg-transparent p-0 font-notoThai text-xl font-black text-[#0b1b32] outline-none focus:border-green md:border md:border-border md:bg-card2 md:px-4 md:py-3 md:text-sm md:text-textMain" type="date" id="i-dt">
+          <input class="w-full rounded-xl border-0 bg-transparent p-0 text-left font-notoThai text-xl font-black text-[#0b1b32] outline-none focus:border-green md:border md:border-border md:bg-card2 md:px-4 md:py-3 md:text-sm md:text-textMain" type="date" id="i-dt">
         </div>
         <div class="order-3 rounded-[22px] border border-emerald-100 bg-white p-4 shadow-[0_14px_34px_rgba(15,23,42,.06)] md:order-none md:rounded-2xl md:border-white/10 md:bg-surfaceLow/80 md:p-5 md:shadow-xl md:backdrop-blur-xl">
           <div class="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-green/10 text-green md:hidden"><span class="material-symbols-outlined" id="mobile-incc-icon">work</span></div>
