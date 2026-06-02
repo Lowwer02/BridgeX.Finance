@@ -1697,6 +1697,10 @@ function renderHistNow(){
     try{ return new Date(d+'T00:00:00').toLocaleDateString('th-TH',{day:'2-digit',month:'short',year:'numeric'}); }
     catch(e){ return d; }
   }
+  if(window.matchMedia&&window.matchMedia('(max-width:768px)').matches){
+    renderMobileHistList(list,items);
+    return;
+  }
   // Group by month
   var monthGrps={};
   items.forEach(function(e){ var k=(e.date||'').slice(0,7); if(!monthGrps[k]) monthGrps[k]=[]; monthGrps[k].push(e); });
@@ -1761,6 +1765,149 @@ function renderHistNow(){
     list.appendChild(moDiv);
   });
   pruneOpenDays(visibleDays);
+}
+
+function histSignedAmount(r){
+  return r&&r.type==='income'?Number(r.amount||0):-Number(r&&r.amount||0);
+}
+function histTypeLabel(t){
+  return t==='income'?'รายรับ':t==='credit'?'ชำระสินเชื่อ':'รายจ่าย';
+}
+function histTypeIcon(r){
+  if(!r) return 'receipt_long';
+  if(r.type==='income') return 'payments';
+  if(r.type==='credit') return 'credit_card';
+  var cat=String(r.category||'');
+  var map={'อาหาร':'restaurant','เครื่องดื่ม':'local_cafe','ขนม':'bakery_dining','บุฟเฟ่ต์':'restaurant_menu','สัตว์เลี้ยง':'pets','ช้อปปิ้ง':'shopping_bag','กิจกรรม':'sports_esports','การเดินทาง':'directions_car','เดินทาง':'directions_car','สถานที่':'home','ลงทุน':'trending_up','สุขภาพ':'medical_services','บิล':'receipt_long','การศึกษา':'school','บริจาค':'volunteer_activism','ท่องเที่ยว':'flight','ครอบครัว':'family_restroom','อื่น':'more_horiz'};
+  var k=Object.keys(map).find(function(x){ return cat.indexOf(x)>-1; });
+  return k?map[k]:'receipt_long';
+}
+function histAmountHtml(r){
+  var signed=histSignedAmount(r), abs=Math.abs(signed);
+  var tone=signed>=0?'text-green':(r.type==='credit'?'text-primary':'text-danger');
+  var prefix=signed>=0?'+ ':'- ';
+  if(r.type==='credit') prefix='';
+  return '<span class="font-spaceGrotesk text-base font-extrabold '+tone+'">'+prefix+'฿ '+fmt(abs)+'</span>';
+}
+function histDateShort(d){
+  if(!d||d==='unknown') return 'ไม่ระบุวัน';
+  try{ var dt=new Date(d+'T00:00:00'); if(isNaN(dt.getTime())) return d; return dt.toLocaleDateString('th-TH',{weekday:'short',day:'numeric',month:'short'}); }
+  catch(e){ return d; }
+}
+function histDateFull(d){
+  if(!d||d==='unknown') return '-';
+  try{ var dt=new Date(d+'T00:00:00'); if(isNaN(dt.getTime())) return d; return dt.toLocaleDateString('th-TH',{day:'2-digit',month:'short',year:'numeric'}); }
+  catch(e){ return d; }
+}
+function renderMobileHistList(list,items){
+  if(!list) return;
+  if(!items.length){
+    list.innerHTML='<section class="rounded-[24px] border border-dashed border-border bg-white/80 p-8 text-center font-notoThai text-sm text-textMuted shadow-sm">ยังไม่มีรายการ</section>';
+    return;
+  }
+  var moKey=(items[0].date||thisMo()).slice(0,7);
+  var total=items.reduce(function(s,r){ return s+histSignedAmount(r); },0);
+  var totalTone=total>=0?'text-green':'text-danger';
+  var dayGrps={};
+  items.forEach(function(r){ var k=r.date||'unknown'; if(!dayGrps[k]) dayGrps[k]=[]; dayGrps[k].push(r); });
+  var html='<section class="rounded-[28px] border border-white bg-white/90 p-4 shadow-[0_18px_42px_rgba(76,53,196,.08)] backdrop-blur-xl md:hidden">'+
+    '<div class="mb-5 px-1">'+
+      '<h2 class="font-notoThai text-[24px] font-extrabold leading-tight text-[#0b1b32]">รายการล่าสุด</h2>'+
+      '<p class="mt-1 font-notoThai text-sm font-semibold text-textMuted">'+thaiMo(moKey)+' • <span class="font-spaceGrotesk '+totalTone+'">฿ '+fmt(total)+'</span> ('+items.length+' รายการ)</p>'+
+    '</div>';
+  Object.keys(dayGrps).sort(function(a,b){ return b.localeCompare(a); }).forEach(function(dayKey){
+    var dayItems=dayGrps[dayKey];
+    html+='<div class="mb-5 last:mb-0">'+
+      '<div class="mb-3 rounded-xl bg-[#eef3ff] px-4 py-2">'+
+        '<div class="font-notoThai text-sm font-extrabold leading-tight text-[#0b1b32]">'+esc(histDateShort(dayKey))+'</div>'+
+        '<div class="font-notoThai text-xs font-semibold text-textMuted">'+dayItems.length+' รายการ</div>'+
+      '</div>'+
+      '<div class="space-y-2">';
+    dayItems.forEach(function(r){
+      var iconTone=r.type==='income'?'bg-green/10 text-green':(r.type==='credit'?'bg-primary/10 text-primary':'bg-danger/10 text-danger');
+      var title=r.detail||r.category||r.credit_name||histTypeLabel(r.type);
+      if(r.type==='credit') title=r.detail||'ชำระสินเชื่อ';
+      var sub=histTypeLabel(r.type);
+      if(r.type==='expense') sub=(r.category||'รายจ่าย')+(r.channel&&r.channel!=='-'?' • '+r.channel:'');
+      if(r.type==='income') sub=(r.category||'รายรับ')+(r.channel&&r.channel!=='-'?' • '+r.channel:'');
+      html+='<button type="button" class="group flex w-full items-center justify-between gap-3 rounded-2xl px-3 py-3 text-left transition active:bg-[#f3f5ff]" onclick="openTxnDetail(\''+esc(String(r.id))+'\',\''+esc(r.type)+'\')">'+
+        '<span class="material-symbols-outlined flex h-11 w-11 shrink-0 items-center justify-center rounded-full '+iconTone+' transition group-active:scale-95">'+histTypeIcon(r)+'</span>'+
+        '<span class="min-w-0 flex-1">'+
+          '<span class="block truncate font-notoThai text-base font-extrabold leading-tight text-[#0b1b32]">'+esc(title)+'</span>'+
+          '<span class="mt-1 block truncate font-notoThai text-sm font-semibold text-textMuted">'+esc(sub)+'</span>'+
+        '</span>'+
+        '<span class="shrink-0 text-right">'+histAmountHtml(r)+'</span>'+
+      '</button>';
+    });
+    html+='</div></div>';
+  });
+  html+='</section><div class="hidden md:block"></div>';
+  list.innerHTML=html;
+}
+
+function ensureTxnDetailSheet(){
+  var modal=document.getElementById('txn-detail-sheet');
+  if(modal) return modal;
+  modal=document.createElement('div');
+  modal.id='txn-detail-sheet';
+  modal.className='hidden fixed inset-0 z-[13000] bg-black/35 backdrop-blur-sm md:hidden';
+  modal.onclick=function(e){ if(e.target===modal) closeTxnDetail(); };
+  modal.innerHTML='<section class="absolute inset-x-0 bottom-0 max-h-[82vh] overflow-hidden rounded-t-[28px] border border-white bg-white p-5 shadow-2xl">'+
+    '<div class="mx-auto mb-4 h-1.5 w-12 rounded-full bg-[#d5dbea]"></div>'+
+    '<div class="mb-4 flex items-center justify-between gap-3">'+
+      '<h2 class="font-notoThai text-xl font-extrabold text-[#0b1b32]">รายละเอียดรายการ</h2>'+
+      '<button type="button" class="flex h-10 w-10 items-center justify-center rounded-full bg-[#eef3ff] text-textMuted" onclick="closeTxnDetail()"><span class="material-symbols-outlined">close</span></button>'+
+    '</div>'+
+    '<div class="max-h-[58vh] overflow-y-auto pb-4" id="txn-detail-body"></div>'+
+    '<button type="button" class="mt-3 flex h-12 w-full items-center justify-center rounded-2xl bg-primaryContainer font-notoThai text-sm font-extrabold text-white shadow-lg shadow-primaryContainer/20" onclick="closeTxnDetail()">ปิด</button>'+
+  '</section>';
+  document.body.appendChild(modal);
+  return modal;
+}
+function findTxnByIdType(id,type){
+  id=String(id);
+  if(type==='expense') return {type:type,item:S.expenses.find(function(e){ return String(e.id)===id; })};
+  if(type==='income') return {type:type,item:S.incomes.find(function(i){ return String(i.id)===id; })};
+  if(type==='credit') return {type:type,item:(S.credits||[]).find(function(c){ return String(c.id)===id; })};
+  return null;
+}
+function openTxnDetail(id,type){
+  var found=findTxnByIdType(id,type);
+  if(!found||!found.item){ toast('ไม่พบรายการ','err'); return; }
+  var item=found.item, modal=ensureTxnDetailSheet(), body=document.getElementById('txn-detail-body');
+  var rows=[];
+  function add(label,value){ if(value!==undefined&&value!==null&&String(value)!=='') rows.push([label,value]); }
+  var amount=Number(item.amount||0);
+  add('ประเภท',histTypeLabel(type));
+  add(type==='credit'?'สินเชื่อ':'ชื่อรายการ',type==='credit'?(item.credit_name||item.name||'ชำระสินเชื่อ'):(item.detail||item.category||'-'));
+  add('จำนวนเงิน','฿ '+fmt(amount));
+  add('วันที่',histDateFull(item.date));
+  if(type==='expense') add('ช่องทางจ่ายเงิน',item.payment||'-');
+  if(type==='income') add('ช่องทางรับเงิน',item.channel||'-');
+  add('หมวดหมู่',item.category||'');
+  add('บันทึกช่วยจำ',item.detail||item.note||'');
+  add('ผู้บันทึก',item.paidBy||item.receiver||'');
+  add('อ้างอิง',item.created_at||item.id||'');
+  if(body){
+    body.innerHTML='<div class="mb-5 flex items-center gap-4 rounded-2xl bg-[#f3f6ff] p-4">'+
+      '<span class="material-symbols-outlined flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">'+histTypeIcon({type:type,category:item.category})+'</span>'+
+      '<div class="min-w-0 flex-1">'+
+        '<div class="truncate font-notoThai text-base font-extrabold text-[#0b1b32]">'+esc(type==='credit'?(item.credit_name||'ชำระสินเชื่อ'):(item.detail||item.category||histTypeLabel(type)))+'</div>'+
+        '<div class="mt-1 font-spaceGrotesk text-2xl font-extrabold '+(type==='income'?'text-green':type==='credit'?'text-primary':'text-danger')+'">฿ '+fmt(amount)+'</div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="divide-y divide-[#e6ebf5] rounded-2xl border border-[#e6ebf5] bg-white">'+rows.map(function(r){
+      return '<div class="flex items-start justify-between gap-4 px-4 py-3">'+
+        '<span class="font-notoThai text-xs font-extrabold text-textMuted">'+esc(r[0])+'</span>'+
+        '<span class="max-w-[62%] text-right font-notoThai text-sm font-bold text-[#0b1b32]">'+esc(r[1])+'</span>'+
+      '</div>';
+    }).join('')+'</div>';
+  }
+  modal.classList.remove('hidden');
+}
+function closeTxnDetail(){
+  var modal=document.getElementById('txn-detail-sheet');
+  if(modal) modal.classList.add('hidden');
 }
 async function delEx(idOrEl){
   var id=typeof idOrEl==='object'?idOrEl.dataset.id:idOrEl;
