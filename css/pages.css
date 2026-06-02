@@ -3664,3 +3664,196 @@ body.theme-light .google-btn{border-color:var(--bdr)}
     padding:10px 12px !important;
   }
 }
+
+/* Session 3.2: mobile Debt Planner tab refinement */
+@media (max-width:768px){
+  #pg-debt #debt-mode-plan .debtp-shell{
+    gap:12px !important;
+  }
+  #pg-debt #debt-mode-plan .debtp-hero{
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:center !important;
+    gap:12px !important;
+    padding:20px 16px !important;
+    border:1px solid #dbe6ff !important;
+    border-radius:18px !important;
+    background:linear-gradient(145deg,rgba(237,231,255,.95),rgba(255,255,255,.92)) !important;
+    box-shadow:0 14px 34px rgba(31,45,80,.08) !important;
+    text-align:center;
+  }
+  #pg-debt #debt-mode-plan .debtp-hero::before{
+    opacity:.35;
+  }
+  #pg-debt #debt-mode-plan .debtp-hero h1{
+    margin:0 !important;
+    color:#0b1b32 !important;
+    font-size:clamp(30px,8vw,40px) !important;
+    line-height:1.1 !important;
+    text-align:center !important;
+  }
+  #pg-debt #debt-mode-plan .debtp-hero p{
+    display:none !important;
+  }
+  #pg-debt #debt-mode-plan .debtp-save-card{
+    width:100% !important;
+    min-width:0 !important;
+    margin-top:0 !important;
+    padding:13px 14px !important;
+    border:1px solid rgba(76,53,196,.24) !important;
+    border-radius:16px !important;
+    background:rgba(255,255,255,.76) !important;
+    color:#475569 !important;
+    box-shadow:none !important;
+  }
+  #pg-debt #debt-mode-plan .debtp-save-card strong{
+    margin:5px 0 !important;
+    color:#059669 !important;
+    font-size:32px !important;
+  }
+  #pg-debt #debt-mode-plan .debtp-grid{
+    display:flex !important;
+    flex-direction:column !important;
+    gap:12px !important;
+  }
+  #pg-debt #debt-mode-plan .debtp-side{
+    order:1;
+    gap:0 !important;
+    overflow:hidden;
+  }
+  #pg-debt #debt-mode-plan .debtp-main{
+    order:2;
+    display:flex !important;
+    flex-direction:column !important;
+    gap:12px !important;
+  }
+  #pg-debt #debt-mode-plan .debtp-list-card{
+    order:1;
+    display:block !important;
+    overflow:hidden !important;
+    border:1px solid #dbe6ff !important;
+    border-radius:18px !important;
+    background:rgba(255,255,255,.92) !important;
+    box-shadow:0 14px 34px rgba(31,45,80,.08) !important;
+  }
+  #pg-debt #debt-mode-plan .debtp-impact-wrap{
+    order:2;
+    margin:0 !important;
+    border:1px solid #dbe6ff !important;
+    border-radius:18px !important;
+    background:rgba(255,255,255,.92) !important;
+    box-shadow:0 14px 34px rgba(31,45,80,.08) !important;
+  }
+  #pg-debt #debt-mode-plan .debtp-impact{
+    margin:0 !important;
+    padding:0 !important;
+    border:0 !important;
+    background:transparent !important;
+    box-shadow:none !important;
+  }
+  #pg-debt #debt-mode-plan .debtp-list-head{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:space-between !important;
+    gap:10px !important;
+    padding:16px !important;
+    border-bottom:1px solid #e2e8f0 !important;
+    background:transparent !important;
+  }
+  #pg-debt #debt-mode-plan .debtp-list-head h2{
+    color:#0b1b32 !important;
+    font-size:24px !important;
+    line-height:1.15 !important;
+  }
+  #pg-debt #debt-mode-plan .debtp-list-head button{
+    width:auto !important;
+    min-height:42px !important;
+    padding:9px 13px !important;
+    border:1px solid rgba(76,53,196,.28) !important;
+    border-radius:14px !important;
+    background:#f1edff !important;
+    color:#4c35c4 !important;
+    white-space:nowrap;
+  }
+  #pg-debt #debt-mode-plan #debt-plan-list{
+    padding:0 !important;
+  }
+  #pg-debt #debt-mode-plan #smart-results{
+    gap:0 !important;
+  }
+  #pg-debt #debt-mode-plan .debtp-controls-panel{
+    padding:15px !important;
+  }
+  #pg-debt #debt-mode-plan .debtp-controls-panel + .debtp-controls-panel,
+  #pg-debt #debt-mode-plan .debtp-side > div + div{
+    border-top:1px solid #e2e8f0 !important;
+  }
+  #pg-debt #debt-mode-plan .debtp-controls-panel:first-child,
+  #pg-debt #debt-mode-plan #debtp-controls > div:first-child{
+    padding-bottom:10px !important;
+  }
+  #pg-debt #debt-mode-plan #debtp-controls > div:nth-child(2){
+    padding-top:10px !important;
+  }
+  #pg-debt #debt-mode-plan .strategy-btn{
+    min-height:96px !important;
+    border-radius:16px !important;
+    background:#fff !important;
+    color:#475569 !important;
+  }
+  #pg-debt #debt-mode-plan .strategy-btn.on{
+    border-color:#4c35c4 !important;
+    background:#f1edff !important;
+    color:#0b1b32 !important;
+    box-shadow:none !important;
+  }
+  #pg-debt #debt-mode-plan #debtp-controls p{
+    margin-bottom:10px !important;
+    color:#64748b !important;
+  }
+  #pg-debt #debt-mode-plan #smart-extra-inp{
+    color:#0b1b32 !important;
+  }
+  #pg-debt #debt-mode-plan .debt-focus-card{
+    margin:0 !important;
+    padding:18px !important;
+    border-radius:20px !important;
+  }
+  #pg-debt #debt-mode-plan .debt-focus-top,
+  #pg-debt #debt-mode-plan .debt-focus-pay{
+    position:relative;
+    z-index:1;
+  }
+  #pg-debt #debt-mode-plan .debt-focus-title{
+    color:#fff !important;
+    font-size:22px !important;
+    line-height:1.2 !important;
+  }
+  #pg-debt #debt-mode-plan .debt-focus-name{
+    color:rgba(255,255,255,.88) !important;
+    font-size:15px !important;
+  }
+  #pg-debt #debt-mode-plan .debt-focus-badge{
+    background:rgba(78,222,163,.16) !important;
+    color:#4edea3 !important;
+  }
+  #pg-debt #debt-mode-plan .debt-focus-pay span{
+    color:rgba(255,255,255,.72) !important;
+  }
+  #pg-debt #debt-mode-plan .debt-focus-pay div{
+    color:#fff !important;
+    text-align:right;
+    white-space:nowrap;
+  }
+  #pg-debt #debt-mode-plan .debt-focus-pay small{
+    color:rgba(255,255,255,.78) !important;
+  }
+  #pg-debt #debt-mode-plan .debt-focus-card button{
+    margin-top:16px !important;
+    min-height:50px !important;
+  }
+  #pg-debt #debt-mode-plan .debtp-impact-wrap > h2{
+    font-size:24px !important;
+    color:#0b1b32 !important;
+  }
+}

@@ -2284,10 +2284,11 @@ function updateSmartResults(){
       if(isTop){
         var focus=document.createElement('section');
         focus.className='debt-focus-card rounded-2xl border border-primary/25 bg-gradient-to-br from-primaryContainer/20 to-surfaceLow p-5 shadow-xl';
-        focus.innerHTML='<div class="mb-3 inline-flex items-center gap-2 rounded-full bg-green/15 px-3 py-1 text-xs font-extrabold text-green"><span class="material-symbols-outlined text-base">bolt</span> แนะนำเดือนนี้</div>'+
-          '<div class="font-spaceGrotesk text-xl font-extrabold text-textMain">หนี้ที่ควรเร่งโปะเดือนนี้</div>'+
-          '<div class="mt-2 text-sm font-bold text-textMuted">'+esc(d.cr.n)+'</div>'+
-          '<div class="mt-3 font-spaceGrotesk text-4xl font-extrabold text-primary">฿ '+fmt(monthPay)+'<small class="ml-1 text-sm text-textMuted">/ เดือน</small></div>'+
+        focus.innerHTML='<div class="debt-focus-top flex items-start justify-between gap-3">'+
+          '<div class="min-w-0"><div class="debt-focus-title font-spaceGrotesk text-xl font-extrabold text-textMain">หนี้ที่ควรเร่งโปะเดือนนี้</div><div class="debt-focus-name mt-2 truncate text-sm font-bold text-textMuted">'+esc(d.cr.n)+'</div></div>'+
+          '<div class="debt-focus-badge inline-flex shrink-0 items-center gap-2 rounded-full bg-green/15 px-3 py-1 text-xs font-extrabold text-green"><span class="material-symbols-outlined text-base">bolt</span> แนะนำเดือนนี้</div>'+
+          '</div>'+
+          '<div class="debt-focus-pay mt-4 flex items-end justify-between gap-3"><span class="text-xs font-bold text-textMuted">ยอดแนะนำ</span><div class="font-spaceGrotesk text-4xl font-extrabold text-primary">฿ '+fmt(monthPay)+'<small class="ml-1 text-sm text-textMuted">/ เดือน</small></div></div>'+
           '<button class="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-primaryContainer px-4 py-3 text-sm font-bold text-white shadow-lg shadow-primaryContainer/25" type="button" onclick="openDebtOrderSheet()">ดูลำดับการชำระหนี้ทั้งหมด <span class="material-symbols-outlined text-base">arrow_forward</span></button>';
         resultsWrap.appendChild(focus);
       }
