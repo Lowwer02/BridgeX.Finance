@@ -1801,6 +1801,7 @@ function histDateFull(d){
 }
 function renderMobileHistList(list,items){
   if(!list) return;
+  bindHistDetailClicks(list);
   if(!items.length){
     list.innerHTML='<section class="rounded-[24px] border border-dashed border-border bg-white/80 p-8 text-center font-notoThai text-sm text-textMuted shadow-sm">ยังไม่มีรายการ</section>';
     return;
@@ -1830,7 +1831,7 @@ function renderMobileHistList(list,items){
       var sub=histTypeLabel(r.type);
       if(r.type==='expense') sub=(r.category||'รายจ่าย')+(r.channel&&r.channel!=='-'?' • '+r.channel:'');
       if(r.type==='income') sub=(r.category||'รายรับ')+(r.channel&&r.channel!=='-'?' • '+r.channel:'');
-      html+='<button type="button" class="group flex w-full items-center justify-between gap-3 rounded-2xl px-3 py-3 text-left transition active:bg-[#f3f5ff]" onclick="openTxnDetail(\''+esc(String(r.id))+'\',\''+esc(r.type)+'\')">'+
+      html+='<button type="button" class="group flex w-full items-center justify-between gap-3 rounded-2xl px-3 py-3 text-left transition active:bg-[#f3f5ff]" data-txn-id="'+esc(String(r.id))+'" data-txn-type="'+esc(r.type)+'">'+
         '<span class="material-symbols-outlined flex h-11 w-11 shrink-0 items-center justify-center rounded-full '+iconTone+' transition group-active:scale-95">'+histTypeIcon(r)+'</span>'+
         '<span class="min-w-0 flex-1">'+
           '<span class="block truncate font-notoThai text-base font-extrabold leading-tight text-[#0b1b32]">'+esc(title)+'</span>'+
@@ -1843,6 +1844,16 @@ function renderMobileHistList(list,items){
   });
   html+='</section><div class="hidden md:block"></div>';
   list.innerHTML=html;
+}
+
+function bindHistDetailClicks(list){
+  if(!list||list._txnDetailBound) return;
+  list._txnDetailBound=true;
+  list.addEventListener('click',function(e){
+    var row=e.target&&e.target.closest?e.target.closest('[data-txn-id][data-txn-type]'):null;
+    if(!row||!list.contains(row)) return;
+    openTxnDetail(row.dataset.txnId,row.dataset.txnType);
+  });
 }
 
 function ensureTxnDetailSheet(){
