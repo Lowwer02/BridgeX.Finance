@@ -168,6 +168,77 @@
   #pg-debt .mobile-debt-bento{grid-template-columns:1fr}
 }
 
+/* Mobile debt planner typography/header polish */
+@media (max-width:768px){
+  #pg-debt #debt-mode-plan .debtp-hero h1{
+    font-family:var(--font-headline) !important;
+    font-weight:900 !important;
+    letter-spacing:0 !important;
+    font-size:clamp(34px,9vw,44px) !important;
+    line-height:1.08 !important;
+    text-align:center !important;
+  }
+  #pg-debt #debt-mode-plan .debtp-main{
+    gap:18px !important;
+  }
+  #pg-debt #debt-mode-plan .debtp-list-card{
+    border-radius:22px !important;
+  }
+  #pg-debt #debt-mode-plan .debtp-list-head{
+    display:flex !important;
+    flex-direction:row !important;
+    align-items:center !important;
+    justify-content:space-between !important;
+    gap:14px !important;
+    padding:28px 22px 24px !important;
+    border-bottom:0 !important;
+  }
+  #pg-debt #debt-mode-plan .debtp-list-head h2{
+    flex:1 1 auto;
+    min-width:0;
+    margin:0 !important;
+    color:#0b1b32 !important;
+    font-family:var(--font-headline) !important;
+    font-size:clamp(31px,8.6vw,42px) !important;
+    font-weight:900 !important;
+    line-height:1.04 !important;
+    letter-spacing:0 !important;
+    text-align:left !important;
+    white-space:normal;
+  }
+  #pg-debt #debt-mode-plan .debtp-list-head button{
+    flex:0 0 auto;
+    width:auto !important;
+    min-height:56px !important;
+    padding:0 20px !important;
+    border:2px solid rgba(76,53,196,.28) !important;
+    border-radius:20px !important;
+    background:#f2edff !important;
+    color:#4c35c4 !important;
+    font-family:var(--font-label) !important;
+    font-size:18px !important;
+    font-weight:900 !important;
+    line-height:1 !important;
+    white-space:nowrap;
+  }
+  #pg-debt #debt-mode-plan .debtp-list-head button .material-symbols-outlined{
+    font-size:24px !important;
+  }
+  #pg-debt #debt-mode-plan .debt-focus-card{
+    border-radius:22px !important;
+  }
+  #pg-debt #debt-mode-plan .debt-focus-title{
+    font-family:var(--font-headline) !important;
+    font-size:clamp(28px,7.8vw,40px) !important;
+    font-weight:900 !important;
+    line-height:1.06 !important;
+    letter-spacing:0 !important;
+  }
+  #pg-debt #debt-mode-plan .debtp-impact-wrap{
+    margin-top:6px !important;
+  }
+}
+
 /* Session 3: mobile Credit/Debt compact light redesign */
 @media (max-width:768px){
   #pg-debt{
@@ -3856,4 +3927,65 @@ body.theme-light .google-btn{border-color:var(--bdr)}
     font-size:24px !important;
     color:#0b1b32 !important;
   }
+}
+
+/* Final mobile debt planner polish overrides */
+@media (max-width:768px){
+  #pg-debt #debt-mode-plan .debtp-hero h1{
+    font-family:var(--font-headline) !important;
+    font-weight:900 !important;
+    letter-spacing:0 !important;
+    font-size:clamp(34px,9vw,44px) !important;
+    line-height:1.08 !important;
+    text-align:center !important;
+  }
+  #pg-debt #debt-mode-plan .debtp-main{gap:18px !important}
+  #pg-debt #debt-mode-plan .debtp-list-card{border-radius:22px !important}
+  #pg-debt #debt-mode-plan .debtp-list-head{
+    display:flex !important;
+    flex-direction:row !important;
+    align-items:center !important;
+    justify-content:space-between !important;
+    gap:14px !important;
+    padding:28px 22px 24px !important;
+    border-bottom:0 !important;
+  }
+  #pg-debt #debt-mode-plan .debtp-list-head h2{
+    flex:1 1 auto;
+    min-width:0;
+    margin:0 !important;
+    color:#0b1b32 !important;
+    font-family:var(--font-headline) !important;
+    font-size:clamp(31px,8.6vw,42px) !important;
+    font-weight:900 !important;
+    line-height:1.04 !important;
+    letter-spacing:0 !important;
+    text-align:left !important;
+    white-space:normal;
+  }
+  #pg-debt #debt-mode-plan .debtp-list-head button{
+    flex:0 0 auto;
+    width:auto !important;
+    min-height:56px !important;
+    padding:0 20px !important;
+    border:2px solid rgba(76,53,196,.28) !important;
+    border-radius:20px !important;
+    background:#f2edff !important;
+    color:#4c35c4 !important;
+    font-family:var(--font-label) !important;
+    font-size:18px !important;
+    font-weight:900 !important;
+    line-height:1 !important;
+    white-space:nowrap;
+  }
+  #pg-debt #debt-mode-plan .debtp-list-head button .material-symbols-outlined{font-size:24px !important}
+  #pg-debt #debt-mode-plan .debt-focus-card{border-radius:22px !important}
+  #pg-debt #debt-mode-plan .debt-focus-title{
+    font-family:var(--font-headline) !important;
+    font-size:clamp(28px,7.8vw,40px) !important;
+    font-weight:900 !important;
+    line-height:1.06 !important;
+    letter-spacing:0 !important;
+  }
+  #pg-debt #debt-mode-plan .debtp-impact-wrap{margin-top:6px !important}
 }
