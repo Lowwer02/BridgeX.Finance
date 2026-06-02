@@ -332,7 +332,7 @@
     <section class="relative overflow-hidden rounded-2xl border border-white/10 bg-surfaceLow/80 p-6 shadow-2xl backdrop-blur-xl md:flex md:items-center md:justify-between md:gap-6 md:p-10">
       <div class="pointer-events-none absolute inset-0 bg-gradient-to-br from-primaryContainer/20 to-transparent"></div>
       <div>
-        <h1 class="relative font-spaceGrotesk text-3xl font-extrabold leading-tight text-textMain md:text-[44px]">แผนปลดหนี้อัจฉริยะ</h1>
+        <h1 class="relative font-notoThai text-3xl font-extrabold leading-tight text-textMain md:text-[44px]">แผนปลดหนี้อัจฉริยะ</h1>
       </div>
       <div class="relative mt-5 w-full rounded-xl border border-primary/25 bg-card2/90 p-5 text-center shadow-xl md:mt-0 md:w-[236px] md:min-w-[236px]">
         <div class="font-inter text-xs font-extrabold text-textMuted">ประหยัดดอกเบี้ยได้หลักแสน</div>
@@ -344,12 +344,12 @@
       <aside class="flex flex-col gap-5 rounded-xl border border-white/10 bg-surfaceLow/80 shadow-xl backdrop-blur-xl" id="debtp-controls"></aside>
       <section class="min-w-0">
         <div class="debtp-impact-wrap mb-6 rounded-xl border border-white/10 bg-surfaceLow/80 p-5 shadow-xl backdrop-blur-xl md:p-7">
-          <h2 class="font-spaceGrotesk text-2xl font-extrabold text-textMain">ผลลัพธ์ของแผน</h2>
+          <h2 class="font-notoThai text-2xl font-extrabold text-textMain">ผลลัพธ์ของแผน</h2>
           <div id="debtp-impact"></div>
         </div>
         <div class="debtp-list-card overflow-hidden rounded-xl border border-white/10 bg-surfaceLow/80 shadow-xl backdrop-blur-xl">
           <div class="debtp-list-head flex items-center justify-between gap-4 border-b border-white/10 bg-surfaceLow/50 p-5 md:p-7">
-            <h2 class="font-spaceGrotesk text-2xl font-extrabold text-textMain">ลำดับการชำระหนี้</h2>
+            <h2 class="font-notoThai text-2xl font-extrabold text-textMain">ลำดับการชำระหนี้</h2>
             <button class="flex items-center gap-2 rounded-xl border border-primary/30 bg-primaryContainer/10 px-3 py-2 text-sm font-bold text-primary" type="button" onclick="openCreditSetupModal('revolving')"><span class="material-symbols-outlined text-base">add</span> เพิ่มรายการ</button>
           </div>
           <div id="debt-plan-list"></div>
@@ -389,7 +389,7 @@
     <section class="debt-bottom-sheet fixed inset-x-0 bottom-0 flex max-h-[82vh] flex-col overflow-hidden rounded-t-[28px] border border-border bg-white p-5 shadow-2xl" onclick="event.stopPropagation()">
       <div class="mx-auto mb-4 h-1.5 w-12 rounded-full bg-border"></div>
       <header class="debt-sheet-head mb-4 flex shrink-0 items-center justify-between gap-3">
-        <h2 class="font-spaceGrotesk text-lg font-bold text-textMain">ลำดับการชำระหนี้รายเดือน</h2>
+        <h2 class="font-notoThai text-lg font-bold text-textMain">ลำดับการชำระหนี้รายเดือน</h2>
         <button class="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card2 text-textMuted" type="button" onclick="closeDebtOrderSheet()"><span class="material-symbols-outlined">close</span></button>
       </header>
       <div class="debt-sheet-list flex flex-1 flex-col gap-3 overflow-y-auto pb-24" id="debt-order-sheet-list"></div>

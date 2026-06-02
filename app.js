@@ -2121,7 +2121,7 @@ function renderSmartDebt(){
 
   // Strategy toggle
   var strategyPanel=document.createElement('div'); strategyPanel.className=controls?'p-5 md:p-6':'';
-  if(controls) strategyPanel.innerHTML='<div class="mb-4 flex items-center gap-2 font-spaceGrotesk text-xl font-extrabold text-textMain"><span class="material-symbols-outlined text-primary">model_training</span> กลยุทธ์ชำระหนี้</div>';
+  if(controls) strategyPanel.innerHTML='<div class="mb-4 flex items-center gap-2 font-notoThai text-xl font-extrabold text-textMain"><span class="material-symbols-outlined text-primary">model_training</span> กลยุทธ์ชำระหนี้</div>';
   var toggleDiv=document.createElement('div'); toggleDiv.className='grid grid-cols-2 gap-3';
   var btnSnow=document.createElement('button'); btnSnow.className='strategy-btn rounded-xl border px-3 py-3 text-center text-xs font-bold leading-5 transition';
   btnSnow.innerHTML='<span class="material-symbols-outlined mb-1 block text-[22px] text-primary">filter_1</span>Snowball<br><span class="text-[10px] opacity-70">ก้อนเล็กก่อน</span>';
@@ -2135,7 +2135,7 @@ function renderSmartDebt(){
 
   // ── Extra cash input (rendered ONCE — never re-created to avoid focus loss) ──
   var extraPanel=document.createElement('div'); extraPanel.className=controls?'border-t border-white/10 p-5 md:p-6':'';
-  if(controls) extraPanel.innerHTML='<div class="mb-2 flex items-center gap-2 font-spaceGrotesk text-xl font-extrabold text-textMain"><span class="material-symbols-outlined text-primary">add_card</span><span>เพิ่มเงินโปะต่อเดือน</span></div><p class="mb-4 text-sm leading-6 text-textMuted">ใส่จำนวนเงินที่คุณสามารถจ่ายเพิ่มจากยอดขั้นต่ำได้</p>';
+  if(controls) extraPanel.innerHTML='<div class="mb-2 flex items-center gap-2 font-notoThai text-xl font-extrabold text-textMain"><span class="material-symbols-outlined text-primary">add_card</span><span>เพิ่มเงินโปะต่อเดือน</span></div><p class="mb-4 text-sm leading-6 text-textMuted">ใส่จำนวนเงินที่คุณสามารถจ่ายเพิ่มจากยอดขั้นต่ำได้</p>';
   var extraRow=document.createElement('div'); extraRow.className='grid gap-3';
   var extraTop=document.createElement('div'); extraTop.className='flex items-center gap-3 rounded-xl border border-border bg-card2 px-4 py-3';
   var extraCurrency=document.createElement('span'); extraCurrency.className='text-xl font-bold text-primary'; extraCurrency.textContent='฿';
@@ -2269,8 +2269,8 @@ function updateSmartResults(){
     var impact=document.getElementById('debtp-impact');
     if(impact){
       impact.innerHTML='<div class="mt-5 grid gap-4 md:grid-cols-2">'+
-        '<div class="rounded-xl border border-white/10 bg-card2/40 p-5"><div class="text-xs font-extrabold text-textMuted">จ่ายขั้นต่ำปกติ</div><div class="mt-2 font-spaceGrotesk text-3xl font-extrabold text-textMain">'+(noExtra.months!=null?Math.floor(noExtra.months/12)+' ปี '+(noExtra.months%12)+' เดือน':'∞')+'</div><div class="mt-2 text-sm font-bold text-danger">ดอกเบี้ยรวม: ฿ '+fmt(noExtra.interest||0)+'</div></div>'+
-        '<div class="rounded-xl border border-primary/25 bg-primaryContainer/10 p-5"><div class="text-xs font-extrabold text-textMuted">แผน Smart</div><div class="mt-2 font-spaceGrotesk text-3xl font-extrabold text-green">'+(withExtra.months!=null?Math.floor(withExtra.months/12)+' ปี '+(withExtra.months%12)+' เดือน':'∞')+'</div><div class="mt-2 text-sm font-bold text-green">ดอกเบี้ยรวม: ฿ '+fmt(withExtra.interest||0)+'</div></div>'+
+        '<div class="rounded-xl border border-white/10 bg-card2/40 p-5"><div class="text-xs font-extrabold text-textMuted">จ่ายขั้นต่ำปกติ</div><div class="mt-2 font-notoThai text-3xl font-extrabold text-textMain">'+(noExtra.months!=null?Math.floor(noExtra.months/12)+' ปี '+(noExtra.months%12)+' เดือน':'∞')+'</div><div class="mt-2 text-sm font-bold text-danger">ดอกเบี้ยรวม: ฿ '+fmt(noExtra.interest||0)+'</div></div>'+
+        '<div class="rounded-xl border border-primary/25 bg-primaryContainer/10 p-5"><div class="text-xs font-extrabold text-textMuted">แผน Smart</div><div class="mt-2 font-notoThai text-3xl font-extrabold text-green">'+(withExtra.months!=null?Math.floor(withExtra.months/12)+' ปี '+(withExtra.months%12)+' เดือน':'∞')+'</div><div class="mt-2 text-sm font-bold text-green">ดอกเบี้ยรวม: ฿ '+fmt(withExtra.interest||0)+'</div></div>'+
         '</div><div class="mt-5"><div class="mb-2 flex justify-between text-xs font-extrabold text-textMuted"><span>ปัจจุบัน</span><span>อิสรภาพทางการเงิน</span></div><div class="h-3 overflow-hidden rounded-full bg-card2"><span class="block h-full w-[45%] rounded-full bg-primary shadow-[0_0_14px_rgba(199,191,255,.45)]"></span></div></div>';
     }
   }
@@ -2298,7 +2298,7 @@ function updateSmartResults(){
         '</div>'+
       '</div>'+
       '<div class="flex gap-2">'+
-        (savedMo>0?'<div class="flex-1 rounded-xl bg-green/10 p-3 text-center"><div class="mb-1 text-[10px] font-bold text-green">ประหยัดเวลา</div><div class="font-spaceGrotesk text-lg font-extrabold text-green">'+savedMo+' เดือน</div></div>':'')+''+
+        (savedMo>0?'<div class="flex-1 rounded-xl bg-green/10 p-3 text-center"><div class="mb-1 text-[10px] font-bold text-green">ประหยัดเวลา</div><div class="font-notoThai text-lg font-extrabold text-green">'+savedMo+' เดือน</div></div>':'')+''+
         (savedInt>0?'<div class="flex-1 rounded-xl bg-green/10 p-3 text-center"><div class="mb-1 text-[10px] font-bold text-green">ประหยัดดอกเบี้ย</div><div class="font-spaceGrotesk text-lg font-extrabold text-green">฿ '+fmt(savedInt)+'</div></div>':'')+
       '</div>';
     resultsWrap.appendChild(wiCard);
@@ -2306,7 +2306,7 @@ function updateSmartResults(){
 
   // Summary bar
   var sumDiv=document.createElement('div'); sumDiv.className='rounded-2xl border border-white/10 bg-surfaceLow/80 p-4 shadow-xl backdrop-blur-xl';
-  sumDiv.innerHTML='<div class="mb-3 font-spaceGrotesk text-lg font-extrabold text-textMain">'+(S.strategy==='snowball'?'Snowball — ปิดก้อนเล็กก่อน':'Avalanche — โปะดอกแพงก่อน')+'</div><div class="grid gap-3 md:grid-cols-3"><div class="rounded-xl border border-border bg-card2/60 p-4"><div class="font-spaceGrotesk text-xl font-extrabold text-textMain">฿ '+fmt(totalRem)+'</div><div class="mt-1 text-xs font-bold text-textMuted">หนี้รวม</div></div><div class="rounded-xl border border-border bg-card2/60 p-4"><div class="font-spaceGrotesk text-xl font-extrabold text-textMain">฿ '+fmt(totalMinPay+extra)+'</div><div class="mt-1 text-xs font-bold text-textMuted">จ่าย/เดือน</div></div><div class="rounded-xl border border-border bg-card2/60 p-4"><div class="font-spaceGrotesk text-xl font-extrabold text-textMain">'+(withExtra.months!=null?'~'+withExtra.months+' เดือน':'∞')+'</div><div class="mt-1 text-xs font-bold text-textMuted">ปลดหนี้</div></div></div>';
+  sumDiv.innerHTML='<div class="mb-3 font-notoThai text-lg font-extrabold text-textMain">'+(S.strategy==='snowball'?'Snowball — ปิดก้อนเล็กก่อน':'Avalanche — โปะดอกแพงก่อน')+'</div><div class="grid gap-3 md:grid-cols-3"><div class="rounded-xl border border-border bg-card2/60 p-4"><div class="font-spaceGrotesk text-xl font-extrabold text-textMain">฿ '+fmt(totalRem)+'</div><div class="mt-1 text-xs font-bold text-textMuted">หนี้รวม</div></div><div class="rounded-xl border border-border bg-card2/60 p-4"><div class="font-spaceGrotesk text-xl font-extrabold text-textMain">฿ '+fmt(totalMinPay+extra)+'</div><div class="mt-1 text-xs font-bold text-textMuted">จ่าย/เดือน</div></div><div class="rounded-xl border border-border bg-card2/60 p-4"><div class="font-notoThai text-xl font-extrabold text-textMain">'+(withExtra.months!=null?'~'+withExtra.months+' เดือน':'∞')+'</div><div class="mt-1 text-xs font-bold text-textMuted">ปลดหนี้</div></div></div>';
   if(!isDebtPage) resultsWrap.appendChild(sumDiv);
 
   // Debt rows
@@ -2326,11 +2326,11 @@ function updateSmartResults(){
         var focus=document.createElement('section');
         focus.className='debt-focus-card rounded-2xl border border-primary/25 bg-gradient-to-br from-primaryContainer/20 to-surfaceLow p-5 shadow-xl';
         focus.innerHTML='<div class="debt-focus-top flex items-start justify-between gap-3">'+
-          '<div class="min-w-0"><div class="debt-focus-title font-spaceGrotesk text-xl font-extrabold text-textMain">หนี้ที่ควรเร่งโปะ</div><div class="debt-focus-name mt-2 truncate text-sm font-bold text-textMuted">'+esc(d.cr.n)+'</div></div>'+
-          '<div class="debt-focus-badge inline-flex shrink-0 items-center gap-2 rounded-full bg-green/15 px-3 py-1 text-xs font-extrabold text-green"><span class="material-symbols-outlined text-base">bolt</span> แนะนำเดือนนี้</div>'+
+          '<div class="min-w-0"><div class="debt-focus-title font-notoThai text-xl font-extrabold text-textMain">หนี้ที่ควรเร่งโปะ</div><div class="debt-focus-name mt-2 truncate text-sm font-bold text-textMuted">'+esc(d.cr.n)+'</div></div>'+
+          '<div class="debt-focus-badge inline-flex shrink-0 items-center gap-2 rounded-full bg-green/15 px-3 py-1 font-notoThai text-xs font-extrabold text-green"><span class="material-symbols-outlined text-base">bolt</span> แนะนำเดือนนี้</div>'+
           '</div>'+
-          '<div class="debt-focus-pay mt-4 flex items-end justify-between gap-3"><span class="text-xs font-bold text-textMuted">ยอดแนะนำ</span><div class="font-spaceGrotesk text-4xl font-extrabold text-primary">฿ '+fmt(monthPay)+'<small class="ml-1 text-sm text-textMuted">/ เดือน</small></div></div>'+
-          '<button class="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-primaryContainer px-4 py-3 text-sm font-bold text-white shadow-lg shadow-primaryContainer/25" type="button" onclick="openDebtOrderSheet()">ดูลำดับการชำระหนี้ทั้งหมด <span class="material-symbols-outlined text-base">arrow_forward</span></button>';
+          '<div class="debt-focus-pay mt-4 flex items-end justify-between gap-3"><span class="text-xs font-bold text-textMuted">ยอดแนะนำ</span><div class="font-spaceGrotesk text-4xl font-extrabold text-primary">฿ '+fmt(monthPay)+'<small class="ml-1 font-notoThai text-sm text-textMuted">/ เดือน</small></div></div>'+
+          '<button class="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-primaryContainer px-4 py-3 font-notoThai text-sm font-bold text-white shadow-lg shadow-primaryContainer/25" type="button" onclick="openDebtOrderSheet()">ดูลำดับการชำระหนี้ทั้งหมด <span class="material-symbols-outlined text-base">arrow_forward</span></button>';
         resultsWrap.appendChild(focus);
       }
       var premiumRow=document.createElement('article');

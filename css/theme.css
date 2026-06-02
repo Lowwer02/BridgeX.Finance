@@ -8,7 +8,7 @@
   --color-neutral:#787680;
   --bg-dark:#1E1E24;
   --bg-card:#2A2A32;
-  --font-headline:'Space Grotesk',sans-serif;
+  --font-headline:'Space Grotesk','Noto Sans Thai',sans-serif;
   --font-body:'Noto Sans','Noto Sans Thai',sans-serif;
   --font-label:'Inter','Noto Sans Thai',sans-serif;
   --radius-sm:4px;
