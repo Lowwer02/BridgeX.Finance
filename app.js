@@ -1294,7 +1294,48 @@ function toggleDebtMode(mode){
   document.getElementById('tog-cr').classList.toggle('on',mode==='credit');
   document.getElementById('tog-plan').classList.toggle('on',mode==='plan');
   if(mode==='credit') renderCR();
-  if(mode==='plan') renderSmartDebt();
+  if(mode==='plan'){ applyMobileDebtPlannerRuntimeLayout(); renderSmartDebt(); }
+}
+
+function applyMobileDebtPlannerRuntimeLayout(){
+  if(!window.matchMedia('(max-width:768px)').matches) return;
+  var root=document.getElementById('debt-mode-plan');
+  if(!root) return;
+  var hero=root.querySelector('.debtp-hero')||root.querySelector('.debtp-shell > section');
+  if(hero){
+    hero.classList.add('debtp-hero');
+    var title=hero.querySelector('h1');
+    if(title){
+      title.classList.add('text-center');
+      title.style.textAlign='center';
+    }
+    var desc=Array.from(hero.querySelectorAll('p')).find(function(p){
+      var txt=p.textContent||'';
+      return txt.indexOf('วางแผน')>=0&&txt.indexOf('จัดการหนี้สิน')>=0;
+    });
+    if(desc) desc.remove();
+    var save=hero.querySelector('#debtp-save-amt');
+    if(save&&save.parentElement) save.parentElement.classList.add('debtp-save-card');
+  }
+  var impact=document.getElementById('debtp-impact');
+  var impactWrap=impact&&impact.closest('.debtp-impact-wrap, .rounded-xl, .rounded-2xl');
+  if(impactWrap) impactWrap.classList.add('debtp-impact-wrap');
+  var planList=document.getElementById('debt-plan-list');
+  var listCard=planList&&planList.closest('.debtp-list-card, .rounded-xl, .rounded-2xl');
+  if(listCard) listCard.classList.add('debtp-list-card');
+  var listHead=listCard&&Array.from(listCard.children).find(function(child){
+    return child.querySelector&&child.querySelector('h2')&&(child.querySelector('h2').textContent||'').indexOf('ลำดับการชำระหนี้')>=0;
+  });
+  if(listHead){
+    listHead.classList.add('debtp-list-head','flex','items-center','justify-between','gap-3');
+    var h=listHead.querySelector('h2');
+    var b=listHead.querySelector('button');
+    if(h) h.style.textAlign='left';
+    if(b) b.style.marginLeft='auto';
+  }
+  if(impactWrap&&listCard&&impactWrap.parentElement===listCard.parentElement){
+    impactWrap.parentElement.insertBefore(listCard,impactWrap);
+  }
 }
 
 function updateMobileDebtBento(values){
