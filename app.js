@@ -1753,7 +1753,7 @@ async function delEx(idOrEl){
 // ═══════════════════════════════════════════════════════
 var crf='overview', activeCrId='', activeInfoId='';
 function syncCreditFilterButtons(){
-  document.querySelectorAll('#pg-cr [data-cr-filter]').forEach(function(btn){
+  document.querySelectorAll('[data-cr-filter]').forEach(function(btn){
     var active=btn.dataset.crFilter===crf;
     btn.classList.toggle('on',active);
     btn.classList.toggle('border-primaryContainer',active);
@@ -1764,7 +1764,7 @@ function syncCreditFilterButtons(){
     btn.classList.toggle('text-textMuted',!active);
   });
 }
-function setCRF(f,el){ crf=f; if(el) el.classList.add('on'); syncCreditFilterButtons(); renderCR(); }
+function setCRF(f,el){ crf=f; syncCreditFilterButtons(); renderCR(); }
 function updateCreditProviderOptions(){
   var typeEl=document.getElementById('cs-type'), providerEl=document.getElementById('cs-provider');
   if(!typeEl||!providerEl) return;
@@ -1827,12 +1827,12 @@ function renderCreditLine(cr){
   var logo=getCreditLogoMeta(cr);
   return '<div class="mobile-compact-credit-card rounded-2xl border border-border bg-card2/60 p-4 shadow-lg">'+
     '<div class="flex flex-wrap items-start gap-3">'+
-      '<div class="inline-flex h-[42px] w-[42px] min-w-[42px] items-center justify-center rounded-xl border border-white/15 text-xs font-black tracking-wide text-white shadow-lg" style="background-color:'+esc(logo.color)+'">'+esc(logo.label)+'</div>'+
+      '<div class="credit-logo-mark inline-flex h-[42px] w-[42px] min-w-[42px] items-center justify-center rounded-xl border border-white/15 text-xs font-extrabold tracking-wide text-white shadow-lg" style="background-color:'+esc(logo.color)+'">'+esc(logo.label)+'</div>'+
       '<div class="min-w-0 flex-1"><div class="truncate font-notoThai text-base font-bold text-textMain">'+esc(cr.n)+'</div><div class="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs font-semibold text-textMuted"><span>'+(getLang()==='th'?'ครบกำหนด: ':'Due: ')+esc(due)+'</span><span>'+(getLang()==='th'?'ดอกเบี้ย: ':'Rate: ')+esc(rate)+'%</span></div></div>'+
       '<div class="cr-pay-badge '+(isPaid?'paid':'due')+' inline-flex max-w-max items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold '+(isPaid?'bg-green/15 text-green':'bg-warning/15 text-warning')+'"><span class="material-symbols-outlined text-base">'+(isPaid?'check_circle':'warning')+'</span><em class="not-italic">'+t(isPaid?'paid':'due')+'</em></div>'+
     '</div>'+
     '<div class="mt-4 grid gap-3 md:grid-cols-[1fr_auto] md:items-end">'+
-      '<div><div class="font-spaceGrotesk text-3xl font-bold '+(!isPaid&&bal>0?'text-warning':'text-textMain')+'">฿ '+fmt(bal)+'</div><div class="text-xs font-bold text-textMuted">'+t('currentBalance')+'</div></div>'+
+      '<div class="cr-balance-row"><div class="cr-balance-amount font-spaceGrotesk text-3xl font-bold '+(!isPaid&&bal>0?'text-warning':'text-textMain')+'">฿ '+fmt(bal)+'</div><div class="cr-balance-label text-xs font-bold text-textMuted">'+t('currentBalance')+'</div></div>'+
       '<div class="flex gap-2"><button class="edit rounded-xl border border-border bg-surfaceLow px-4 py-2 text-xs font-bold text-textMain" onclick="openInfo(\''+cr.id+'\')">'+t('editInfo')+'</button><button class="pay rounded-xl bg-primaryContainer px-4 py-2 text-xs font-bold text-white shadow-lg shadow-primaryContainer/25" onclick="openPay(\''+cr.id+'\')">'+t('payBill')+'</button></div>'+
     '</div>'+
     '</div>';
