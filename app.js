@@ -1799,11 +1799,16 @@ function histDateFull(d){
   try{ var dt=new Date(d+'T00:00:00'); if(isNaN(dt.getTime())) return d; return dt.toLocaleDateString('th-TH',{day:'2-digit',month:'short',year:'numeric'}); }
   catch(e){ return d; }
 }
+function histTimeFilterLabel(){
+  if(currentHistTimeFilter==='last_month') return 'เดือนก่อน';
+  if(currentHistTimeFilter==='all_time') return 'ทั้งหมด';
+  return 'เดือนนี้';
+}
 function renderMobileHistList(list,items){
   if(!list) return;
   bindHistDetailClicks(list);
   if(!items.length){
-    list.innerHTML='<section class="rounded-[24px] border border-dashed border-border bg-white/80 p-8 text-center font-notoThai text-sm text-textMuted shadow-sm">ยังไม่มีรายการ</section>';
+    list.innerHTML='<div class="mb-3 flex justify-end md:hidden"><button type="button" class="inline-flex items-center gap-2 rounded-full border border-[#dfe6f5] bg-white/90 px-4 py-2 font-notoThai text-sm font-extrabold text-[#0b1b32] shadow-[0_10px_24px_rgba(76,53,196,.08)]" onclick="openHistDateFilterSheet()"><span class="material-symbols-outlined text-base text-primary">calendar_month</span><span>'+histTimeFilterLabel()+'</span><span class="material-symbols-outlined text-base text-textMuted">expand_more</span></button></div><section class="rounded-[24px] border border-dashed border-border bg-white/80 p-8 text-center font-notoThai text-sm text-textMuted shadow-sm">ยังไม่มีรายการ</section>';
     return;
   }
   var moKey=(items[0].date||thisMo()).slice(0,7);
@@ -1812,9 +1817,12 @@ function renderMobileHistList(list,items){
   var dayGrps={};
   items.forEach(function(r){ var k=r.date||'unknown'; if(!dayGrps[k]) dayGrps[k]=[]; dayGrps[k].push(r); });
   var html='<section class="rounded-[28px] border border-white bg-white/90 p-4 shadow-[0_18px_42px_rgba(76,53,196,.08)] backdrop-blur-xl md:hidden">'+
-    '<div class="mb-5 px-1">'+
-      '<h2 class="font-notoThai text-[24px] font-extrabold leading-tight text-[#0b1b32]">รายการล่าสุด</h2>'+
-      '<p class="mt-1 font-notoThai text-sm font-semibold text-textMuted">'+thaiMo(moKey)+' • <span class="font-spaceGrotesk '+totalTone+'">฿ '+fmt(total)+'</span> ('+items.length+' รายการ)</p>'+
+    '<div class="mb-5 flex items-start justify-between gap-3 px-1">'+
+      '<div class="min-w-0">'+
+        '<h2 class="font-notoThai text-[24px] font-extrabold leading-tight text-[#0b1b32]">รายการล่าสุด</h2>'+
+        '<p class="mt-1 font-notoThai text-sm font-semibold text-textMuted">'+thaiMo(moKey)+' • <span class="font-spaceGrotesk '+totalTone+'">฿ '+fmt(total)+'</span> ('+items.length+' รายการ)</p>'+
+      '</div>'+
+      '<button type="button" class="inline-flex shrink-0 items-center gap-1 rounded-full border border-[#dfe6f5] bg-[#f8f9ff] px-3 py-2 font-notoThai text-xs font-extrabold text-[#0b1b32] shadow-sm" onclick="openHistDateFilterSheet()"><span>'+histTimeFilterLabel()+'</span><span class="material-symbols-outlined text-base text-textMuted">expand_more</span></button>'+
     '</div>';
   Object.keys(dayGrps).sort(function(a,b){ return b.localeCompare(a); }).forEach(function(dayKey){
     var dayItems=dayGrps[dayKey];
@@ -1854,6 +1862,52 @@ function bindHistDetailClicks(list){
     if(!row||!list.contains(row)) return;
     openTxnDetail(row.dataset.txnId,row.dataset.txnType);
   });
+}
+
+function ensureHistDateFilterSheet(){
+  var modal=document.getElementById('hist-date-filter-sheet');
+  if(modal) return modal;
+  modal=document.createElement('div');
+  modal.id='hist-date-filter-sheet';
+  modal.className='hidden fixed inset-0 z-[12950] bg-black/35 backdrop-blur-sm md:hidden';
+  modal.onclick=function(e){ if(e.target===modal) closeHistDateFilterSheet(); };
+  modal.innerHTML='<section class="absolute inset-x-0 bottom-0 overflow-hidden rounded-t-[28px] border border-white bg-white p-5 shadow-2xl">'+
+    '<div class="mx-auto mb-4 h-1.5 w-12 rounded-full bg-[#d5dbea]"></div>'+
+    '<div class="mb-4 flex items-center justify-between gap-3">'+
+      '<h2 class="font-notoThai text-xl font-extrabold text-[#0b1b32]">ช่วงเวลา</h2>'+
+      '<button type="button" class="flex h-10 w-10 items-center justify-center rounded-full bg-[#eef3ff] text-textMuted" onclick="closeHistDateFilterSheet()"><span class="material-symbols-outlined">close</span></button>'+
+    '</div>'+
+    '<div class="grid gap-2" id="hist-date-filter-options"></div>'+
+  '</section>';
+  document.body.appendChild(modal);
+  return modal;
+}
+function openHistDateFilterSheet(){
+  var modal=ensureHistDateFilterSheet();
+  var box=document.getElementById('hist-date-filter-options');
+  var opts=[
+    {id:'this_month',label:'เดือนนี้',icon:'calendar_today'},
+    {id:'last_month',label:'เดือนก่อน',icon:'history'},
+    {id:'all_time',label:'ทั้งหมด',icon:'all_inclusive'}
+  ];
+  if(box){
+    box.innerHTML=opts.map(function(o){
+      var active=o.id===currentHistTimeFilter;
+      return '<button type="button" class="flex w-full items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-left font-notoThai transition '+(active?'border-primary/30 bg-primaryContainer/10 text-primary':'border-[#e4e9f4] bg-[#f8f9ff] text-[#0b1b32]')+'" onclick="selectHistDateFilter(\''+o.id+'\')">'+
+        '<span class="flex items-center gap-3"><span class="material-symbols-outlined flex h-10 w-10 items-center justify-center rounded-full '+(active?'bg-primary/10 text-primary':'bg-white text-textMuted')+'">'+o.icon+'</span><span class="text-sm font-extrabold">'+o.label+'</span></span>'+
+        (active?'<span class="material-symbols-outlined text-primary">check_circle</span>':'')+
+      '</button>';
+    }).join('');
+  }
+  modal.classList.remove('hidden');
+}
+function closeHistDateFilterSheet(){
+  var modal=document.getElementById('hist-date-filter-sheet');
+  if(modal) modal.classList.add('hidden');
+}
+function selectHistDateFilter(value){
+  closeHistDateFilterSheet();
+  setHistTimeFilter(value);
 }
 
 function ensureTxnDetailSheet(){
