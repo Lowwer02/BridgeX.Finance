@@ -292,11 +292,11 @@
 </div>
 
 <!-- HISTORY -->
-<div class="pg !ml-0 min-h-screen px-4 pb-24 md:!ml-[250px]" id="pg-hist">
-  <div class="mx-auto w-full max-w-[1180px]">
+<div class="pg !ml-0 min-h-screen overflow-x-hidden px-4 pb-24 md:!ml-[250px]" id="pg-hist">
+  <div class="mx-auto w-full max-w-full overflow-x-hidden md:max-w-[1180px]">
     <section class="mb-5 grid gap-3 md:grid-cols-3" id="hist-kpis"></section>
     <div class="grid gap-5 lg:grid-cols-[280px_minmax(0,1fr)]">
-      <aside class="rounded-2xl border border-white/10 bg-surfaceLow/80 p-5 shadow-xl backdrop-blur-xl">
+      <aside class="w-full max-w-full box-border overflow-hidden rounded-2xl border border-white/10 bg-surfaceLow/80 p-5 shadow-xl backdrop-blur-xl">
         <div class="mb-5 flex items-center justify-between gap-3">
           <h3 class="flex items-center gap-2 font-spaceGrotesk text-xl font-bold text-textMain"><span class="material-symbols-outlined text-primary">tune</span> ตัวกรอง</h3>
           <button class="rounded-full border border-border bg-card2 px-3 py-1.5 text-xs font-bold text-textMuted transition hover:text-primary" type="button" onclick="setHistTimeFilter('all_time');setHistUserFilter('joint')">ล้างทั้งหมด</button>
@@ -315,7 +315,7 @@
           </div>
         </div>
       </aside>
-      <section class="rounded-2xl border border-white/10 bg-surfaceLow/80 p-5 shadow-xl backdrop-blur-xl">
+      <section class="w-full max-w-full box-border overflow-hidden rounded-2xl border border-white/10 bg-surfaceLow/80 p-5 shadow-xl backdrop-blur-xl">
         <div class="mb-5 flex items-center justify-between gap-3">
           <h2 class="font-spaceGrotesk text-xl font-bold text-textMain" data-i18n="recentTransactions">รายการล่าสุด</h2>
           <button class="flex items-center gap-2 rounded-xl border border-primary/30 bg-primaryContainer/10 px-3 py-2 text-xs font-bold text-primary" type="button" onclick="exportCSV('expense')"><span class="material-symbols-outlined text-base">download</span> Export CSV</button>

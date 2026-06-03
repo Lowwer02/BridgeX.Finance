@@ -1807,8 +1807,9 @@ function histTimeFilterLabel(){
 function renderMobileHistList(list,items){
   if(!list) return;
   bindHistDetailClicks(list);
+  bindMobileHistDayToggle(list);
   if(!items.length){
-    list.innerHTML='<div class="mb-3 flex justify-end md:hidden"><button type="button" class="inline-flex items-center gap-2 rounded-full border border-[#dfe6f5] bg-white/90 px-4 py-2 font-notoThai text-sm font-extrabold text-[#0b1b32] shadow-[0_10px_24px_rgba(76,53,196,.08)]" onclick="openHistDateFilterSheet()"><span class="material-symbols-outlined text-base text-primary">calendar_month</span><span>'+histTimeFilterLabel()+'</span><span class="material-symbols-outlined text-base text-textMuted">expand_more</span></button></div><section class="rounded-[24px] border border-dashed border-border bg-white/80 p-8 text-center font-notoThai text-sm text-textMuted shadow-sm">ยังไม่มีรายการ</section>';
+    list.innerHTML='<div class="mb-3 flex w-full max-w-full justify-end overflow-hidden md:hidden"><button type="button" class="inline-flex max-w-full shrink-0 items-center gap-2 truncate rounded-full border border-[#dfe6f5] bg-white/90 px-4 py-2 font-notoThai text-sm font-extrabold text-[#0b1b32] shadow-[0_10px_24px_rgba(76,53,196,.08)]" onclick="openHistDateFilterSheet()"><span class="material-symbols-outlined text-base text-primary">calendar_month</span><span class="truncate">'+histTimeFilterLabel()+'</span><span class="material-symbols-outlined text-base text-textMuted">expand_more</span></button></div><section class="w-full max-w-full box-border rounded-[24px] border border-dashed border-border bg-white/80 p-8 text-center font-notoThai text-sm text-textMuted shadow-sm">ยังไม่มีรายการ</section>';
     return;
   }
   var moKey=(items[0].date||thisMo()).slice(0,7);
@@ -1816,22 +1817,36 @@ function renderMobileHistList(list,items){
   var totalTone=total>=0?'text-green':'text-danger';
   var dayGrps={};
   items.forEach(function(r){ var k=r.date||'unknown'; if(!dayGrps[k]) dayGrps[k]=[]; dayGrps[k].push(r); });
-  var html='<section class="rounded-[28px] border border-white bg-white/90 p-4 shadow-[0_18px_42px_rgba(76,53,196,.08)] backdrop-blur-xl md:hidden">'+
-    '<div class="mb-5 flex items-start justify-between gap-3 px-1">'+
+  S.histOpenDaysMobile=S.histOpenDaysMobile||{};
+  var sortedDays=Object.keys(dayGrps).sort(function(a,b){ return b.localeCompare(a); });
+  var latestDay=sortedDays[0];
+  var html='<section class="w-full max-w-full box-border overflow-hidden rounded-[28px] border border-white bg-white/90 p-4 shadow-[0_18px_42px_rgba(76,53,196,.08)] backdrop-blur-xl md:hidden">'+
+    '<div class="mb-5 flex w-full max-w-full items-start justify-between gap-3 px-1">'+
       '<div class="min-w-0">'+
         '<h2 class="font-notoThai text-[24px] font-extrabold leading-tight text-[#0b1b32]">รายการล่าสุด</h2>'+
         '<p class="mt-1 font-notoThai text-sm font-semibold text-textMuted">'+thaiMo(moKey)+' • <span class="font-spaceGrotesk '+totalTone+'">฿ '+fmt(total)+'</span> ('+items.length+' รายการ)</p>'+
       '</div>'+
-      '<button type="button" class="inline-flex shrink-0 items-center gap-1 rounded-full border border-[#dfe6f5] bg-[#f8f9ff] px-3 py-2 font-notoThai text-xs font-extrabold text-[#0b1b32] shadow-sm" onclick="openHistDateFilterSheet()"><span>'+histTimeFilterLabel()+'</span><span class="material-symbols-outlined text-base text-textMuted">expand_more</span></button>'+
+      '<button type="button" class="inline-flex max-w-[44%] shrink-0 items-center gap-1 rounded-full border border-[#dfe6f5] bg-[#f8f9ff] px-3 py-2 font-notoThai text-xs font-extrabold text-[#0b1b32] shadow-sm" onclick="openHistDateFilterSheet()"><span class="truncate">'+histTimeFilterLabel()+'</span><span class="material-symbols-outlined shrink-0 text-base text-textMuted">expand_more</span></button>'+
     '</div>';
-  Object.keys(dayGrps).sort(function(a,b){ return b.localeCompare(a); }).forEach(function(dayKey){
+  sortedDays.forEach(function(dayKey){
     var dayItems=dayGrps[dayKey];
+    var isOpen=S.histOpenDaysMobile.hasOwnProperty(dayKey)?S.histOpenDaysMobile[dayKey]!==false:dayKey===latestDay;
+    var dayTotal=dayItems.reduce(function(s,r){ return s+histSignedAmount(r); },0);
+    var dayTone=dayTotal>0?'text-green':dayTotal<0?'text-danger':'text-textMuted';
+    var dayPrefix=dayTotal>0?'+ ':dayTotal<0?'- ':'';
     html+='<div class="mb-5 last:mb-0">'+
-      '<div class="mb-3 rounded-xl bg-[#eef3ff] px-4 py-2">'+
-        '<div class="font-notoThai text-sm font-extrabold leading-tight text-[#0b1b32]">'+esc(histDateShort(dayKey))+'</div>'+
-        '<div class="font-notoThai text-xs font-semibold text-textMuted">'+dayItems.length+' รายการ</div>'+
-      '</div>'+
-      '<div class="space-y-2">';
+      '<button type="button" class="mobile-hist-day-head mb-3 flex w-full items-center justify-between gap-3 rounded-xl bg-[#eef3ff] px-4 py-3 text-left" data-date-key="'+esc(dayKey)+'">'+
+        '<span class="min-w-0">'+
+          '<span class="block truncate font-notoThai text-sm font-extrabold leading-tight text-[#0b1b32]">'+esc(histDateShort(dayKey))+'</span>'+
+          '<span class="block font-notoThai text-xs font-semibold text-textMuted">'+dayItems.length+' รายการ</span>'+
+        '</span>'+
+        '<span class="flex shrink-0 items-center gap-2 text-right">'+
+          '<span><span class="block font-notoThai text-[10px] font-bold text-textMuted">สุทธิ</span><span class="block font-spaceGrotesk text-sm font-extrabold '+dayTone+'">'+dayPrefix+'฿ '+fmt(Math.abs(dayTotal))+'</span></span>'+
+          '<span class="material-symbols-outlined text-lg text-textMuted transition">'+(isOpen?'expand_less':'expand_more')+'</span>'+
+        '</span>'+
+      '</button>'+
+      '<div class="mobile-hist-day-body space-y-2 '+(isOpen?'':'hidden')+'" data-date-body="'+esc(dayKey)+'">'+
+      '';
     dayItems.forEach(function(r){
       var iconTone=r.type==='income'?'bg-green/10 text-green':(r.type==='credit'?'bg-primary/10 text-primary':'bg-danger/10 text-danger');
       var title=r.detail||r.category||r.credit_name||histTypeLabel(r.type);
@@ -1861,6 +1876,21 @@ function bindHistDetailClicks(list){
     var row=e.target&&e.target.closest?e.target.closest('[data-txn-id][data-txn-type]'):null;
     if(!row||!list.contains(row)) return;
     openTxnDetail(row.dataset.txnId,row.dataset.txnType);
+  });
+}
+
+function bindMobileHistDayToggle(list){
+  if(!list||list._mobileDayToggleBound) return;
+  list._mobileDayToggleBound=true;
+  list.addEventListener('click',function(e){
+    var head=e.target&&e.target.closest?e.target.closest('.mobile-hist-day-head[data-date-key]'):null;
+    if(!head||!list.contains(head)) return;
+    var key=head.dataset.dateKey;
+    var body=head.parentElement?head.parentElement.querySelector('.mobile-hist-day-body'):null;
+    var isOpen=body?!body.classList.contains('hidden'):false;
+    S.histOpenDaysMobile=S.histOpenDaysMobile||{};
+    S.histOpenDaysMobile[key]=!isOpen;
+    renderHist();
   });
 }
 
