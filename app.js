@@ -3120,6 +3120,35 @@ function renderAccountFamilyMobile(){
   }
   renderFamilyMembersList('account-family-members-list');
 }
+function openAccountFamilyMobile(){
+  var page=document.getElementById('pg-account-family-mobile');
+  if(!page) return toast('ฟีเจอร์บัญชีและครอบครัว','info');
+  document.querySelectorAll('.pg').forEach(function(p){ p.classList.remove('on'); });
+  page.classList.add('on');
+  var title=document.getElementById('topbar-title');
+  if(title) title.textContent='บัญชีและครอบครัว';
+  renderAccountFamilyMobile();
+}
+function settingsHubTierInfo(){
+  var tier=S.profile&&S.profile.sub_tier?S.profile.sub_tier:'trial';
+  if(tier==='standard_59') return {label:'Standard',price:'฿ 59 / เดือน'};
+  if(tier==='pro_109') return {label:'Pro',price:'฿ 109 / เดือน'};
+  if(tier==='trial') return {label:'Trial',price:'ทดลองใช้ฟรี'};
+  return {label:tierLabel(),price:S.hasAccess?'ใช้งานได้':'ถูกล็อก'};
+}
+function renderSettingsHubProfileCard(profileName){
+  var root=document.querySelector('#pg-set .set-hub');
+  if(!root) return;
+  setTextIfExists(root.querySelector('.set-hub-name'),profileName||'ผู้ใช้งาน Wallet');
+  var tier=settingsHubTierInfo();
+  setTextIfExists(root.querySelector('.set-hub-tier'),tier.label);
+  setTextIfExists(root.querySelector('.set-hub-price'),tier.price);
+  var avatar=root.querySelector('.set-avatar');
+  if(!avatar) return;
+  var avatarUrl=S.profile&&S.profile.avatar_url?S.profile.avatar_url:S.avatarData;
+  if(avatarUrl) setHTMLIfExists(avatar,'<img class="h-full w-full rounded-full object-cover" alt="Profile" src="'+esc(avatarUrl)+'">');
+  else setHTMLIfExists(avatar,'<span class="material-symbols-outlined text-[42px]">person</span>');
+}
 async function joinFamilyMobile(){
   var mobileInput=document.getElementById('account-family-join-id');
   var desktopInput=document.getElementById('join-family-id');
@@ -3248,8 +3277,7 @@ function renderV4Settings(){
   setTextIfExists(document.getElementById('set-profile-name'),profileName);
   setTextIfExists(document.getElementById('set-user'),S.user?S.user.email:'');
   renderProfileAvatar('#pg-set .set-grid .set-avatar',S.profile);
-  renderProfileAvatar('#pg-set .set-hub .set-avatar',S.profile);
-  setTextIfExists('#pg-set .set-hub .set-hub-name',profileName);
+  renderSettingsHubProfileCard(profileName);
   var sub=document.getElementById('set-subscription');
   if(sub) sub.innerHTML='<div class="mb-2 flex items-center gap-2">'+subscriptionBadge()+'</div><div>สถานะ: '+(S.hasAccess?'ใช้งานได้':'ถูกล็อก')+'</div><div>Trial หมดอายุ: '+(S.profile&&S.profile.trial_end?new Date(S.profile.trial_end).toLocaleDateString('th-TH'):'-')+'</div>';
   var fam=document.getElementById('family-id-view');
