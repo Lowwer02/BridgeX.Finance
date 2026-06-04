@@ -487,22 +487,38 @@
     </div>
   </div>
   <div class="mb-5 grid grid-cols-2 gap-3 md:hidden" id="mobile-dash-bento" aria-label="สรุปภาพรวมการเงิน">
-    <div class="rounded-2xl border border-white/10 bg-surfaceLow/80 p-4 shadow-xl backdrop-blur-xl">
-      <span class="block text-xs font-bold text-textMuted">เงินเหลือใช้เดือนนี้</span>
-      <strong class="mt-2 block font-spaceGrotesk text-2xl font-bold text-primary" id="mobile-dash-net">-</strong>
-    </div>
-    <div class="rounded-2xl border border-white/10 bg-surfaceLow/80 p-4 shadow-xl backdrop-blur-xl">
-      <span class="block text-xs font-bold text-textMuted">รายรับ</span>
-      <strong class="mt-2 block font-spaceGrotesk text-2xl font-bold text-green" id="mobile-dash-income">-</strong>
-    </div>
-    <div class="rounded-2xl border border-white/10 bg-surfaceLow/80 p-4 shadow-xl backdrop-blur-xl">
-      <span class="block text-xs font-bold text-textMuted">รายจ่ายรวม</span>
-      <strong class="mt-2 block font-spaceGrotesk text-2xl font-bold text-danger" id="mobile-dash-outflow">-</strong>
-    </div>
-    <div class="rounded-2xl border border-white/10 bg-surfaceLow/80 p-4 shadow-xl backdrop-blur-xl">
-      <span class="block text-xs font-bold text-textMuted">หนี้สินรวม</span>
-      <strong class="mt-2 block font-spaceGrotesk text-2xl font-bold text-warning" id="mobile-dash-debt">-</strong>
-    </div>
+    <section class="col-span-2 overflow-hidden rounded-[24px] border border-slate-200/80 bg-white/90 p-5 shadow-[0_16px_38px_rgba(76,53,196,.08)] backdrop-blur-xl">
+      <div class="flex items-start justify-between gap-3">
+        <span class="font-inter text-xs font-extrabold uppercase tracking-[.14em] text-slate-500">NET BALANCE</span>
+      </div>
+      <strong class="mt-7 block font-spaceGrotesk text-[42px] font-black leading-none tracking-normal text-primary" id="mobile-dash-net">-</strong>
+      <div class="mt-8 flex h-12 items-end gap-2" aria-hidden="true">
+        <span class="h-3 flex-1 rounded-t bg-primary/10"></span>
+        <span class="h-5 flex-1 rounded-t bg-primary/10"></span>
+        <span class="h-4 flex-1 rounded-t bg-primary/10"></span>
+        <span class="h-7 flex-1 rounded-t bg-primary/10"></span>
+        <span class="h-6 flex-1 rounded-t bg-primary/10"></span>
+        <span class="relative h-10 flex-1 rounded-t bg-primary/20"><i class="absolute -top-2 left-1/2 h-2 w-2 -translate-x-1/2 rounded-full bg-primary"></i></span>
+      </div>
+    </section>
+    <section class="rounded-[20px] border border-slate-200/80 bg-white/90 p-4 shadow-[0_12px_28px_rgba(15,23,42,.06)]">
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined flex h-8 w-8 items-center justify-center rounded-full bg-green/15 text-lg text-green">south</span>
+        <span class="font-inter text-xs font-extrabold uppercase tracking-[.14em] text-slate-600">INCOME</span>
+      </div>
+      <strong class="mt-4 block font-spaceGrotesk text-3xl font-black leading-none text-[#0b1c30]" id="mobile-dash-income">-</strong>
+    </section>
+    <section class="rounded-[20px] border border-slate-200/80 bg-white/90 p-4 shadow-[0_12px_28px_rgba(15,23,42,.06)]">
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined flex h-8 w-8 items-center justify-center rounded-full bg-danger/15 text-lg text-danger">north</span>
+        <span class="font-inter text-xs font-extrabold uppercase tracking-[.14em] text-slate-600">EXPENSES</span>
+      </div>
+      <strong class="mt-4 block font-spaceGrotesk text-3xl font-black leading-none text-[#0b1c30]" id="mobile-dash-outflow">-</strong>
+    </section>
+    <section class="col-span-2 flex items-center justify-between gap-3 rounded-2xl border border-warning/20 bg-warning/10 px-4 py-3">
+      <span class="font-notoThai text-sm font-extrabold text-slate-600">หนี้สินรวม</span>
+      <strong class="font-spaceGrotesk text-xl font-black text-warning" id="mobile-dash-debt">-</strong>
+    </section>
   </div>
   <div class="mb-5 grid grid-cols-4 rounded-2xl border border-border bg-surfaceLow p-1 md:hidden" aria-label="เลือกมุมมองภาพรวมการเงิน">
     <button class="on rounded-xl bg-primaryContainer px-2 py-2 font-inter text-xs font-extrabold text-white shadow-sm transition" type="button" data-mobile-dash-tab="summary" onclick="switchMobileDashView('summary')">สรุป</button>
