@@ -2692,6 +2692,11 @@ function dashMonthKey(add){
 }
 function setDashTimeFilter(f){ currentDashTimeFilter=f; renderDash(); }
 function setDashUserFilter(f){ currentDashUserFilter=f; renderDash(); }
+function selectDashCalendarDate(date){
+  if(!S) return;
+  S.dashSelectedDate=String(date||'');
+  renderDash();
+}
 function switchMobileDashView(view){
   currentMobileDashView=view||'summary';
   var pg=document.getElementById('pg-dash');
@@ -2904,17 +2909,50 @@ function renderDash(){
     var expH=Math.max(4,Math.round(x.exp/maxChart*100));
     return '<div class="flex flex-1 flex-col items-center gap-2"><div class="flex h-56 items-end justify-center gap-1"><span class="w-8 rounded-t bg-primary/70 transition" style="height:'+incH+'%"></span><span class="w-8 rounded-t bg-danger/60 transition" style="height:'+expH+'%"></span></div><div class="text-xs font-bold '+(idx===chart.length-1?'text-primary':'text-textMuted')+'">'+label+'</div></div>';
   }).join('');
-  var calMo=mo, calItems=entityExpenses.filter(function(e){ return e.date&&e.date.slice(0,7)===calMo; }), dayTotals={};
-  calItems.forEach(function(e){ dayTotals[e.date]=(dayTotals[e.date]||0)+Number(e.amount||0); });
+  var calMo=mo, dailyRows=[], dayTotals={};
+  entityExpenses.filter(function(e){ return e.date&&e.date.slice(0,7)===calMo; }).forEach(function(e){
+    var amount=Number(e.amount||0);
+    dayTotals[e.date]=(dayTotals[e.date]||0)+amount;
+    dailyRows.push({type:'expense',date:e.date,detail:e.detail||'รายจ่าย',cat:e.category||'รายจ่าย',amount:amount,icon:dashCatIcon(e.category),person:e.paidBy||''});
+  });
+  entityIncomes.filter(function(i){ return i.date&&i.date.slice(0,7)===calMo; }).forEach(function(i){
+    dailyRows.push({type:'income',date:i.date,detail:i.detail||'รายรับ',cat:i.category||'รายรับ',amount:Number(i.amount||0),icon:'payments',person:i.receiver||''});
+  });
+  entityCredits.filter(function(c){ return c.date&&c.date.slice(0,7)===calMo; }).forEach(function(c){
+    var amount=Number(c.amount||0);
+    dayTotals[c.date]=(dayTotals[c.date]||0)+amount;
+    dailyRows.push({type:'credit',date:c.date,detail:c.credit_name||c.detail||c.name||'ชำระสินเชื่อ',cat:'ชำระสินเชื่อ',amount:amount,icon:'credit_card',person:c.status||''});
+  });
+  var txnDates=dailyRows.map(function(r){ return r.date; }).filter(Boolean).sort();
+  var defaultDate=txnDates.length?txnDates[txnDates.length-1]:(new Date().toISOString().slice(0,7)===calMo?today():calMo+'-01');
+  if(!S.dashSelectedDate||String(S.dashSelectedDate).slice(0,7)!==calMo) S.dashSelectedDate=defaultDate;
+  var selectedDate=S.dashSelectedDate;
   var yr=parseInt(calMo.split('-')[0]), mnth=parseInt(calMo.split('-')[1])-1, firstDay=new Date(yr,mnth,1).getDay(), daysInMonth=new Date(yr,mnth+1,0).getDate();
   var maxDay=Math.max(1,Object.keys(dayTotals).reduce(function(m,d){ return Math.max(m,dayTotals[d]); },0));
   var calHtml='';
   for(var ei=0;ei<firstDay;ei++) calHtml+='<span class="aspect-square rounded-xl"></span>';
   for(var dd=1;dd<=daysInMonth;dd++){
     var ds=calMo+'-'+String(dd).padStart(2,'0'), v=dayTotals[ds]||0, lvl=v?Math.max(1,Math.ceil(v/maxDay*4)):0;
-    var calTone=['bg-card2/70 text-textMuted','bg-primary/20 text-primary','bg-primary/35 text-primary','bg-primary/55 text-white','bg-primary/80 text-white'][lvl];
-    calHtml+='<button type="button" class="aspect-square rounded-xl text-xs font-bold transition hover:ring-2 hover:ring-primary/40 '+calTone+'" title="'+ds+' ฿ '+fmt(v)+'">'+dd+'</button>';
+    var calTone=['bg-slate-100','bg-primary/20','bg-primary/35','bg-primary/55','bg-primary/80'][lvl];
+    var selected=ds===selectedDate;
+    calHtml+='<button type="button" class="aspect-square rounded-xl transition hover:ring-2 hover:ring-primary/40 '+calTone+(selected?' ring-2 ring-primary ring-offset-2 ring-offset-surface':'')+'" data-date="'+ds+'" onclick="selectDashCalendarDate(\''+ds+'\')" aria-label="'+ds+' ฿ '+fmt(v)+'" title="'+ds+' ฿ '+fmt(v)+'"></button>';
   }
+  var selectedRows=dailyRows.filter(function(r){ return r.date===selectedDate; }).sort(function(a,b){
+    var rank={income:0,expense:1,credit:2};
+    return (rank[a.type]||9)-(rank[b.type]||9);
+  });
+  var dayIncome=selectedRows.filter(function(r){ return r.type==='income'; }).reduce(function(s,r){ return s+Number(r.amount||0); },0);
+  var dayOut=selectedRows.filter(function(r){ return r.type!=='income'; }).reduce(function(s,r){ return s+Number(r.amount||0); },0);
+  var dayNet=dayIncome-dayOut;
+  var dailyListHtml=selectedRows.length?selectedRows.map(function(r){
+    var isInc=r.type==='income';
+    var isCredit=r.type==='credit';
+    var tone=isInc?'bg-green/15 text-green':(isCredit?'bg-primary/15 text-primary':'bg-danger/15 text-danger');
+    var amountClass=isInc?'text-green':(isCredit?'text-primary':'text-danger');
+    var sub=isInc?'รายรับ':(isCredit?'ชำระสินเชื่อ':'รายจ่าย');
+    return '<button type="button" class="flex w-full items-center justify-between gap-3 rounded-2xl bg-white/80 p-3 text-left shadow-[0_8px_20px_rgba(15,23,42,.04)]"><span class="flex min-w-0 items-center gap-3"><span class="material-symbols-outlined flex h-10 w-10 shrink-0 items-center justify-center rounded-xl '+tone+'">'+esc(r.icon)+'</span><span class="min-w-0"><strong class="block truncate font-notoThai text-sm font-extrabold text-[#0b1c30]">'+esc(r.detail||'-')+'</strong><small class="block truncate font-notoThai text-xs font-semibold text-slate-500">'+sub+' · '+esc(r.cat||'-')+'</small></span></span><strong class="shrink-0 font-spaceGrotesk text-sm font-black '+amountClass+'">'+(isInc?'+':'-')+' ฿ '+fmt2(r.amount)+'</strong></button>';
+  }).join(''):'<div class="rounded-2xl bg-white/70 p-5 text-center font-notoThai text-sm font-bold text-slate-500">ไม่มีรายการในวันนี้</div>';
+  var dailySummaryHtml='<div class="mt-5 rounded-2xl border border-slate-200/80 bg-slate-50/80 p-4"><div class="mb-3 flex items-start justify-between gap-3"><div><h3 class="font-notoThai text-base font-extrabold text-[#0b1c30]">รายการวันที่ '+dashDate(selectedDate)+'</h3><p class="mt-1 font-notoThai text-xs font-semibold text-slate-500">รายรับรวม ฿ '+fmt(dayIncome)+' · รายจ่ายรวม ฿ '+fmt(dayOut)+' · สุทธิ ฿ '+fmt2(dayNet)+'</p></div></div><div class="grid gap-2">'+dailyListHtml+'</div></div>';
   var recentExp=items.map(function(e){ return {type:'exp',date:e.date,detail:e.detail,cat:e.category,person:e.paidBy,amount:e.amount,icon:dashCatIcon(e.category)}; });
   var recentInc=incomeItems.map(function(i){ return {type:'inc',date:i.date,detail:i.detail||'รายรับ',cat:i.category||'Income',person:i.receiver||'SYS',amount:i.amount,icon:'payments'}; });
   var recent=recentExp.concat(recentInc).sort(function(a,b){ return String(b.date||'').localeCompare(String(a.date||'')); }).slice(0,5);
@@ -2928,9 +2966,9 @@ function renderDash(){
     '<section class="hidden col-span-12 rounded-2xl border border-white/10 bg-surfaceLow/80 p-5 shadow-xl backdrop-blur-xl md:block sm:col-span-6 lg:col-span-3"><span class="font-inter text-xs font-extrabold uppercase tracking-[.16em] text-textMuted">'+t('totalDebt')+'</span><strong class="mt-3 block font-spaceGrotesk text-3xl font-bold text-textMain">฿ '+fmt(debtTotal)+'</strong><div class="mt-5 h-2 overflow-hidden rounded-full bg-card2"><i class="block h-full rounded-full bg-warning" style="width:'+debtPct+'%"></i></div><small class="mt-2 block text-xs font-bold text-textMuted">'+t('useLimit')+' '+debtPct+'%</small></section>'+
     '<section class="hidden col-span-12 rounded-2xl border border-white/10 bg-surfaceLow/80 p-5 shadow-xl backdrop-blur-xl md:block sm:col-span-6 lg:col-span-3"><span class="font-inter text-xs font-extrabold uppercase tracking-[.16em] text-textMuted">'+t('projectedInterestSavings')+'</span><strong class="mt-3 block font-spaceGrotesk text-3xl font-bold text-green">฿ '+fmt(projectedSave)+'</strong><small class="mt-5 flex items-center gap-2 text-sm font-bold text-green"><span class="material-symbols-outlined text-lg">auto_awesome</span> '+(getLang()==='th'?'ด้วยแผนชำระเร่งด่วน':'with an accelerated plan')+'</small></section>'+
     '<section class="col-span-12 rounded-2xl border border-white/10 bg-surfaceLow/80 p-5 shadow-xl backdrop-blur-xl" data-mobile-views="budget"><div class="mb-5 flex items-center justify-between gap-3"><h2 class="font-spaceGrotesk text-xl font-bold text-textMain">'+t('budgetProgress')+'</h2><span class="text-xs font-bold text-textMuted">'+t('budgetThisMonth')+'</span></div><div class="grid gap-3">'+budgetProgressHtml(items)+'</div></section>'+
-    '<section class="col-span-12 rounded-2xl border border-white/10 bg-surfaceLow/80 p-5 shadow-xl backdrop-blur-xl lg:col-span-8" data-mobile-views="summary analysis"><div class="mb-5 flex items-center justify-between gap-3"><h2 class="font-spaceGrotesk text-xl font-bold text-textMain">'+t('financialHealth')+'</h2><button class="text-xs font-bold text-primary" type="button" onclick="goTab(\'hist\',document.querySelector(\'.tbtn[onclick*=hist]\'))">'+t('viewDetails')+'</button></div><div class="flex h-72 items-end gap-3 border-b border-border px-2">'+chartHtml+'</div><div class="mt-5 flex justify-center gap-6 text-xs font-bold text-textMuted"><span class="flex items-center gap-2"><i class="h-3 w-3 rounded-full bg-primary/70"></i>รายได้</span><span class="flex items-center gap-2"><i class="h-3 w-3 rounded-full bg-danger/60"></i>รายจ่าย</span></div></section>'+
-    '<section class="col-span-12 rounded-2xl border border-white/10 bg-surfaceLow/80 p-5 shadow-xl backdrop-blur-xl lg:col-span-4" data-mobile-views="analysis"><div class="mb-5 flex items-center justify-between gap-3"><h2 class="font-spaceGrotesk text-xl font-bold text-textMain">'+t('expenseByCategory')+'</h2><span class="text-xs font-bold text-textMuted">'+t('category')+'</span></div><div class="relative h-72"><canvas id="dash-category-chart"></canvas></div></section>'+
-    '<section class="col-span-12 rounded-2xl border border-white/10 bg-surfaceLow/80 p-5 shadow-xl backdrop-blur-xl lg:col-span-4" data-mobile-views="analysis"><div class="mb-5 flex items-center justify-between gap-3"><h2 class="font-spaceGrotesk text-xl font-bold text-textMain">'+t('dailyCalendar')+'</h2><span class="text-xs font-bold text-textMuted">'+thaiMo(calMo)+'</span></div><div class="mb-2 grid grid-cols-7 gap-2 text-center text-xs font-bold text-textMuted"><span>อา</span><span>จ</span><span>อ</span><span>พ</span><span>พฤ</span><span>ศ</span><span>ส</span></div><div class="grid grid-cols-7 gap-2">'+calHtml+'</div><div class="mt-5 flex items-center justify-center gap-2 text-xs font-bold text-textMuted"><span>'+t('less')+'</span><i class="h-3 w-3 rounded bg-card2/70"></i><i class="h-3 w-3 rounded bg-primary/20"></i><i class="h-3 w-3 rounded bg-primary/35"></i><i class="h-3 w-3 rounded bg-primary/55"></i><i class="h-3 w-3 rounded bg-primary/80"></i><span>'+t('more')+'</span></div></section>'+
+    '<section class="col-span-12 rounded-2xl border border-white/10 bg-surfaceLow/80 p-5 shadow-xl backdrop-blur-xl lg:col-span-8" data-mobile-views="summary"><div class="mb-5 flex items-center justify-between gap-3"><h2 class="font-spaceGrotesk text-xl font-bold text-textMain">'+t('financialHealth')+'</h2><button class="text-xs font-bold text-primary" type="button" onclick="goTab(\'hist\',document.querySelector(\'.tbtn[onclick*=hist]\'))">'+t('viewDetails')+'</button></div><div class="flex h-72 items-end gap-3 border-b border-border px-2">'+chartHtml+'</div><div class="mt-5 flex justify-center gap-6 text-xs font-bold text-textMuted"><span class="flex items-center gap-2"><i class="h-3 w-3 rounded-full bg-primary/70"></i>รายได้</span><span class="flex items-center gap-2"><i class="h-3 w-3 rounded-full bg-danger/60"></i>รายจ่าย</span></div></section>'+
+    '<section class="col-span-12 rounded-2xl border border-white/10 bg-surfaceLow/80 p-5 shadow-xl backdrop-blur-xl lg:col-span-4" data-mobile-views="analysis"><div class="mb-5 flex items-center justify-between gap-3"><h2 class="font-notoThai text-xl font-extrabold text-textMain">'+t('expenseByCategory')+'</h2><span class="font-notoThai text-xs font-bold text-textMuted">'+t('category')+'</span></div><div class="relative h-72"><canvas id="dash-category-chart"></canvas></div></section>'+
+    '<section class="col-span-12 rounded-2xl border border-white/10 bg-surfaceLow/80 p-5 shadow-xl backdrop-blur-xl lg:col-span-4" data-mobile-views="analysis"><div class="mb-5 flex items-center justify-between gap-3"><h2 class="font-notoThai text-xl font-extrabold text-textMain">'+t('dailyCalendar')+'</h2><span class="font-notoThai text-xs font-bold text-textMuted">'+thaiMo(calMo)+'</span></div><div class="mb-2 grid grid-cols-7 gap-2 text-center font-notoThai text-xs font-bold text-textMuted"><span>อา</span><span>จ</span><span>อ</span><span>พ</span><span>พฤ</span><span>ศ</span><span>ส</span></div><div class="grid grid-cols-7 gap-2">'+calHtml+'</div><div class="mt-5 flex items-center justify-center gap-2 font-notoThai text-xs font-bold text-textMuted"><span>'+t('less')+'</span><i class="h-3 w-3 rounded bg-slate-100"></i><i class="h-3 w-3 rounded bg-primary/20"></i><i class="h-3 w-3 rounded bg-primary/35"></i><i class="h-3 w-3 rounded bg-primary/55"></i><i class="h-3 w-3 rounded bg-primary/80"></i><span>'+t('more')+'</span></div>'+dailySummaryHtml+'</section>'+
     '<section class="col-span-12 rounded-2xl border border-white/10 bg-surfaceLow/80 p-5 shadow-xl backdrop-blur-xl" data-mobile-views="recent"><div class="mb-5 flex items-center justify-between gap-3"><h2 class="font-spaceGrotesk text-xl font-bold text-textMain">'+t('recentTransactions')+'</h2><button class="flex items-center gap-1 text-xs font-bold text-primary" type="button" onclick="goTab(\'hist\',document.querySelector(\'.tbtn[onclick*=hist]\'))">'+t('viewAll')+' <span class="material-symbols-outlined text-base">arrow_forward</span></button></div><div class="overflow-x-auto"><table class="w-full min-w-[640px] border-collapse text-left"><thead><tr class="border-b border-border text-xs font-bold text-textMuted"><th class="py-2 pr-3">รายการ</th><th class="py-2 pr-3">'+t('category')+'</th><th class="py-2 pr-3">ผู้ทำรายการ</th><th class="py-2 text-right">'+t('amount')+'</th></tr></thead><tbody>'+recentHtml+'</tbody></table></div></section>'+
   '</div>';
   applyLanguage();
