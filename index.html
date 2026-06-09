@@ -135,12 +135,12 @@
     <div class="credit-setup-form">
     <div class="fld"><label>ประเภท</label><select class="mobile-picker-native" id="cs-type" onchange="updateCreditProviderOptions()"><option value="revolving">สินเชื่อหมุนเวียน</option><option value="fixed">สินเชื่อหลักประกัน</option></select><button class="mobile-picker-trigger" id="mobile-cr-type-trigger" type="button" onclick="openMobilePicker('cr-type')"><span class="material-symbols-outlined">category</span><strong>เลือกประเภทสินเชื่อ</strong><em id="mobile-cr-type-label">สินเชื่อหมุนเวียน</em></button></div>
     <div class="fld"><label>ผู้ให้บริการ</label><select class="mobile-picker-native" id="cs-provider"></select><button class="mobile-picker-trigger" id="mobile-cr-provider-trigger" type="button" onclick="openMobilePicker('cr-provider')"><span class="material-symbols-outlined">credit_card</span><strong>เลือกผู้ให้บริการ</strong><em id="mobile-cr-provider-label">-</em></button></div>
-    <div class="fld"><label>ชนิดบัตร</label><select id="cs-card-type" onchange="toggleLinkedPrimaryCredit()"><option value="primary">Primary card</option><option value="secondary">Secondary card</option></select></div>
+    <div class="fld" id="cs-card-type-wrap"><label>ชนิดบัตร</label><select id="cs-card-type" onchange="toggleLinkedPrimaryCredit()"><option value="primary">บัตรหลัก</option><option value="secondary">บัตรเสริม</option></select></div>
     <div class="fld linked-credit-field" id="cs-linked-wrap">
-      <label>Primary card ที่ใช้วงเงินร่วมกัน</label>
+      <label>บัตรหลักที่ใช้วงเงินร่วมกัน</label>
       <select class="mobile-picker-native" id="cs-linked-credit"></select>
-      <button class="mobile-picker-trigger" id="mobile-cr-linked-trigger" type="button" onclick="openMobilePicker('cr-linked')"><span class="material-symbols-outlined">link</span><strong>เลือกบัตรหลัก</strong><em id="mobile-cr-linked-label">เลือก primary card</em></button>
-      <div class="linked-credit-note">Secondary card จะใช้วงเงินเดียวกับ primary (balance รวมกัน)</div>
+      <button class="mobile-picker-trigger" id="mobile-cr-linked-trigger" type="button" onclick="openMobilePicker('cr-linked')"><span class="material-symbols-outlined">link</span><strong>เลือกบัตรหลัก</strong><em id="mobile-cr-linked-label">เลือกบัตรหลัก</em></button>
+      <div class="linked-credit-note">บัตรเสริมจะใช้วงเงินเดียวกับบัตรหลัก (ยอดรวมกัน)</div>
     </div>
     <div class="fld"><label>วงเงิน / ยอดหนี้</label><input type="number" id="cs-limit" placeholder="0"></div>
     <div class="info-r">

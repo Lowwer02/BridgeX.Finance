@@ -2064,25 +2064,42 @@ function updateCreditProviderOptions(){
 function primaryCreditOptionsForSetup(){
   return Object.keys(S.crInfo||{}).filter(function(id){
     var info=S.crInfo[id]||{};
-    return getLinkedCreditId(id)===id&&(info.cardType||info.card_type||'primary')!=='secondary';
+    return getLinkedCreditId(id)===id&&(info.cardType||info.card_type||'primary')!=='secondary'&&!!info.rowId;
   }).map(function(id){
+    var info=S.crInfo[id]||{};
     var cr=allCR().find(function(c){ return c.id===id; })||{};
-    return {id:id,name:creditNameById(id)||(cr&&cr.n)||id};
+    return {id:String(info.rowId),localId:id,name:creditNameById(id)||(cr&&cr.n)||id};
   });
 }
 function populateLinkedPrimaryCreditOptions(){
   var el=document.getElementById('cs-linked-credit'); if(!el) return;
   var cur=el.value;
   var opts=primaryCreditOptionsForSetup();
-  el.innerHTML='<option value="">เลือก primary card</option>'+opts.map(function(o){ return '<option value="'+esc(o.id)+'">'+esc(o.name)+'</option>'; }).join('');
+  el.innerHTML='<option value="">เลือกบัตรหลัก</option>'+opts.map(function(o){ return '<option value="'+esc(o.id)+'">'+esc(o.name)+'</option>'; }).join('');
   if(opts.some(function(o){ return o.id===cur; })) el.value=cur;
   renderMobilePickers();
 }
 function toggleLinkedPrimaryCredit(){
-  var typeEl=document.getElementById('cs-card-type'), wrap=document.getElementById('cs-linked-wrap');
+  var creditTypeEl=document.getElementById('cs-type'), typeEl=document.getElementById('cs-card-type');
+  var cardWrap=document.getElementById('cs-card-type-wrap'), wrap=document.getElementById('cs-linked-wrap');
+  var linkedEl=document.getElementById('cs-linked-credit');
   if(!typeEl||!wrap) return;
+  var isRevolving=!creditTypeEl||creditTypeEl.value!=='fixed';
+  if(cardWrap){
+    cardWrap.classList.toggle('hidden',!isRevolving);
+    cardWrap.style.display=isRevolving?'':'none';
+  }
+  if(!isRevolving){
+    typeEl.value='primary';
+    if(linkedEl) linkedEl.value='';
+    wrap.classList.remove('on');
+    wrap.classList.add('hidden');
+    renderMobilePickers();
+    return;
+  }
   var isSecondary=typeEl.value==='secondary';
   wrap.classList.toggle('on',isSecondary);
+  wrap.classList.toggle('hidden',!isSecondary);
   if(isSecondary) populateLinkedPrimaryCreditOptions();
   renderMobilePickers();
 }
@@ -2191,16 +2208,24 @@ async function saveFirstCredit(){
     var provider=document.getElementById('cs-provider').value;
     var type=document.getElementById('cs-type').value;
     var cardType=(document.getElementById('cs-card-type')||{}).value||'primary';
-    var linkedCreditId=(document.getElementById('cs-linked-credit')||{}).value||'';
+    var linkedCreditId=(document.getElementById('cs-linked-credit')||{}).value||null;
     var cardHolderId=S.profile&&S.profile.id||S.user&&S.user.id||'';
+    var isRevolving=type==='revolving';
     if(!provider) return toast('เลือกผู้ใช้บริการก่อน','err');
-    if(cardType==='secondary'&&!linkedCreditId) return toast('เลือก primary card ก่อน','err');
+    if(!isRevolving){
+      cardType=null;
+      linkedCreditId=null;
+    }else{
+      cardType=cardType==='secondary'?'secondary':'primary';
+      if(cardType!=='secondary') linkedCreditId=null;
+      if(cardType==='secondary'&&!linkedCreditId) return toast('กรุณาเลือกบัตรหลักที่ต้องการเชื่อม','err');
+    }
     var cr=allCR().find(function(c){ return c.n===provider; });
     if(!cr){
       cr={id:'cr_'+provider.toLowerCase().replace(/\W+/g,'_'),n:provider,t:type,ico:'CR',rate:0};
       S.customCr.push(cr);
     }
-    if(cardType==='secondary'){
+    if(isRevolving&&cardType==='secondary'){
       var localId='secondary_'+cr.id+'_'+(cardHolderId||Date.now());
       if(!allCR().some(function(c){ return c.id===localId; })){
         S.customCr.push({id:localId,n:cr.n,t:cr.t,ico:cr.ico,rate:cr.rate,_hidden:true});
@@ -2221,7 +2246,12 @@ async function saveFirstCredit(){
     if(!info.limit) return toast('กรอกวงเงิน/ยอดหนี้ก่อน','err');
     S.crInfo[cr.id]=info;
     sv();
-    await saveToSupabase('credit_info',{credit_name:cr.n,type:cr.t,credit_limit:info.limit,rate:info.rate,min_pay:info.minPay,bill_cycle:info.billCycle,due_date:info.dueDate,card_type:cardType,card_holder_id:info.cardHolderId,linked_credit_id:linkedCreditId});
+    var row={credit_name:cr.n,type:cr.t,credit_limit:info.limit,rate:info.rate,min_pay:info.minPay,bill_cycle:info.billCycle,due_date:info.dueDate,card_holder_id:info.cardHolderId,card_type:cardType,linked_credit_id:linkedCreditId};
+    if(!isRevolving){
+      row.card_type=null;
+      row.linked_credit_id=null;
+    }
+    await saveToSupabase('credit_info',row);
     closeD('credit-setup-modal');
     await loadFromSupabase(S.profile);
     loadCreditOptions();
