@@ -2117,6 +2117,15 @@ function creditPaymentsThisMonth(cr){
     return p.date&&p.date.slice(0,7)===mo&&(p.credit_name===cr.n||p.credit_id===cr.id);
   });
 }
+function mobileSecuredLoanIcon(cr){
+  var name=String((cr&&cr.n)||'');
+  if(/รถจักรยานยนต์|มอเตอร์ไซค์|motor/i.test(name)) return 'two_wheeler';
+  if(/รถยนต์|รถ|car/i.test(name)) return 'directions_car';
+  if(/บ้าน|ที่อยู่อาศัย|คอนโด|home|house/i.test(name)) return 'home';
+  if(/จำนำ|หลักประกัน|ทอง|pawn|collateral/i.test(name)) return 'account_balance';
+  if(/อื่น/i.test(name)) return 'business_center';
+  return 'request_quote';
+}
 function renderCreditLine(cr){
   var mo=thisMo(),st=S.crStatus[cr.id]||{},info=S.crInfo[cr.id]||{};
   var paidRows=creditPaymentsThisMonth(cr);
@@ -2125,9 +2134,13 @@ function renderCreditLine(cr){
   var due=info.dueDate||'-';
   var rate=info.rate||cr.rate||0;
   var logo=getCreditLogoMeta(cr);
+  var isSecured=cr.t==='fixed'||cr.t==='secured';
+  var logoHtml=isSecured
+    ? '<span class="credit-logo-mark material-symbols-outlined inline-flex h-[42px] w-[42px] min-w-[42px] items-center justify-center rounded-xl border border-white/15 bg-primaryContainer text-[24px] font-normal text-white shadow-lg">'+mobileSecuredLoanIcon(cr)+'</span>'
+    : '<div class="credit-logo-mark inline-flex h-[42px] w-[42px] min-w-[42px] items-center justify-center rounded-xl border border-white/15 text-xs font-extrabold tracking-wide text-white shadow-lg" style="background-color:'+esc(logo.color)+'">'+esc(logo.label)+'</div>';
   return '<div class="mobile-compact-credit-card rounded-2xl border border-border bg-card2/60 p-4 shadow-lg">'+
     '<div class="flex flex-wrap items-start gap-3">'+
-      '<div class="credit-logo-mark inline-flex h-[42px] w-[42px] min-w-[42px] items-center justify-center rounded-xl border border-white/15 text-xs font-extrabold tracking-wide text-white shadow-lg" style="background-color:'+esc(logo.color)+'">'+esc(logo.label)+'</div>'+
+      logoHtml+
       '<div class="min-w-0 flex-1"><div class="truncate font-notoThai text-base font-bold text-textMain">'+esc(cr.n)+'</div><div class="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs font-semibold text-textMuted"><span>'+(getLang()==='th'?'ครบกำหนด: ':'Due: ')+esc(due)+'</span><span>'+(getLang()==='th'?'ดอกเบี้ย: ':'Rate: ')+esc(rate)+'%</span></div></div>'+
       '<div class="cr-pay-badge '+(isPaid?'paid':'due')+' inline-flex max-w-max items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold '+(isPaid?'bg-green/15 text-green':'bg-warning/15 text-warning')+'"><span class="material-symbols-outlined text-base">'+(isPaid?'check_circle':'warning')+'</span><em class="not-italic">'+t(isPaid?'paid':'due')+'</em></div>'+
     '</div>'+

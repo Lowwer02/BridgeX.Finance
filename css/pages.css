@@ -168,6 +168,80 @@
   #pg-debt .mobile-debt-bento{grid-template-columns:1fr}
 }
 
+/* Mobile Smart Debt order card typography balance */
+@media (max-width:768px){
+  #pg-debt #debt-mode-plan .debtp-list-head{
+    gap:12px !important;
+    padding:22px 18px 18px !important;
+  }
+  #pg-debt #debt-mode-plan .debtp-list-head h2{
+    flex:1 1 auto !important;
+    min-width:0 !important;
+    max-width:54% !important;
+    font-family:var(--font-label),var(--font-body),sans-serif !important;
+    font-size:clamp(24px,6.4vw,28px) !important;
+    font-weight:900 !important;
+    line-height:1.14 !important;
+    letter-spacing:0 !important;
+    text-align:left !important;
+    text-wrap:balance;
+    word-break:normal;
+  }
+  #pg-debt #debt-mode-plan .debtp-list-head button{
+    min-height:46px !important;
+    padding:0 14px !important;
+    border-radius:16px !important;
+    font-family:var(--font-label),var(--font-body),sans-serif !important;
+    font-size:14px !important;
+    line-height:1 !important;
+  }
+  #pg-debt #debt-mode-plan .debtp-list-head button .material-symbols-outlined{
+    font-size:19px !important;
+  }
+  #pg-debt #debt-mode-plan .debt-focus-card{
+    padding:16px !important;
+  }
+  #pg-debt #debt-mode-plan .debt-focus-top{
+    gap:10px !important;
+  }
+  #pg-debt #debt-mode-plan .debt-focus-title{
+    max-width:100% !important;
+    font-family:var(--font-label),var(--font-body),sans-serif !important;
+    font-size:clamp(22px,6vw,26px) !important;
+    font-weight:900 !important;
+    line-height:1.16 !important;
+    letter-spacing:0 !important;
+    text-wrap:balance;
+    word-break:normal;
+  }
+  #pg-debt #debt-mode-plan .debt-focus-badge{
+    gap:6px !important;
+    padding:7px 10px !important;
+    font-family:var(--font-label),var(--font-body),sans-serif !important;
+    font-size:12px !important;
+    line-height:1 !important;
+    white-space:nowrap !important;
+  }
+  #pg-debt #debt-mode-plan .debt-focus-pay{
+    margin-top:14px !important;
+    align-items:flex-end !important;
+  }
+  #pg-debt #debt-mode-plan .debt-focus-pay div{
+    font-size:clamp(34px,10vw,42px) !important;
+    line-height:1 !important;
+  }
+  #pg-debt #debt-mode-plan .debt-focus-pay small{
+    font-size:13px !important;
+  }
+  #pg-debt #debt-mode-plan .debt-focus-card button{
+    min-height:48px !important;
+    border-radius:16px !important;
+    font-family:var(--font-label),var(--font-body),sans-serif !important;
+    font-size:14px !important;
+    line-height:1.15 !important;
+  }
+}
+
 /* Mobile debt planner typography/header polish */
 @media (max-width:768px){
   #pg-debt #debt-mode-plan .debtp-hero h1{
@@ -3988,4 +4062,78 @@ body.theme-light .google-btn{border-color:var(--bdr)}
     letter-spacing:0 !important;
   }
   #pg-debt #debt-mode-plan .debtp-impact-wrap{margin-top:6px !important}
+}
+
+/* Final override: mobile Smart Debt order typography */
+@media (max-width:768px){
+  #pg-debt #debt-mode-plan .debtp-list-head{
+    gap:12px !important;
+    padding:22px 18px 18px !important;
+  }
+  #pg-debt #debt-mode-plan .debtp-list-head h2{
+    flex:1 1 auto !important;
+    min-width:0 !important;
+    max-width:54% !important;
+    font-family:var(--font-label),var(--font-body),sans-serif !important;
+    font-size:clamp(24px,6.4vw,28px) !important;
+    font-weight:900 !important;
+    line-height:1.14 !important;
+    letter-spacing:0 !important;
+    text-align:left !important;
+    text-wrap:balance;
+    word-break:normal;
+  }
+  #pg-debt #debt-mode-plan .debtp-list-head button{
+    min-height:46px !important;
+    padding:0 14px !important;
+    border-radius:16px !important;
+    font-family:var(--font-label),var(--font-body),sans-serif !important;
+    font-size:14px !important;
+    line-height:1 !important;
+  }
+  #pg-debt #debt-mode-plan .debtp-list-head button .material-symbols-outlined{
+    font-size:19px !important;
+  }
+  #pg-debt #debt-mode-plan .debt-focus-card{
+    padding:16px !important;
+  }
+  #pg-debt #debt-mode-plan .debt-focus-top{
+    gap:10px !important;
+  }
+  #pg-debt #debt-mode-plan .debt-focus-title{
+    max-width:100% !important;
+    font-family:var(--font-label),var(--font-body),sans-serif !important;
+    font-size:clamp(22px,6vw,26px) !important;
+    font-weight:900 !important;
+    line-height:1.16 !important;
+    letter-spacing:0 !important;
+    text-wrap:balance;
+    word-break:normal;
+  }
+  #pg-debt #debt-mode-plan .debt-focus-badge{
+    gap:6px !important;
+    padding:7px 10px !important;
+    font-family:var(--font-label),var(--font-body),sans-serif !important;
+    font-size:12px !important;
+    line-height:1 !important;
+    white-space:nowrap !important;
+  }
+  #pg-debt #debt-mode-plan .debt-focus-pay{
+    margin-top:14px !important;
+    align-items:flex-end !important;
+  }
+  #pg-debt #debt-mode-plan .debt-focus-pay div{
+    font-size:clamp(34px,10vw,42px) !important;
+    line-height:1 !important;
+  }
+  #pg-debt #debt-mode-plan .debt-focus-pay small{
+    font-size:13px !important;
+  }
+  #pg-debt #debt-mode-plan .debt-focus-card button{
+    min-height:48px !important;
+    border-radius:16px !important;
+    font-family:var(--font-label),var(--font-body),sans-serif !important;
+    font-size:14px !important;
+    line-height:1.15 !important;
+  }
 }
