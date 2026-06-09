@@ -542,6 +542,7 @@ window.addEventListener('DOMContentLoaded', async function(){
   try{
     applyLanguage();
     ['f-dt','i-dt','dr-dt'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=today(); });
+    renderQuickTagChips();
     updateAuthButtons();
     sb.auth.onAuthStateChange(async function(event,session){
       try{
@@ -790,7 +791,7 @@ async function loadFromSupabase(preloadedProfile){
         id:r.id||('sb'+Date.now()+i), date:r.date||'',
         detail:r.detail||'-', category:cleanLabel(r.category)||'',
         catC:r.cat_color||'#7c6ef5', payment:cleanLabel(r.payment)||'',
-        amount:Number(r.amount||0), paidBy:r.paid_by||'', user_id:r.user_id||'', createdAt:r.created_at||''
+        amount:Number(r.amount||0), paidBy:r.paid_by||'', user_id:r.user_id||'', createdAt:r.created_at||'', tags:normalizeTxnTags(r.tags)
       });
     });
     S.expenses.sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
@@ -798,7 +799,7 @@ async function loadFromSupabase(preloadedProfile){
       S.incomes.push({
         id:r.id||('si'+Date.now()+i), date:r.date||'',
         detail:r.detail||'-', category:cleanLabel(r.category)||'',
-        channel:cleanLabel(r.channel)||'', amount:Number(r.amount||0), receiver:r.receiver||'', user_id:r.user_id||''
+        channel:cleanLabel(r.channel)||'', amount:Number(r.amount||0), receiver:r.receiver||'', user_id:r.user_id||'', tags:normalizeTxnTags(r.tags)
       });
     });
     S.incomes.sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
@@ -990,6 +991,48 @@ function orderedExpenseCats(cats){
   return ordered;
 }
 function cleanAddLabel(v){ return String(v||'').replace(/^[^\wก-๙]+/,'').trim()||v; }
+var DEFAULT_QUICK_TAGS=['ให้แฟน','เบิกได้','งาน'];
+function getQuickTags(){
+  return DEFAULT_QUICK_TAGS.slice();
+}
+function normalizeTxnTags(tags){
+  if(Array.isArray(tags)) return tags.map(function(tag){ return String(tag||'').replace(/^#/,'').trim(); }).filter(Boolean).filter(function(tag,idx,arr){ return arr.indexOf(tag)===idx; });
+  if(typeof tags==='string'){
+    try{ return normalizeTxnTags(JSON.parse(tags)); }catch(e){ return tags?normalizeTxnTags([tags]):[]; }
+  }
+  return [];
+}
+function draftTagState(mode){
+  if(mode==='income'){
+    S.incomeDraftTags=normalizeTxnTags(S.incomeDraftTags);
+    return S.incomeDraftTags;
+  }
+  S.expenseDraftTags=normalizeTxnTags(S.expenseDraftTags);
+  return S.expenseDraftTags;
+}
+function renderQuickTagChips(){
+  document.querySelectorAll('[data-quick-tags]').forEach(function(root){
+    var mode=root.dataset.quickTags==='income'?'income':'expense';
+    var selected=draftTagState(mode);
+    root.innerHTML='<span class="inline-flex h-8 items-center rounded-full border border-[#dfe6f5] bg-white/80 px-3 font-inter text-xs font-extrabold text-primary">#</span>'+
+      getQuickTags().map(function(tag){
+        var on=selected.indexOf(tag)>-1;
+        return '<button type="button" class="rounded-full border px-3 py-1.5 font-notoThai text-xs font-extrabold transition '+(on?'border-primaryContainer bg-primaryContainer text-white shadow-sm shadow-primaryContainer/20':'border-[#dfe6f5] bg-white/80 text-slate-500')+'" data-tag-mode="'+mode+'" data-quick-tag="'+esc(tag)+'" onclick="toggleQuickTag(this)">#'+esc(tag)+'</button>';
+      }).join('')+
+      '<button type="button" class="rounded-full border border-dashed border-primary/25 bg-primaryContainer/5 px-3 py-1.5 font-notoThai text-xs font-extrabold text-primary/70" onclick="toast(\'ฟีเจอร์จัดการแท็กจะเปิดให้ใช้งานใน Pro\',\'info\')">เพิ่มแท็ก</button>';
+  });
+}
+function toggleQuickTag(btn){
+  if(!btn) return;
+  var mode=btn.dataset.tagMode==='income'?'income':'expense';
+  var tag=String(btn.dataset.quickTag||'').replace(/^#/,'').trim();
+  if(!tag) return;
+  var list=draftTagState(mode);
+  var idx=list.indexOf(tag);
+  if(idx>-1) list.splice(idx,1);
+  else list.push(tag);
+  renderQuickTagChips();
+}
 function addPayIcon(id){
   id=String(id||'');
   return id==='cash'?'payments':id==='xfer'?'account_balance':id.indexOf('crpay_')===0?'credit_card':'account_balance_wallet';
@@ -1204,16 +1247,19 @@ async function submitExp(){
   if(!validateTxnInput(checkRow)) return;
   det=checkRow.detail;
   var rowId=makeRowId();
-  var ex={id:rowId,date:dt,detail:det||'-',category:cat.l,catId:cat.id,catC:cat.c||'#7c6ef5',payment:pay.l,amount:amt,paidBy:S.fc.payer,user_id:S.user&&S.user.id||'',createdAt:new Date().toISOString()};
+  var exTags=normalizeTxnTags(S.expenseDraftTags);
+  var ex={id:rowId,date:dt,detail:det||'-',category:cat.l,catId:cat.id,catC:cat.c||'#7c6ef5',payment:pay.l,amount:amt,paidBy:S.fc.payer,user_id:S.user&&S.user.id||'',createdAt:new Date().toISOString(),tags:exTags};
   S.expenses.unshift(ex);
   autoMatch(ex);
   // Reset form
   document.getElementById('f-amt').value='';
   document.getElementById('f-det').value='';
   document.getElementById('f-dt').value=today();
+  S.expenseDraftTags=[];
   S.fc={cat:'',pay:'',payer:''};
   if(S.profile&&S.profile.full_name) S.fc.payer=S.profile.full_name;
   renderCats(); renderPays();
+  renderQuickTagChips();
   applyCurrentProfileToPayers();
   renderPersonFilters();
   renderHist();
@@ -1227,16 +1273,18 @@ async function submitExp(){
   ]);
   checkBudgetWarning(ex);
   // Save to Supabase
-  saveToSupabase('expenses',{id:rowId,date:ex.date,detail:ex.detail,category:ex.category,payment:ex.payment,amount:ex.amount,paid_by:ex.paidBy,created_at:ex.createdAt});
+  saveToSupabase('expenses',{id:rowId,date:ex.date,detail:ex.detail,category:ex.category,payment:ex.payment,amount:ex.amount,paid_by:ex.paidBy,created_at:ex.createdAt,tags:ex.tags});
 }
 
 function resetExpenseForm(){
   document.getElementById('f-amt').value='';
   document.getElementById('f-det').value='';
   document.getElementById('f-dt').value=today();
+  S.expenseDraftTags=[];
   S.fc={cat:'',pay:'',payer:S.profile&&S.profile.full_name?S.profile.full_name:''};
   renderCats();
   renderPays();
+  renderQuickTagChips();
   applyCurrentProfileToPayers();
 }
 
@@ -2006,6 +2054,7 @@ function openTxnDetail(id,type){
   add('บันทึกช่วยจำ',item.detail||item.note||'');
   add('ผู้บันทึก',item.paidBy||item.receiver||'');
   add('อ้างอิง',item.created_at||item.id||'');
+  var tagList=normalizeTxnTags(item.tags);
   if(body){
     body.innerHTML='<div class="mb-5 flex items-center gap-4 rounded-2xl bg-[#f3f6ff] p-4">'+
       '<span class="material-symbols-outlined flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">'+histTypeIcon({type:type,category:item.category})+'</span>'+
@@ -2019,7 +2068,8 @@ function openTxnDetail(id,type){
         '<span class="font-notoThai text-xs font-extrabold text-textMuted">'+esc(r[0])+'</span>'+
         '<span class="max-w-[62%] text-right font-notoThai text-sm font-bold text-[#0b1b32]">'+esc(r[1])+'</span>'+
       '</div>';
-    }).join('')+'</div>';
+    }).join('')+'</div>'+
+    (tagList.length?'<div class="mt-4 flex flex-wrap gap-2">'+tagList.map(function(tag){ return '<span class="rounded-full border border-primary/15 bg-primaryContainer/10 px-3 py-1.5 font-notoThai text-xs font-extrabold text-primary">#'+esc(tag)+'</span>'; }).join('')+'</div>':'');
   }
   var editBtn=document.getElementById('txn-edit-btn');
   if(editBtn) editBtn.onclick=function(){ openEditTxn(id,type); };
@@ -2763,10 +2813,12 @@ async function submitInc(){
   var checkRow={date:dt,detail:det,category:cat&&cat.l,channel:ch&&ch.l,amount:amt,receiver:S.fi.rcv};
   if(!validateTxnInput(checkRow)) return;
   det=checkRow.detail;
-  var inc={id:Date.now(),date:dt,detail:det||'-',category:cat.l,channel:ch.l,amount:amt,receiver:S.fi.rcv,user_id:S.user&&S.user.id||''};
+  var incTags=normalizeTxnTags(S.incomeDraftTags);
+  var inc={id:Date.now(),date:dt,detail:det||'-',category:cat.l,channel:ch.l,amount:amt,receiver:S.fi.rcv,user_id:S.user&&S.user.id||'',tags:incTags};
   S.incomes.unshift(inc);
   document.getElementById('i-amt').value=''; document.getElementById('i-det').value=''; document.getElementById('i-dt').value=today();
-  S.fi={cat:'',ch:'',rcv:''}; renderIncc(); renderInch();
+  S.incomeDraftTags=[];
+  S.fi={cat:'',ch:'',rcv:''}; renderIncc(); renderInch(); renderQuickTagChips();
   if(S.profile&&S.profile.full_name) S.fi.rcv=S.profile.full_name;
   applyCurrentProfileToPayers();
   showSuccessModal('฿ '+fmt2(amt),[
@@ -2775,7 +2827,19 @@ async function submitInc(){
     {icon:'account_balance_wallet',label:'ช่องทางรับเงิน',value:inc.channel},
     {icon:'notes',label:'รายละเอียด',value:inc.detail}
   ]); renderIncSum();
-  saveToSupabase('incomes',{date:inc.date,detail:inc.detail,category:inc.category,channel:inc.channel,amount:inc.amount,receiver:inc.receiver});
+  saveToSupabase('incomes',{date:inc.date,detail:inc.detail,category:inc.category,channel:inc.channel,amount:inc.amount,receiver:inc.receiver,tags:inc.tags});
+}
+function resetIncomeForm(){
+  var amt=document.getElementById('i-amt'),det=document.getElementById('i-det'),dt=document.getElementById('i-dt');
+  if(amt) amt.value='';
+  if(det) det.value='';
+  if(dt) dt.value=today();
+  S.incomeDraftTags=[];
+  S.fi={cat:'',ch:'',rcv:S.profile&&S.profile.full_name?S.profile.full_name:''};
+  renderIncc();
+  renderInch();
+  renderQuickTagChips();
+  applyCurrentProfileToPayers();
 }
 function renderIncSum(){
   var w=document.getElementById('inc-sum'); if(!w) return;

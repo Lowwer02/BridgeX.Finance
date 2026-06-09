@@ -261,6 +261,7 @@
             <div class="min-w-0 flex-1">
               <label class="mb-1 block font-inter text-sm font-black text-slate-500 md:mb-2 md:text-xs md:uppercase md:tracking-wide md:text-textMuted" data-i18n="note">บันทึกช่วยจำ</label>
               <textarea class="h-9 w-full resize-none bg-transparent p-0 font-notoThai text-sm font-bold leading-5 text-[#0b1b32] outline-none placeholder:text-slate-400 md:h-24 md:rounded-xl md:border md:border-border md:bg-card2 md:px-4 md:py-3 md:text-sm md:font-normal md:text-textMain md:placeholder:text-textMuted/60 md:focus:border-primary" id="f-det" placeholder="เช่น ข้าวมันไก่ป้าศรี..."></textarea>
+              <div class="mt-2 flex flex-wrap items-center gap-1.5 md:hidden" data-quick-tags="expense"></div>
             </div>
           </div>
         </div>
@@ -564,6 +565,7 @@
           <div class="min-w-0 flex-1">
           <label class="mb-1 block font-inter text-sm font-black text-slate-500 md:mb-2 md:text-xs md:uppercase md:tracking-wide md:text-textMuted" data-i18n="note">บันทึกช่วยจำ</label>
           <textarea class="h-9 w-full resize-none bg-transparent p-0 font-notoThai text-sm font-bold leading-5 text-[#0b1b32] outline-none placeholder:text-slate-400 md:h-24 md:rounded-xl md:border md:border-border md:bg-card2 md:px-4 md:py-3 md:text-sm md:font-normal md:text-textMain md:placeholder:text-textMuted/60 md:focus:border-green" id="i-det" placeholder="เช่น เงินเดือน, โบนัส..."></textarea>
+          <div class="mt-2 flex flex-wrap items-center gap-1.5 md:hidden" data-quick-tags="income"></div>
           </div>
           </div>
           <div class="hidden" id="py-chips">
@@ -573,7 +575,7 @@
         </div>
       </div>
       <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
-        <button class="hidden rounded-xl border border-border bg-card2 px-4 py-4 font-inter text-sm font-bold text-textMain md:block" type="button" onclick="document.getElementById('i-amt').value='';document.getElementById('i-det').value='';document.getElementById('i-dt').value=today()" data-i18n="cancel">ยกเลิก</button>
+        <button class="hidden rounded-xl border border-border bg-card2 px-4 py-4 font-inter text-sm font-bold text-textMain md:block" type="button" onclick="resetIncomeForm()" data-i18n="cancel">ยกเลิก</button>
         <button class="flex items-center justify-center gap-3 rounded-[22px] bg-green px-4 py-5 font-inter text-lg font-black text-white shadow-[0_18px_42px_rgba(5,150,105,.22)] md:rounded-xl md:py-4 md:text-sm md:text-[#003824] md:shadow-lg md:shadow-green/20" onclick="submitInc()" data-i18n="saveIncome"><span class="material-symbols-outlined">check</span>บันทึกรายรับ</button>
       </div>
     </div>
