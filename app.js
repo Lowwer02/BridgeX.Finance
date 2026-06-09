@@ -275,7 +275,10 @@ function updateHeader(){
 }
 async function ensureProfile(){
   if(!S.user) return null;
-  if(S.profile&&S.profile.id===S.user.id) return S.profile;
+  if(S.profile&&S.profile.id===S.user.id){
+    ensureFamilyShareSettings();
+    return S.profile;
+  }
   logStep('1. Fetching Profile...',S.user.id);
   async function fetchProfile(label){
     return withTimeout(sb.from('profiles').select('*').eq('id',S.user.id).maybeSingle(),6000,label);
@@ -320,6 +323,7 @@ async function ensureProfile(){
     S.profile=res.data;
   }
   logStep('3. Profile Success',S.profile);
+  ensureFamilyShareSettings();
   return S.profile;
 }
 async function ensureFamily(){
@@ -332,6 +336,7 @@ async function ensureFamily(){
   logStep('5. Family update response',{hasData:!!res.data,status:res.status,error:res.error});
   throwSb('profiles update family_id',res);
   S.profile=res.data;
+  ensureFamilyShareSettings();
   logStep('6. Family Success',S.profile.family_id);
 }
 async function saveOnboarding(){
@@ -340,6 +345,7 @@ async function saveOnboarding(){
   var res=await sb.from('profiles').update({full_name:name,updated_at:new Date().toISOString()}).eq('id',S.user.id).select('*').single();
   if(res.error) return toast(res.error.message,'err');
   S.profile=res.data;
+  ensureFamilyShareSettings();
   closeOverlay('onboard-modal');
   applyCurrentProfileToPayers();
   updateHeader();
@@ -741,10 +747,12 @@ async function loadFromSupabase(preloadedProfile){
     if(preloadedProfile && preloadedProfile.family_id){
       logStep('8. Using pre-fetched profile — skipping ensureProfile/ensureFamily');
       S.profile = preloadedProfile;
+      ensureFamilyShareSettings();
     } else {
       await ensureProfile();
       await ensureFamily();
     }
+    ensureFamilyShareSettings();
     // ─────────────────────────────────────────────────────────
     if(!checkAccess()){ setDot('off','Paywall'); return; }
     var fid=S.profile.family_id;
@@ -3279,6 +3287,114 @@ function bindLineOaToggle(){
     toast(enabled?'เปิดการเชื่อมต่อ LINE OA แล้ว':'ปิดการเชื่อมต่อ LINE OA แล้ว','ok');
   });
 }
+var DEFAULT_FAMILY_SHARE_SETTINGS={
+  share_expense:true,
+  share_income:false,
+  share_credit:true,
+  share_budget:true,
+  share_note:false
+};
+var familyShareSaveTimer=null;
+function ensureFamilyShareSettings(){
+  var merged=getFamilyShareSettings();
+  if(S.profile) S.profile.family_share_settings=merged;
+  return merged;
+}
+function getFamilyShareSettings(){
+  var raw=S.profile&&S.profile.family_share_settings;
+  if(typeof raw==='string'){
+    try{ raw=JSON.parse(raw); }catch(e){ raw={}; }
+  }
+  return Object.assign({},DEFAULT_FAMILY_SHARE_SETTINGS,raw||{});
+}
+function familyShareOptions(){
+  return [
+    {key:'share_expense',label:'แชร์รายจ่าย',desc:'ให้สมาชิกเห็นรายการรายจ่ายร่วมกัน',icon:'receipt_long'},
+    {key:'share_income',label:'แชร์รายรับ',desc:'ปิดไว้เป็นค่าเริ่มต้นเพื่อความเป็นส่วนตัว',icon:'account_balance_wallet'},
+    {key:'share_credit',label:'แชร์สินเชื่อและหนี้',desc:'ใช้ร่วมกับหน้าแผนปลดหนี้และสินเชื่อ',icon:'credit_card'},
+    {key:'share_budget',label:'แชร์งบประมาณ',desc:'ให้สมาชิกเห็นงบประมาณครอบครัว',icon:'savings'},
+    {key:'share_note',label:'แชร์บันทึกช่วยจำ',desc:'เปิดเมื่อยินยอมให้เห็นรายละเอียด note',icon:'notes'}
+  ];
+}
+function familyShareToggleHtml(opt,on){
+  var cardClass=on?'border-primary/20 bg-primaryContainer/5':'border-[#e6ebf5] bg-white/80';
+  var switchClass=on?'border-primaryContainer bg-primaryContainer':'border-[#dfe6f5] bg-[#e7ecf6]';
+  var knobClass=on?'translate-x-5 bg-white':'translate-x-0 bg-white';
+  return '<button type="button" class="family-share-toggle flex w-full items-center gap-3 rounded-2xl border '+cardClass+' p-3.5 text-left transition" data-share-key="'+esc(opt.key)+'" aria-pressed="'+(on?'true':'false')+'" onclick="toggleFamilyShareSetting(this)">'
+    +'<span class="material-symbols-outlined flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-primaryContainer/10 text-primary">'+esc(opt.icon)+'</span>'
+    +'<span class="min-w-0 flex-1"><strong class="block font-notoThai text-sm font-extrabold leading-snug text-[#0b1b32]">'+esc(opt.label)+'</strong><small class="mt-1 block font-notoThai text-xs font-semibold leading-snug text-textMuted">'+esc(opt.desc)+'</small></span>'
+    +'<span class="family-share-switch relative h-7 w-12 shrink-0 rounded-full border '+switchClass+' p-1 transition"><i class="block h-5 w-5 rounded-full shadow-sm transition '+knobClass+'"></i></span>'
+  +'</button>';
+}
+function renderFamilyShareSettings(){
+  var roots=document.querySelectorAll('[data-family-share-settings]');
+  if(!roots.length) return;
+  var settings=ensureFamilyShareSettings();
+  var rows=familyShareOptions().map(function(opt){ return familyShareToggleHtml(opt,!!settings[opt.key]); }).join('');
+  roots.forEach(function(root){
+    root.innerHTML='<div class="mb-4 flex items-start gap-3">'
+      +'<span class="material-symbols-outlined flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primaryContainer/10 text-primary">privacy_tip</span>'
+      +'<div class="min-w-0"><h2 class="font-notoThai text-lg font-extrabold leading-tight text-[#0b1b32]">การแชร์ข้อมูลครอบครัว</h2><p class="mt-1 font-notoThai text-sm font-semibold leading-snug text-textMuted">เลือกข้อมูลที่ต้องการให้สมาชิกในครอบครัวเห็นร่วมกัน</p></div>'
+    +'</div><div class="flex flex-col gap-2.5">'+rows+'</div>'
+    +'<button type="button" class="mt-4 w-full rounded-2xl bg-primaryContainer px-4 py-3 font-notoThai text-sm font-extrabold text-white shadow-lg shadow-primaryContainer/20" onclick="saveFamilyShareSettings()">บันทึกการแชร์ข้อมูล</button>';
+  });
+}
+function setFamilyShareToggleState(btn,on){
+  if(!btn) return;
+  btn.setAttribute('aria-pressed',on?'true':'false');
+  btn.classList.toggle('border-primary/20',on);
+  btn.classList.toggle('bg-primaryContainer/5',on);
+  btn.classList.toggle('border-[#e6ebf5]',!on);
+  btn.classList.toggle('bg-white/80',!on);
+  var sw=btn.querySelector('.family-share-switch');
+  if(sw){
+    sw.classList.toggle('border-primaryContainer',on);
+    sw.classList.toggle('bg-primaryContainer',on);
+    sw.classList.toggle('border-[#dfe6f5]',!on);
+    sw.classList.toggle('bg-[#e7ecf6]',!on);
+  }
+  var knob=btn.querySelector('.family-share-switch i');
+  if(knob){
+    knob.classList.toggle('translate-x-5',on);
+    knob.classList.toggle('translate-x-0',!on);
+  }
+}
+function toggleFamilyShareSetting(btn){
+  if(!btn||!btn.dataset.shareKey) return;
+  var key=btn.dataset.shareKey;
+  var next=btn.getAttribute('aria-pressed')!=='true';
+  document.querySelectorAll('[data-share-key="'+key+'"]').forEach(function(item){
+    setFamilyShareToggleState(item,next);
+  });
+  scheduleFamilyShareSave();
+}
+function scheduleFamilyShareSave(){
+  clearTimeout(familyShareSaveTimer);
+  familyShareSaveTimer=setTimeout(function(){ saveFamilyShareSettings(); },500);
+}
+function readFamilyShareSettingsFromUI(){
+  var settings=getFamilyShareSettings();
+  Object.keys(DEFAULT_FAMILY_SHARE_SETTINGS).forEach(function(key){
+    var btn=document.querySelector('[data-share-key="'+key+'"]');
+    if(btn) settings[key]=btn.getAttribute('aria-pressed')==='true';
+  });
+  return settings;
+}
+async function saveFamilyShareSettings(){
+  clearTimeout(familyShareSaveTimer);
+  if(!S.user||!S.user.id||!S.profile) return toast('ไม่พบโปรไฟล์','err');
+  var settings=readFamilyShareSettingsFromUI();
+  try{
+    var res=await sb.from('profiles').update({family_share_settings:settings}).eq('id',S.user.id);
+    if(res.error) throw res.error;
+    S.profile.family_share_settings=Object.assign({},DEFAULT_FAMILY_SHARE_SETTINGS,settings);
+    renderFamilyShareSettings();
+    toast('บันทึกการแชร์ข้อมูลแล้ว','ok');
+  }catch(e){
+    console.warn('save family share settings failed:',e);
+    toast('บันทึกการแชร์ข้อมูลไม่สำเร็จ','err');
+  }
+}
 function copyFamilyIdValue(value){
   var fid=String((S.profile&&S.profile.family_id)||value||((document.getElementById('family-id-view')||{}).value||'')).trim();
   if(!fid) return toast('ยังไม่มี Family ID','err');
@@ -3332,6 +3448,7 @@ function renderAccountFamilyMobile(){
     else setTextIfExists(familyEl,(S.profile&&S.profile.family_id)||'-');
   }
   renderFamilyMembersList('account-family-members-list');
+  renderFamilyShareSettings();
 }
 function openAccountFamilyMobile(){
   var page=document.getElementById('pg-account-family-mobile');
@@ -3497,6 +3614,7 @@ function renderV4Settings(){
   if(fam) fam.value=(S.profile&&S.profile.family_id)||'';
   renderFamilyMembersList('set-members-list');
   renderAccountFamilyMobile();
+  renderFamilyShareSettings();
   var isPro=S.profile&&S.profile.sub_tier==='pro_109';
   ['export-expense','export-income','export-credit'].forEach(function(id){
     var b=document.getElementById(id);
@@ -3526,6 +3644,7 @@ async function joinFamily(){
     );
     if(res.error) throw res.error;
     S.profile=res.data;
+    ensureFamilyShareSettings();
 
     var tables=['expenses','incomes','credits','credit_info'];
     var moved=await Promise.allSettled(tables.map(function(t){
