@@ -2697,6 +2697,15 @@ function selectDashCalendarDate(date){
   S.dashSelectedDate=String(date||'');
   renderDash();
 }
+function bindDashRecentClicks(root){
+  if(!root||root._dashRecentBound) return;
+  root._dashRecentBound=true;
+  root.addEventListener('click',function(e){
+    var row=e.target&&e.target.closest?e.target.closest('[data-dash-txn-id][data-dash-txn-type]'):null;
+    if(!row||!root.contains(row)) return;
+    openTxnDetail(row.dataset.dashTxnId,row.dataset.dashTxnType);
+  });
+}
 function switchMobileDashView(view){
   currentMobileDashView=view||'summary';
   var pg=document.getElementById('pg-dash');
@@ -2950,15 +2959,39 @@ function renderDash(){
     var tone=isInc?'bg-green/15 text-green':(isCredit?'bg-primary/15 text-primary':'bg-danger/15 text-danger');
     var amountClass=isInc?'text-green':(isCredit?'text-primary':'text-danger');
     var sub=isInc?'รายรับ':(isCredit?'ชำระสินเชื่อ':'รายจ่าย');
-    return '<button type="button" class="flex w-full items-center justify-between gap-3 rounded-2xl bg-white/80 p-3 text-left shadow-[0_8px_20px_rgba(15,23,42,.04)]"><span class="flex min-w-0 items-center gap-3"><span class="material-symbols-outlined flex h-10 w-10 shrink-0 items-center justify-center rounded-xl '+tone+'">'+esc(r.icon)+'</span><span class="min-w-0"><strong class="block truncate font-notoThai text-sm font-extrabold text-[#0b1c30]">'+esc(r.detail||'-')+'</strong><small class="block truncate font-notoThai text-xs font-semibold text-slate-500">'+sub+' · '+esc(r.cat||'-')+'</small></span></span><strong class="shrink-0 font-spaceGrotesk text-sm font-black '+amountClass+'">'+(isInc?'+':'-')+' ฿ '+fmt2(r.amount)+'</strong></button>';
-  }).join(''):'<div class="rounded-2xl bg-white/70 p-5 text-center font-notoThai text-sm font-bold text-slate-500">ไม่มีรายการในวันนี้</div>';
-  var dailySummaryHtml='<div class="mt-5 rounded-2xl border border-slate-200/80 bg-slate-50/80 p-4"><div class="mb-3 flex items-start justify-between gap-3"><div><h3 class="font-notoThai text-base font-extrabold text-[#0b1c30]">รายการวันที่ '+dashDate(selectedDate)+'</h3><p class="mt-1 font-notoThai text-xs font-semibold text-slate-500">รายรับรวม ฿ '+fmt(dayIncome)+' · รายจ่ายรวม ฿ '+fmt(dayOut)+' · สุทธิ ฿ '+fmt2(dayNet)+'</p></div></div><div class="grid gap-2">'+dailyListHtml+'</div></div>';
-  var recentExp=items.map(function(e){ return {type:'exp',date:e.date,detail:e.detail,cat:e.category,person:e.paidBy,amount:e.amount,icon:dashCatIcon(e.category)}; });
-  var recentInc=incomeItems.map(function(i){ return {type:'inc',date:i.date,detail:i.detail||'รายรับ',cat:i.category||'Income',person:i.receiver||'SYS',amount:i.amount,icon:'payments'}; });
+    return '<button type="button" class="box-border flex w-full max-w-full min-w-0 items-center justify-between gap-2 overflow-hidden rounded-2xl bg-white/80 p-3 text-left shadow-[0_8px_20px_rgba(15,23,42,.04)]"><span class="flex min-w-0 flex-1 items-center gap-3 overflow-hidden"><span class="material-symbols-outlined flex h-10 w-10 shrink-0 items-center justify-center rounded-xl '+tone+'">'+esc(r.icon)+'</span><span class="min-w-0 flex-1 overflow-hidden"><strong class="block max-w-full truncate font-notoThai text-sm font-extrabold text-[#0b1c30]">'+esc(r.detail||'-')+'</strong><small class="block max-w-full truncate font-notoThai text-xs font-semibold text-slate-500">'+sub+' · '+esc(r.cat||'-')+'</small></span></span><strong class="max-w-[42%] shrink-0 whitespace-nowrap text-right font-spaceGrotesk text-xs font-black '+amountClass+' sm:text-sm">'+(isInc?'+':'-')+' ฿ '+fmt2(r.amount)+'</strong></button>';
+  }).join(''):'<div class="box-border w-full max-w-full rounded-2xl bg-white/70 p-5 text-center font-notoThai text-sm font-bold text-slate-500">ไม่มีรายการในวันนี้</div>';
+  var dailySummaryHtml='<div class="box-border mt-5 w-full max-w-full min-w-0 overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-50/80 p-4"><div class="mb-3 flex max-w-full items-start justify-between gap-3 overflow-hidden"><div class="min-w-0 flex-1"><h3 class="truncate font-notoThai text-base font-extrabold text-[#0b1c30]">รายการวันที่ '+dashDate(selectedDate)+'</h3><p class="mt-1 break-words font-notoThai text-xs font-semibold text-slate-500">รายรับรวม ฿ '+fmt(dayIncome)+' · รายจ่ายรวม ฿ '+fmt(dayOut)+' · สุทธิ ฿ '+fmt2(dayNet)+'</p></div></div><div class="grid w-full max-w-full min-w-0 gap-2 overflow-hidden">'+dailyListHtml+'</div></div>';
+  var recentExp=items.map(function(e){ return {type:'expense',id:e.id,date:e.date,detail:e.detail,cat:e.category,person:e.paidBy,amount:e.amount,icon:dashCatIcon(e.category),channel:e.payment}; });
+  var recentInc=incomeItems.map(function(i){ return {type:'income',id:i.id,date:i.date,detail:i.detail||'รายรับ',cat:i.category||'Income',person:i.receiver||'SYS',amount:i.amount,icon:'payments',channel:i.channel}; });
   var recent=recentExp.concat(recentInc).sort(function(a,b){ return String(b.date||'').localeCompare(String(a.date||'')); }).slice(0,5);
-  var recentHtml=recent.length?recent.map(function(r){
-    return '<tr class="border-b border-white/10 last:border-0"><td class="py-3 pr-3"><div class="flex min-w-0 items-center gap-3"><span class="material-symbols-outlined flex h-10 w-10 shrink-0 items-center justify-center rounded-xl '+(r.type==='inc'?'bg-green/15 text-green':'bg-primaryContainer/20 text-primary')+'">'+r.icon+'</span><div class="min-w-0"><strong class="block truncate text-sm font-bold text-textMain">'+esc(r.detail||'-')+'</strong><small class="text-xs font-semibold text-textMuted">'+dashDate(r.date)+'</small></div></div></td><td class="py-3 pr-3 text-sm text-textMuted">'+esc(r.cat||'-')+'</td><td class="py-3 pr-3"><span class="inline-flex rounded-full border border-border bg-card2 px-2 py-1 text-xs font-bold text-textMuted">'+esc((r.person||'SYS').slice(0,3))+'</span></td><td class="py-3 text-right font-spaceGrotesk text-sm font-bold '+(r.type==='inc'?'text-green':'text-danger')+'">'+(r.type==='inc'?'+':'-')+' ฿ '+fmt2(r.amount)+'</td></tr>';
-  }).join(''):'<tr><td colspan="4" class="py-8 text-center text-sm text-textMuted">ยังไม่มีรายการ</td></tr>';
+  var recentGroups={};
+  recent.forEach(function(r){ var k=r.date||'unknown'; if(!recentGroups[k]) recentGroups[k]=[]; recentGroups[k].push(r); });
+  var recentDays=Object.keys(recentGroups).sort(function(a,b){ return b.localeCompare(a); });
+  var recentHtml=recent.length?recentDays.map(function(dayKey){
+    var dayItems=recentGroups[dayKey];
+    return '<div class="mb-5 last:mb-0">'+
+      '<div class="mb-3 rounded-xl bg-[#eef3ff] px-4 py-3">'+
+        '<span class="block truncate font-notoThai text-sm font-extrabold leading-tight text-[#0b1b32]">'+esc(histDateShort(dayKey))+'</span>'+
+        '<span class="block font-notoThai text-xs font-semibold text-textMuted">'+dayItems.length+' รายการ</span>'+
+      '</div>'+
+      '<div class="grid gap-2">'+dayItems.map(function(r){
+        var isInc=r.type==='income';
+        var iconTone=isInc?'bg-green/10 text-green':'bg-danger/10 text-danger';
+        var sub=isInc?'รายรับ':'รายจ่าย';
+        if(r.cat) sub+=' • '+r.cat;
+        var dataAttrs=r.id?' data-dash-txn-id="'+esc(String(r.id))+'" data-dash-txn-type="'+esc(r.type)+'"':'';
+        return '<button type="button" class="group box-border flex w-full max-w-full min-w-0 items-center justify-between gap-3 overflow-hidden rounded-2xl px-3 py-3 text-left transition active:bg-[#f3f5ff]"'+dataAttrs+'>'+
+          '<span class="material-symbols-outlined flex h-11 w-11 shrink-0 items-center justify-center rounded-full '+iconTone+' transition group-active:scale-95">'+esc(r.icon)+'</span>'+
+          '<span class="min-w-0 flex-1 overflow-hidden">'+
+            '<span class="block max-w-full truncate font-notoThai text-base font-extrabold leading-tight text-[#0b1b32]">'+esc(r.detail||'-')+'</span>'+
+            '<span class="mt-1 block max-w-full truncate font-notoThai text-sm font-semibold text-textMuted">'+esc(sub)+'</span>'+
+          '</span>'+
+          '<span class="shrink-0 whitespace-nowrap text-right font-spaceGrotesk text-sm font-extrabold '+(isInc?'text-green':'text-danger')+'">'+(isInc?'+':'-')+' ฿ '+fmt2(r.amount)+'</span>'+
+        '</button>';
+      }).join('')+'</div>'+
+    '</div>';
+  }).join(''):'<div class="rounded-2xl border border-dashed border-border bg-white/70 p-8 text-center font-notoThai text-sm font-bold text-textMuted">ยังไม่มีรายการ</div>';
   w.innerHTML='<div class="grid grid-cols-12 gap-5">'+
     '<section class="col-span-6 rounded-[20px] border border-slate-200/80 bg-white p-4 shadow-[0_12px_30px_rgba(15,23,42,.06)] md:hidden" data-mobile-views="summary"><span class="block font-notoThai text-xs font-extrabold text-slate-600">หนี้สินรวม</span><strong class="mt-3 block font-spaceGrotesk text-2xl font-black leading-none text-[#0b1c30]">฿ '+fmt(debtTotal)+'</strong><div class="mt-5 h-2 overflow-hidden rounded-full bg-slate-100"><i class="block h-full rounded-full bg-danger" style="width:'+debtPct+'%"></i></div><small class="mt-2 block text-right font-notoThai text-[11px] font-bold text-slate-400">ใช้วงเงิน '+debtPct+'%</small></section>'+
     '<section class="col-span-6 rounded-[20px] bg-primaryContainer p-4 text-white shadow-[0_16px_34px_rgba(76,53,196,.24)] md:hidden" data-mobile-views="summary"><span class="block font-notoThai text-xs font-extrabold text-white/70">ประหยัดดอกเบี้ยได้</span><strong class="mt-3 block font-spaceGrotesk text-2xl font-black leading-none text-white">฿ '+fmt(projectedSave)+'</strong><small class="mt-4 flex items-center gap-1.5 font-notoThai text-xs font-bold text-white/80"><span class="material-symbols-outlined text-sm">verified</span> เป็นไปตามแผน</small></section>'+
@@ -2969,10 +3002,11 @@ function renderDash(){
     '<section class="col-span-12 rounded-2xl border border-white/10 bg-surfaceLow/80 p-5 shadow-xl backdrop-blur-xl lg:col-span-8" data-mobile-views="summary"><div class="mb-5 flex items-center justify-between gap-3"><h2 class="font-spaceGrotesk text-xl font-bold text-textMain">'+t('financialHealth')+'</h2><button class="text-xs font-bold text-primary" type="button" onclick="goTab(\'hist\',document.querySelector(\'.tbtn[onclick*=hist]\'))">'+t('viewDetails')+'</button></div><div class="flex h-72 items-end gap-3 border-b border-border px-2">'+chartHtml+'</div><div class="mt-5 flex justify-center gap-6 text-xs font-bold text-textMuted"><span class="flex items-center gap-2"><i class="h-3 w-3 rounded-full bg-primary/70"></i>รายได้</span><span class="flex items-center gap-2"><i class="h-3 w-3 rounded-full bg-danger/60"></i>รายจ่าย</span></div></section>'+
     '<section class="col-span-12 rounded-2xl border border-white/10 bg-surfaceLow/80 p-5 shadow-xl backdrop-blur-xl lg:col-span-4" data-mobile-views="analysis"><div class="mb-5 flex items-center justify-between gap-3"><h2 class="font-notoThai text-xl font-extrabold text-textMain">'+t('expenseByCategory')+'</h2><span class="font-notoThai text-xs font-bold text-textMuted">'+t('category')+'</span></div><div class="relative h-72"><canvas id="dash-category-chart"></canvas></div></section>'+
     '<section class="col-span-12 rounded-2xl border border-white/10 bg-surfaceLow/80 p-5 shadow-xl backdrop-blur-xl lg:col-span-4" data-mobile-views="analysis"><div class="mb-5 flex items-center justify-between gap-3"><h2 class="font-notoThai text-xl font-extrabold text-textMain">'+t('dailyCalendar')+'</h2><span class="font-notoThai text-xs font-bold text-textMuted">'+thaiMo(calMo)+'</span></div><div class="mb-2 grid grid-cols-7 gap-2 text-center font-notoThai text-xs font-bold text-textMuted"><span>อา</span><span>จ</span><span>อ</span><span>พ</span><span>พฤ</span><span>ศ</span><span>ส</span></div><div class="grid grid-cols-7 gap-2">'+calHtml+'</div><div class="mt-5 flex items-center justify-center gap-2 font-notoThai text-xs font-bold text-textMuted"><span>'+t('less')+'</span><i class="h-3 w-3 rounded bg-slate-100"></i><i class="h-3 w-3 rounded bg-primary/20"></i><i class="h-3 w-3 rounded bg-primary/35"></i><i class="h-3 w-3 rounded bg-primary/55"></i><i class="h-3 w-3 rounded bg-primary/80"></i><span>'+t('more')+'</span></div>'+dailySummaryHtml+'</section>'+
-    '<section class="col-span-12 rounded-2xl border border-white/10 bg-surfaceLow/80 p-5 shadow-xl backdrop-blur-xl" data-mobile-views="recent"><div class="mb-5 flex items-center justify-between gap-3"><h2 class="font-spaceGrotesk text-xl font-bold text-textMain">'+t('recentTransactions')+'</h2><button class="flex items-center gap-1 text-xs font-bold text-primary" type="button" onclick="goTab(\'hist\',document.querySelector(\'.tbtn[onclick*=hist]\'))">'+t('viewAll')+' <span class="material-symbols-outlined text-base">arrow_forward</span></button></div><div class="overflow-x-auto"><table class="w-full min-w-[640px] border-collapse text-left"><thead><tr class="border-b border-border text-xs font-bold text-textMuted"><th class="py-2 pr-3">รายการ</th><th class="py-2 pr-3">'+t('category')+'</th><th class="py-2 pr-3">ผู้ทำรายการ</th><th class="py-2 text-right">'+t('amount')+'</th></tr></thead><tbody>'+recentHtml+'</tbody></table></div></section>'+
+    '<section class="col-span-12 box-border w-full max-w-full overflow-hidden rounded-[28px] border border-white bg-white/90 p-4 shadow-[0_18px_42px_rgba(76,53,196,.08)] backdrop-blur-xl" data-mobile-views="recent"><div class="mb-5 flex w-full max-w-full items-start justify-between gap-3 px-1"><div class="min-w-0 flex-1"><h2 class="font-notoThai text-[24px] font-extrabold leading-tight text-[#0b1b32]">'+t('recentTransactions')+'</h2><p class="mt-1 font-notoThai text-sm font-semibold text-textMuted">'+recent.length+' รายการล่าสุด</p></div><button class="inline-flex shrink-0 items-center gap-1 rounded-full border border-[#dfe6f5] bg-[#f8f9ff] px-3 py-2 font-notoThai text-xs font-extrabold text-primary shadow-sm" type="button" onclick="goTab(\'hist\',document.querySelector(\'.tbtn[onclick*=hist]\'))"><span>'+t('viewAll')+'</span><span class="material-symbols-outlined text-base">arrow_forward</span></button></div><div class="w-full max-w-full min-w-0 overflow-hidden">'+recentHtml+'</div></section>'+
   '</div>';
   applyLanguage();
   renderDashCategoryChart(items);
+  bindDashRecentClicks(w);
   switchMobileDashView(currentMobileDashView);
 
 }
