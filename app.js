@@ -1957,7 +1957,10 @@ function ensureTxnDetailSheet(){
       '<button type="button" class="flex h-10 w-10 items-center justify-center rounded-full bg-[#eef3ff] text-textMuted" onclick="closeTxnDetail()"><span class="material-symbols-outlined">close</span></button>'+
     '</div>'+
     '<div class="max-h-[58vh] overflow-y-auto pb-4" id="txn-detail-body"></div>'+
-    '<button type="button" class="mt-3 flex h-12 w-full items-center justify-center rounded-2xl bg-primaryContainer font-notoThai text-sm font-extrabold text-white shadow-lg shadow-primaryContainer/20" onclick="closeTxnDetail()">ปิด</button>'+
+    '<div class="mt-3 grid grid-cols-2 gap-3" id="txn-detail-actions">'+
+      '<button type="button" class="flex h-12 w-full items-center justify-center rounded-2xl border border-[#dfe6f5] bg-[#f8f9ff] font-notoThai text-sm font-extrabold text-[#0b1b32]" onclick="closeTxnDetail()">ปิด</button>'+
+      '<button type="button" class="flex h-12 w-full items-center justify-center rounded-2xl bg-primaryContainer font-notoThai text-sm font-extrabold text-white shadow-lg shadow-primaryContainer/20" id="txn-edit-btn">แก้ไข</button>'+
+    '</div>'+
   '</section>';
   document.body.appendChild(modal);
   return modal;
@@ -1973,6 +1976,15 @@ function openTxnDetail(id,type){
   var found=findTxnByIdType(id,type);
   if(!found||!found.item){ toast('ไม่พบรายการ','err'); return; }
   var item=found.item, modal=ensureTxnDetailSheet(), body=document.getElementById('txn-detail-body');
+  modal.dataset.txnId=String(id);
+  modal.dataset.txnType=String(type);
+  var titleEl=modal.querySelector('h2');
+  if(titleEl) titleEl.textContent='รายละเอียดรายการ';
+  var actions=document.getElementById('txn-detail-actions');
+  if(actions){
+    actions.innerHTML='<button type="button" class="flex h-12 w-full items-center justify-center rounded-2xl border border-[#dfe6f5] bg-[#f8f9ff] font-notoThai text-sm font-extrabold text-[#0b1b32]" onclick="closeTxnDetail()">ปิด</button>'+
+      '<button type="button" class="flex h-12 w-full items-center justify-center rounded-2xl bg-primaryContainer font-notoThai text-sm font-extrabold text-white shadow-lg shadow-primaryContainer/20" id="txn-edit-btn">แก้ไข</button>';
+  }
   var rows=[];
   function add(label,value){ if(value!==undefined&&value!==null&&String(value)!=='') rows.push([label,value]); }
   var amount=Number(item.amount||0);
@@ -2001,11 +2013,92 @@ function openTxnDetail(id,type){
       '</div>';
     }).join('')+'</div>';
   }
+  var editBtn=document.getElementById('txn-edit-btn');
+  if(editBtn) editBtn.onclick=function(){ openEditTxn(id,type); };
   modal.classList.remove('hidden');
 }
 function closeTxnDetail(){
   var modal=document.getElementById('txn-detail-sheet');
   if(modal) modal.classList.add('hidden');
+}
+function openEditTxn(id,type){
+  var found=findTxnByIdType(id,type);
+  if(!found||!found.item) return toast('ไม่พบรายการ','err');
+  if(type==='income') return toast('ยังไม่รองรับการแก้ไขรายรับ','info');
+  if(type==='credit') return toast('ยังไม่รองรับการแก้ไขรายการชำระสินเชื่อ','info');
+  if(type!=='expense') return toast('ยังไม่รองรับการแก้ไขรายการนี้','info');
+  var item=found.item, modal=ensureTxnDetailSheet(), body=document.getElementById('txn-detail-body');
+  var title=modal.querySelector('h2');
+  if(title) title.textContent='แก้ไขรายการ';
+  modal.dataset.txnId=String(id);
+  modal.dataset.txnType=String(type);
+  var selectedCatId=item.catId||(S.cats.find(function(c){ return c.l===item.category; })||{}).id||'';
+  var selectedPayId=item.payId||(S.pays.find(function(p){ return p.l===item.payment; })||{}).id||'';
+  if(body){
+    body.innerHTML='<div class="grid gap-3 font-notoThai">'+
+      '<label class="block"><span class="mb-1 block text-xs font-extrabold text-textMuted">จำนวนเงิน</span><input class="w-full rounded-2xl border border-[#dfe6f5] bg-[#f8f9ff] px-4 py-3 font-spaceGrotesk text-lg font-extrabold text-[#0b1b32] outline-none" id="edit-txn-amt" type="number" inputmode="decimal" min="0" step="0.01" value="'+esc(String(Number(item.amount||0)||''))+'"></label>'+
+      '<label class="block"><span class="mb-1 block text-xs font-extrabold text-textMuted">วันที่</span><input class="w-full rounded-2xl border border-[#dfe6f5] bg-[#f8f9ff] px-4 py-3 text-sm font-bold text-[#0b1b32] outline-none" id="edit-txn-date" type="date" value="'+esc(item.date||today())+'"></label>'+
+      '<label class="block"><span class="mb-1 block text-xs font-extrabold text-textMuted">หมวดหมู่</span><select class="w-full rounded-2xl border border-[#dfe6f5] bg-[#f8f9ff] px-4 py-3 text-sm font-bold text-[#0b1b32] outline-none" id="edit-txn-cat">'+S.cats.map(function(c){ return '<option value="'+esc(c.id)+'" '+(c.id===selectedCatId?'selected':'')+'>'+esc(cleanAddLabel(c.l))+'</option>'; }).join('')+'</select></label>'+
+      '<label class="block"><span class="mb-1 block text-xs font-extrabold text-textMuted">ช่องทางจ่ายเงิน</span><select class="w-full rounded-2xl border border-[#dfe6f5] bg-[#f8f9ff] px-4 py-3 text-sm font-bold text-[#0b1b32] outline-none" id="edit-txn-pay">'+S.pays.map(function(p){ return '<option value="'+esc(p.id)+'" '+(p.id===selectedPayId?'selected':'')+'>'+esc(p.l)+'</option>'; }).join('')+'</select></label>'+
+      '<label class="block"><span class="mb-1 block text-xs font-extrabold text-textMuted">บันทึกช่วยจำ</span><textarea class="min-h-[84px] w-full resize-none rounded-2xl border border-[#dfe6f5] bg-[#f8f9ff] px-4 py-3 text-sm font-bold text-[#0b1b32] outline-none" id="edit-txn-note" maxlength="500">'+esc(item.detail&&item.detail!=='-'?item.detail:'')+'</textarea></label>'+
+    '</div>';
+  }
+  var actions=document.getElementById('txn-detail-actions');
+  if(actions){
+    actions.innerHTML='<button type="button" class="flex h-12 w-full items-center justify-center rounded-2xl border border-[#dfe6f5] bg-[#f8f9ff] font-notoThai text-sm font-extrabold text-[#0b1b32]" onclick="openTxnDetail(\''+esc(String(id))+'\',\''+esc(type)+'\')">ยกเลิก</button>'+
+      '<button type="button" class="flex h-12 w-full items-center justify-center rounded-2xl bg-primaryContainer font-notoThai text-sm font-extrabold text-white shadow-lg shadow-primaryContainer/20" onclick="saveEditTxn()">บันทึกการแก้ไข</button>';
+  }
+  modal.classList.remove('hidden');
+}
+async function saveEditTxn(){
+  var modal=document.getElementById('txn-detail-sheet');
+  if(!modal) return;
+  if(!S.user||!S.user.id){
+    toast('ไม่พบเซสชันผู้ใช้ กรุณาเข้าสู่ระบบใหม่','err');
+    return;
+  }
+  var id=modal.dataset.txnId, type=modal.dataset.txnType;
+  if(type!=='expense') return toast('ยังไม่รองรับการแก้ไขรายการนี้','info');
+  var idx=S.expenses.findIndex(function(e){ return String(e.id)===String(id); });
+  if(idx<0) return toast('ไม่พบรายการที่ต้องการแก้ไข','err');
+  var old=S.expenses[idx];
+  if(old.user_id&&String(old.user_id)!==String(S.user.id)){
+    toast('แก้ไขได้เฉพาะรายการของคุณเท่านั้น','err');
+    return;
+  }
+  var amt=Number(document.getElementById('edit-txn-amt')&&document.getElementById('edit-txn-amt').value||0);
+  var dt=(document.getElementById('edit-txn-date')&&document.getElementById('edit-txn-date').value)||'';
+  var catId=(document.getElementById('edit-txn-cat')&&document.getElementById('edit-txn-cat').value)||'';
+  var payId=(document.getElementById('edit-txn-pay')&&document.getElementById('edit-txn-pay').value)||'';
+  var note=(document.getElementById('edit-txn-note')&&document.getElementById('edit-txn-note').value||'').trim();
+  var cat=S.cats.find(function(c){ return c.id===catId; });
+  var pay=S.pays.find(function(p){ return p.id===payId; });
+  if(!Number.isFinite(amt)||amt<=0) return toast('จำนวนเงินไม่ถูกต้อง','err');
+  if(!dt) return toast('เลือกวันที่ด้วย','err');
+  if(!cat) return toast('เลือกหมวดหมู่ด้วย','err');
+  if(!pay) return toast('เลือกช่องทางจ่ายเงินด้วย','err');
+  var checkRow={date:dt,detail:note||'-',category:cat.l,payment:pay.l,amount:amt,paid_by:old.paidBy||old.paid_by||''};
+  if(!validateTxnInput(checkRow)) return;
+  var row={date:dt,detail:checkRow.detail||'-',category:cat.l,payment:pay.l,amount:amt,paid_by:old.paidBy||old.paid_by||''};
+  try{
+    var q=sb.from('expenses').update(row).eq('id',id).eq('user_id',S.user.id);
+    if(S.profile&&S.profile.family_id) q=q.eq('family_id',S.profile.family_id);
+    var res=await q.select('id');
+    if(res.error) throw res.error;
+    if(!res.data||!res.data.length) throw new Error('ไม่พบรายการสำหรับอัปเดต');
+    S.expenses[idx]=Object.assign({},old,{
+      date:dt, detail:row.detail, category:cat.l, catId:cat.id, catC:cat.c||old.catC,
+      payment:pay.l, payId:pay.id, amount:amt
+    });
+    renderHist();
+    renderDash();
+    renderAddSummary();
+    toast('บันทึกการแก้ไขแล้ว','ok');
+    openTxnDetail(id,type);
+  }catch(e){
+    console.error('edit expense failed:',e);
+    toast('แก้ไขไม่สำเร็จ กรุณาลองใหม่','err');
+  }
 }
 async function delEx(idOrEl){
   var id=typeof idOrEl==='object'?idOrEl.dataset.id:idOrEl;
