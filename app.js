@@ -1042,8 +1042,10 @@ function renderMobilePickers(){
   if(inchIcon) inchIcon.textContent=inch?addIncomeChannelIcon(inch.id):'account_balance_wallet';
   var typeEl=document.getElementById('cs-type'), providerEl=document.getElementById('cs-provider'), linkedEl=document.getElementById('cs-linked-credit');
   var typeLabel=document.getElementById('mobile-cr-type-label'), providerLabel=document.getElementById('mobile-cr-provider-label'), linkedLabel=document.getElementById('mobile-cr-linked-label');
+  var providerIcon=document.querySelector('#mobile-cr-provider-trigger > .material-symbols-outlined');
   if(typeLabel&&typeEl) typeLabel.textContent=typeEl.options[typeEl.selectedIndex]&&typeEl.options[typeEl.selectedIndex].text||t('selectCreditType');
   if(providerLabel&&providerEl) providerLabel.textContent=providerEl.value||t('selectProvider');
+  if(providerIcon&&providerEl) providerIcon.textContent=typeEl&&typeEl.value==='fixed'?mobileSecuredLoanIcon({n:providerEl.value}):'credit_card';
   if(linkedLabel&&linkedEl) linkedLabel.textContent=linkedEl.options[linkedEl.selectedIndex]&&linkedEl.value?linkedEl.options[linkedEl.selectedIndex].text:t('selectPrimaryCard');
 }
 function openMobilePicker(type){
@@ -1080,6 +1082,7 @@ function openMobilePicker(type){
       type==='inc-cat'?addIncomeCatIcon(item.id,item.l):
       type==='inc-ch'?addIncomeChannelIcon(item.id):
       type==='cr-type'?(item.id==='fixed'?'account_balance':'credit_card'):
+      type==='cr-provider'&&document.getElementById('cs-type')&&document.getElementById('cs-type').value==='fixed'?mobileSecuredLoanIcon(item):
       type==='cr-linked'?'link':'credit_card';
     btn.innerHTML='<span class="mobile-picker-icon material-symbols-outlined flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-card2 text-primary shadow-lg">'+icon+'</span><strong class="line-clamp-2 text-xs font-bold leading-snug">'+esc(cleanAddLabel(item.l))+'</strong>';
     list.appendChild(btn);
@@ -2118,7 +2121,7 @@ function creditPaymentsThisMonth(cr){
   });
 }
 function mobileSecuredLoanIcon(cr){
-  var name=String((cr&&cr.n)||'');
+  var name=String((cr&&(cr.n||cr.l||cr.name||cr.credit_name))||'');
   if(/รถจักรยานยนต์|มอเตอร์ไซค์|motor/i.test(name)) return 'two_wheeler';
   if(/รถยนต์|รถ|car/i.test(name)) return 'directions_car';
   if(/บ้าน|ที่อยู่อาศัย|คอนโด|home|house/i.test(name)) return 'home';
