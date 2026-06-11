@@ -242,6 +242,201 @@
   }
 }
 
+/* Desktop Add Transaction final override: keep legacy Add CSS from fighting Tailwind desktop UI. */
+@media (min-width:769px){
+  #pg-add{
+    background:
+      radial-gradient(circle at 16% 0%, rgba(76,53,196,.24), transparent 32%),
+      radial-gradient(circle at 92% 18%, rgba(5,150,105,.14), transparent 28%),
+      #0c0b13 !important;
+    color:#f6f2ff !important;
+  }
+  #pg-add > header h1,
+  #pg-add .font-notoThai{color:#f6f2ff}
+  #pg-add > header button:first-child{
+    border-color:rgba(255,255,255,.12) !important;
+    background:rgba(255,255,255,.06) !important;
+    color:#c7bfff !important;
+    box-shadow:0 16px 40px rgba(0,0,0,.22) !important;
+  }
+  #pg-add > header button:last-child{color:#c7bfff !important}
+  #pg-add > .grid{
+    background:rgba(255,255,255,.06) !important;
+    border:1px solid rgba(255,255,255,.08);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+  }
+  #pg-add #tog-exp,
+  #pg-add #tog-inc{
+    font-family:var(--font-label), var(--font-body), sans-serif !important;
+    color:#a9a3b8 !important;
+  }
+  #pg-add #tog-exp.on,
+  #pg-add #tog-inc.on{
+    background:#c7bfff !important;
+    color:#21006d !important;
+    box-shadow:0 14px 34px rgba(76,53,196,.28) !important;
+  }
+  #pg-add #mode-expense .rounded-3xl,
+  #pg-add #mode-income .rounded-3xl{
+    border-color:rgba(255,255,255,.10) !important;
+    background:rgba(24,23,34,.82) !important;
+    box-shadow:0 18px 52px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,255,255,.06) !important;
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+  }
+  #pg-add #mode-expense [class*="border-dashed"],
+  #pg-add #mode-income [class*="border-dashed"]{
+    border-color:rgba(199,191,255,.36) !important;
+    background:rgba(24,23,34,.58) !important;
+  }
+  #pg-add label,
+  #pg-add [data-i18n="amount"],
+  #pg-add [data-i18n="category"],
+  #pg-add [data-i18n="incomeSource"],
+  #pg-add .desktop-add-select-trigger em{color:#a9a3b8 !important}
+  #pg-add input[type="date"],
+  #pg-add textarea{
+    border-color:rgba(255,255,255,.12) !important;
+    background:rgba(255,255,255,.05) !important;
+    color:#f6f2ff !important;
+  }
+  #pg-add input[type="date"]:focus,
+  #pg-add textarea:focus{
+    border-color:#c7bfff !important;
+    box-shadow:0 0 0 3px rgba(199,191,255,.12) !important;
+  }
+  #pg-add textarea::placeholder{color:rgba(246,242,255,.38) !important}
+  #pg-add .desktop-add-select-trigger{
+    display:flex;
+    min-height:72px;
+    width:100%;
+    align-items:center;
+    gap:14px;
+    border-radius:18px;
+    border:1px solid rgba(255,255,255,.12);
+    background:rgba(255,255,255,.05);
+    padding:12px 14px;
+    text-align:left;
+    transition:transform .2s ease, border-color .2s ease, background .2s ease, box-shadow .2s ease;
+  }
+  #pg-add .desktop-add-select-trigger:hover{
+    transform:translateY(-1px);
+    border-color:rgba(199,191,255,.45);
+    background:rgba(199,191,255,.08);
+    box-shadow:0 14px 34px rgba(0,0,0,.20);
+  }
+  #pg-add .desktop-add-select-icon{
+    display:flex;
+    height:48px;
+    width:48px;
+    flex-shrink:0;
+    align-items:center;
+    justify-content:center;
+    border-radius:16px;
+    background:rgba(199,191,255,.14);
+    color:#c7bfff;
+    font-size:26px;
+  }
+  #pg-add #inch-chips[data-accent="green"] .desktop-add-select-icon,
+  #pg-add #incc-chips[data-accent="green"] .desktop-add-select-icon{
+    background:rgba(78,222,163,.14);
+    color:#4edea3;
+  }
+  #pg-add .desktop-add-select-trigger strong{
+    display:block;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    color:#f6f2ff;
+    font-family:var(--font-label), var(--font-body), sans-serif;
+    font-size:16px;
+    font-weight:900;
+  }
+  #pg-add .desktop-add-select-trigger em{
+    display:block;
+    margin-bottom:3px;
+    font-family:var(--font-label), var(--font-body), sans-serif;
+    font-size:11px;
+    font-style:normal;
+    font-weight:900;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+  }
+  #pg-add .desktop-add-select-chevron{color:#8f88a8}
+  #desktop-add-selector-modal .desktop-add-selector-tile{
+    display:flex;
+    min-height:124px;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    border-radius:22px;
+    border:1px solid rgba(255,255,255,.10);
+    background:rgba(255,255,255,.05);
+    padding:16px 12px;
+    color:#f6f2ff;
+    text-align:center;
+    transition:transform .2s ease, border-color .2s ease, background .2s ease, box-shadow .2s ease;
+  }
+  #desktop-add-selector-modal .desktop-add-selector-row{
+    display:flex;
+    min-height:68px;
+    align-items:center;
+    gap:14px;
+    border-radius:18px;
+    border:1px solid rgba(255,255,255,.10);
+    background:rgba(255,255,255,.05);
+    padding:12px 14px;
+    color:#f6f2ff;
+    text-align:left;
+    transition:transform .2s ease, border-color .2s ease, background .2s ease, box-shadow .2s ease;
+  }
+  #desktop-add-selector-modal .desktop-add-selector-tile:hover,
+  #desktop-add-selector-modal .desktop-add-selector-row:hover{
+    transform:translateY(-1px);
+    border-color:rgba(199,191,255,.38);
+    background:rgba(199,191,255,.08);
+  }
+  #desktop-add-selector-modal .desktop-add-selector-tile.is-active,
+  #desktop-add-selector-modal .desktop-add-selector-row.is-active{
+    border-color:#c7bfff;
+    background:linear-gradient(135deg, rgba(76,53,196,.72), rgba(76,53,196,.42));
+    box-shadow:0 16px 42px rgba(76,53,196,.24);
+  }
+  #desktop-add-selector-modal .desktop-add-selector-tile .material-symbols-outlined,
+  #desktop-add-selector-modal .desktop-add-selector-row .material-symbols-outlined{
+    display:flex;
+    height:52px;
+    width:52px;
+    flex-shrink:0;
+    align-items:center;
+    justify-content:center;
+    border-radius:18px;
+    background:rgba(199,191,255,.14);
+    color:#c7bfff;
+    font-size:28px;
+  }
+  #desktop-add-selector-modal .desktop-add-selector-tile.is-active .material-symbols-outlined,
+  #desktop-add-selector-modal .desktop-add-selector-row.is-active .material-symbols-outlined{
+    background:rgba(255,255,255,.16);
+    color:#fff;
+  }
+  #desktop-add-selector-modal .desktop-add-selector-tile strong,
+  #desktop-add-selector-modal .desktop-add-selector-row strong{
+    min-width:0;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    font-family:var(--font-label), var(--font-body), sans-serif;
+    font-size:14px;
+    font-weight:900;
+    line-height:1.35;
+  }
+  #desktop-add-selector-modal .desktop-add-selector-row strong{
+    white-space:nowrap;
+    text-align:left;
+  }
+}
+
 /* Mobile debt planner typography/header polish */
 @media (max-width:768px){
   #pg-debt #debt-mode-plan .debtp-hero h1{

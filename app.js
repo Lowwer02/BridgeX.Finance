@@ -1045,10 +1045,43 @@ function addIncomeCatIcon(id,label){
 function addIncomeChannelIcon(id){
   return id==='cash'?'payments':id==='prompt'?'qr_code_2':'account_balance_wallet';
 }
+function isDesktopAddViewport(){
+  return window.matchMedia&&window.matchMedia('(min-width: 769px)').matches;
+}
+function addSelectorMeta(type){
+  if(type==='cat'){
+    var cat=S.cats.find(function(c){ return c.id===S.fc.cat; });
+    return {title:'เลือกหมวดหมู่',label:cat?cleanAddLabel(cat.l):'เลือกหมวดหมู่',icon:cat?(addCatIconMap[cat.id]||'more_horiz'):'layers'};
+  }
+  if(type==='pay'){
+    var pay=S.pays.find(function(p){ return p.id===S.fc.pay; });
+    return {title:'เลือกช่องทางจ่ายเงิน',label:pay?pay.l:'เลือกช่องทางจ่ายเงิน',icon:pay?addPayIcon(pay.id):'account_balance'};
+  }
+  if(type==='inc-cat'){
+    var incc=S.incc.find(function(c){ return c.id===S.fi.cat; });
+    return {title:'เลือกที่มาของรายรับ',label:incc?cleanAddLabel(incc.l):'เลือกที่มาของรายรับ',icon:incc?addIncomeCatIcon(incc.id,incc.l):'work'};
+  }
+  var inch=S.inch.find(function(c){ return c.id===S.fi.ch; });
+  return {title:'เลือกช่องทางรับเงิน',label:inch?cleanAddLabel(inch.l):'เลือกช่องทางรับเงิน',icon:inch?addIncomeChannelIcon(inch.id):'account_balance_wallet'};
+}
+function renderDesktopAddTrigger(root,type,accent){
+  if(!root) return false;
+  if(!isDesktopAddViewport()) return false;
+  var meta=addSelectorMeta(type);
+  root.innerHTML='<button type="button" class="desktop-add-select-trigger" onclick="openDesktopAddSelector(\''+type+'\')">'+
+    '<span class="material-symbols-outlined desktop-add-select-icon">'+esc(meta.icon)+'</span>'+
+    '<span class="min-w-0 flex-1"><em>'+esc(meta.title)+'</em><strong>'+esc(meta.label)+'</strong></span>'+
+    '<span class="material-symbols-outlined desktop-add-select-chevron">expand_more</span>'+
+  '</button>';
+  root.dataset.accent=accent||'primary';
+  return true;
+}
 function renderCats(){
   var w=document.getElementById('cat-chips');
   renderMobilePickers();
-  if(!w) return; w.innerHTML='';
+  if(!w) return;
+  if(renderDesktopAddTrigger(w,'cat','primary')) return;
+  w.innerHTML='';
   orderedExpenseCats(S.cats).forEach(function(c){
     var b=document.createElement('button');
     b.className='flex min-h-12 items-center gap-2 rounded-xl border border-border bg-card2 px-3 py-2 text-left font-inter text-xs font-bold text-textMuted transition '+(S.fc.cat===c.id?' on border-primaryContainer bg-primaryContainer/20 text-primary':'');
@@ -1061,7 +1094,9 @@ function renderCats(){
 function renderPays(){
   var w=document.getElementById('pay-chips');
   renderMobilePickers();
-  if(!w) return; w.innerHTML='';
+  if(!w) return;
+  if(renderDesktopAddTrigger(w,'pay','primary')) return;
+  w.innerHTML='';
   S.pays.forEach(function(p){
     var b=document.createElement('button'); b.className='flex min-h-12 items-center gap-2 rounded-xl border border-border bg-card2 px-3 py-2 text-left font-inter text-xs font-bold text-textMuted transition '+(S.fc.pay===p.id?' on border-primaryContainer bg-primaryContainer/20 text-primary':'');
     b.dataset.icon=addPayIcon(p.id);
@@ -1173,8 +1208,58 @@ function selectMobilePickerItem(type,id){
     closeMobilePicker();
   }
 }
+function openDesktopAddSelector(type){
+  var modal=document.getElementById('desktop-add-selector-modal');
+  var title=document.getElementById('desktop-add-selector-title');
+  var list=document.getElementById('desktop-add-selector-list');
+  if(!modal||!title||!list) return;
+  var arr=[], selectedId='', mode='grid';
+  if(type==='cat'){ arr=orderedExpenseCats(S.cats); selectedId=S.fc.cat; title.textContent='เลือกหมวดหมู่'; mode='grid'; }
+  else if(type==='pay'){ arr=S.pays; selectedId=S.fc.pay; title.textContent='เลือกช่องทางจ่ายเงิน'; mode='rows'; }
+  else if(type==='inc-cat'){ arr=S.incc; selectedId=S.fi.cat; title.textContent='เลือกที่มาของรายรับ'; mode='grid'; }
+  else if(type==='inc-ch'){ arr=S.inch; selectedId=S.fi.ch; title.textContent='เลือกช่องทางรับเงิน'; mode='rows'; }
+  else return;
+  list.className=(mode==='grid'?'grid grid-cols-3 gap-3 lg:grid-cols-4':'flex flex-col gap-3')+' max-h-[64vh] overflow-y-auto p-6';
+  list.innerHTML='';
+  arr.forEach(function(item){
+    var selected=String(selectedId)===String(item.id);
+    var btn=document.createElement('button');
+    btn.type='button';
+    btn.className=mode==='grid'
+      ? 'desktop-add-selector-tile '+(selected?'is-active':'')
+      : 'desktop-add-selector-row '+(selected?'is-active':'');
+    btn.onclick=function(){ selectDesktopAddSelectorItem(type,item.id); };
+    var icon=type==='cat'?(addCatIconMap[item.id]||'more_horiz'):
+      type==='pay'?addPayIcon(item.id):
+      type==='inc-cat'?addIncomeCatIcon(item.id,item.l):
+      addIncomeChannelIcon(item.id);
+    btn.innerHTML='<span class="material-symbols-outlined">'+esc(icon)+'</span><strong>'+esc(cleanAddLabel(item.l))+'</strong>';
+    list.appendChild(btn);
+  });
+  if(!arr.length) list.innerHTML='<div class="rounded-2xl border border-white/10 bg-white/5 p-6 text-center font-notoThai font-bold text-[#8f88a8]">ยังไม่มีรายการให้เลือก</div>';
+  modal.dataset.type=type;
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+}
+function closeDesktopAddSelector(){
+  var modal=document.getElementById('desktop-add-selector-modal');
+  if(!modal) return;
+  modal.classList.add('hidden');
+  modal.classList.remove('flex');
+}
+function desktopAddSelectorBg(e){
+  if(e&&e.target&&e.target.id==='desktop-add-selector-modal') closeDesktopAddSelector();
+}
+function selectDesktopAddSelectorItem(type,id){
+  if(type==='cat'){ S.fc.cat=id; closeDesktopAddSelector(); renderCats(); }
+  else if(type==='pay'){ S.fc.pay=id; closeDesktopAddSelector(); renderPays(); }
+  else if(type==='inc-cat'){ S.fi.cat=id; closeDesktopAddSelector(); renderIncc(); }
+  else if(type==='inc-ch'){ S.fi.ch=id; closeDesktopAddSelector(); renderInch(); }
+}
 function renderIncc(){
-  var w=document.getElementById('incc-chips'); if(!w) return; w.innerHTML='';
+  var w=document.getElementById('incc-chips'); if(!w) return;
+  if(renderDesktopAddTrigger(w,'inc-cat','green')){ renderMobilePickers(); return; }
+  w.innerHTML='';
   S.incc.forEach(function(c){
     var b=document.createElement('button');
     var icon=addIncomeCatIcon(c.id,c.l);
@@ -1187,7 +1272,9 @@ function renderIncc(){
   renderMobilePickers();
 }
 function renderInch(){
-  var w=document.getElementById('inch-chips'); if(!w) return; w.innerHTML='';
+  var w=document.getElementById('inch-chips'); if(!w) return;
+  if(renderDesktopAddTrigger(w,'inc-ch','green')){ renderMobilePickers(); return; }
+  w.innerHTML='';
   S.inch.forEach(function(c){
     var b=document.createElement('button');
     var icon=addIncomeChannelIcon(c.id);
