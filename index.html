@@ -280,9 +280,9 @@
           <div id="py-f" onclick="selP('แฟง')"><div>ฟ</div><div class="nm">แฟง</div><div class="rl">แฟน</div></div>
         </div>
       </div>
-      <div class="grid grid-cols-1 gap-3 md:col-span-2 md:ml-auto md:w-[320px] md:grid-cols-1">
-        <button class="hidden rounded-xl border border-border bg-card2 px-4 py-4 font-inter text-sm font-bold text-textMain md:block" onclick="resetExpenseForm()" data-i18n="cancel">ยกเลิก</button>
-        <button class="flex items-center justify-center gap-3 rounded-[22px] bg-[#0b1b32] px-4 py-5 font-inter text-lg font-black text-white shadow-[0_18px_42px_rgba(11,27,50,.22)] md:rounded-xl md:bg-primaryContainer md:py-4 md:text-sm md:shadow-lg md:shadow-primaryContainer/30" onclick="submitExp()" data-i18n="saveTransaction"><span class="material-symbols-outlined">check</span>บันทึกรายจ่าย</button>
+      <div class="desktop-add-action-row grid grid-cols-1 gap-3 md:col-span-2 md:ml-auto md:w-[320px] md:grid-cols-1">
+        <button class="desktop-add-secondary hidden rounded-xl border border-border bg-card2 px-4 py-4 font-inter text-sm font-bold text-textMain md:block" type="button" onclick="resetExpenseForm()" data-i18n="cancel">ยกเลิก</button>
+        <button class="desktop-add-primary flex items-center justify-center gap-3 rounded-[22px] bg-[#0b1b32] px-4 py-5 font-inter text-lg font-black text-white shadow-[0_18px_42px_rgba(11,27,50,.22)] md:rounded-xl md:bg-primaryContainer md:py-4 md:text-sm md:shadow-lg md:shadow-primaryContainer/30" type="button" onclick="submitExp()" data-i18n="saveTransaction"><span class="material-symbols-outlined">check</span><span class="md:hidden">บันทึกรายจ่าย</span><span class="hidden md:inline">บันทึกรายการ</span></button>
       </div>
     </div>
     <aside class="hidden rounded-2xl border border-white/10 bg-surfaceLow/80 p-5 shadow-xl backdrop-blur-xl">
@@ -581,9 +581,9 @@
           </div>
         </div>
       </div>
-      <div class="grid grid-cols-1 gap-3 md:col-span-2 md:ml-auto md:w-[320px] md:grid-cols-1">
-        <button class="hidden rounded-xl border border-border bg-card2 px-4 py-4 font-inter text-sm font-bold text-textMain md:block" type="button" onclick="resetIncomeForm()" data-i18n="cancel">ยกเลิก</button>
-        <button class="flex items-center justify-center gap-3 rounded-[22px] bg-green px-4 py-5 font-inter text-lg font-black text-white shadow-[0_18px_42px_rgba(5,150,105,.22)] md:rounded-xl md:py-4 md:text-sm md:text-[#003824] md:shadow-lg md:shadow-green/20" onclick="submitInc()" data-i18n="saveIncome"><span class="material-symbols-outlined">check</span>บันทึกรายรับ</button>
+      <div class="desktop-add-action-row grid grid-cols-1 gap-3 md:col-span-2 md:ml-auto md:w-[320px] md:grid-cols-1">
+        <button class="desktop-add-secondary hidden rounded-xl border border-border bg-card2 px-4 py-4 font-inter text-sm font-bold text-textMain md:block" type="button" onclick="resetIncomeForm()" data-i18n="cancel">ยกเลิก</button>
+        <button class="desktop-add-primary flex items-center justify-center gap-3 rounded-[22px] bg-green px-4 py-5 font-inter text-lg font-black text-white shadow-[0_18px_42px_rgba(5,150,105,.22)] md:rounded-xl md:py-4 md:text-sm md:text-[#003824] md:shadow-lg md:shadow-green/20" type="button" onclick="submitInc()" data-i18n="saveIncome"><span class="material-symbols-outlined">check</span>บันทึกรายรับ</button>
       </div>
     </div>
     <aside class="hidden rounded-2xl border border-white/10 bg-surfaceLow/80 p-5 shadow-xl backdrop-blur-xl" id="inc-sum"></aside>
