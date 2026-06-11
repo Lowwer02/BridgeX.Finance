@@ -5855,6 +5855,46 @@ body.theme-light .google-btn{border-color:var(--bdr)}
 
 /* Desktop Add Light Theme Overrides - KEEP AT END */
 @media (min-width:769px){
+  /* Desktop Add Screenshot Bugfix Overrides - KEEP AT TRUE END */
+  #pg-add .desktop-add-shell,
+  #pg-add .desktop-add-main,
+  #pg-add .desktop-add-field-grid,
+  #pg-add .desktop-add-action-row{
+    border:0 !important;
+    background:transparent !important;
+    box-shadow:none !important;
+  }
+
+  #pg-add .desktop-add-field-grid{
+    width:100% !important;
+    max-width:none !important;
+    overflow:visible !important;
+  }
+
+  #pg-add #cat-chips,
+  #pg-add #pay-chips,
+  #pg-add #incc-chips,
+  #pg-add #inch-chips{
+    display:block !important;
+    width:100% !important;
+    max-width:none !important;
+    min-width:0 !important;
+    margin:0 !important;
+  }
+
+  #pg-add #cat-chips .desktop-add-select-trigger,
+  #pg-add #pay-chips .desktop-add-select-trigger,
+  #pg-add #incc-chips .desktop-add-select-trigger,
+  #pg-add #inch-chips .desktop-add-select-trigger{
+    width:100% !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+  }
+
+  #pg-add .desktop-add-action-row{
+    padding:0 !important;
+  }
+
   #pg-add #mode-expense input[type="date"],
   #pg-add #mode-expense textarea,
   #pg-add #mode-income input[type="date"],
