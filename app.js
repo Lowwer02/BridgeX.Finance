@@ -1293,11 +1293,6 @@ function toggleAddMode(mode){
   var income=document.getElementById('mode-income');
   var incomePage=document.getElementById('pg-inc');
   if(!expense||!income||!incomePage) return;
-  var isMobile=window.matchMedia('(max-width:900px)').matches;
-  if(mode==='income'&&!isMobile){
-    goTab('inc',document.querySelector('.app-sidebar .tbtn[onclick*="inc"]'));
-    return;
-  }
   document.getElementById('pg-add').classList.toggle('income-mode',mode==='income');
   var shell=income.querySelector('.inc-shell')||incomePage.querySelector('.inc-shell');
   if(mode==='income'&&shell&&!income.contains(shell)) income.appendChild(shell);
