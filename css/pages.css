@@ -407,7 +407,6 @@
     color:#fff !important;
   }
 }
-
 /* Desktop Add Final Cleanup Overrides - KEEP AT TRUE END */
 @media (min-width:769px){
   #pg-add{
@@ -6111,5 +6110,75 @@ body.theme-light .google-btn{border-color:var(--bdr)}
   #desktop-add-selector-modal .desktop-add-selector-row.is-active .material-symbols-outlined{
     background:#4c35c4 !important;
     color:#fff !important;
+  }
+}
+/* Desktop Add Remaining White Background Fix - TRUE FINAL BLOCK */
+@media (min-width: 769px) {
+  #pg-add #mode-expense,
+  #pg-add #mode-income,
+  #pg-add .desktop-add-shell,
+  #pg-add .desktop-add-main,
+  #pg-add .desktop-add-grid,
+  #pg-add .desktop-add-field-grid,
+  #pg-add .desktop-add-form-surface,
+  #pg-add form.desktop-add-form {
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border-color: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  #pg-add .desktop-add-action-row,
+  #pg-add .desktop-add-actions,
+  #pg-add .desktop-add-action-wrap,
+  #pg-add .desktop-add-form-actions {
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border: 0 !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    padding: 0 !important;
+  }
+
+  #pg-add .desktop-add-action-row::before,
+  #pg-add .desktop-add-action-row::after,
+  #pg-add .desktop-add-main::before,
+  #pg-add .desktop-add-main::after,
+  #pg-add .desktop-add-field-grid::before,
+  #pg-add .desktop-add-field-grid::after {
+    content: none !important;
+    display: none !important;
+  }
+
+  #pg-add .desktop-add-card {
+    background: rgba(255, 255, 255, .92) !important;
+    border-color: #dfe6f5 !important;
+  }
+
+  #pg-add #cat-chips,
+  #pg-add #pay-chips,
+  #pg-add #incc-chips,
+  #pg-add #inch-chips {
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+  }
+
+  #pg-add #cat-chips .desktop-add-select-trigger,
+  #pg-add #pay-chips .desktop-add-select-trigger,
+  #pg-add #incc-chips .desktop-add-select-trigger,
+  #pg-add #inch-chips .desktop-add-select-trigger,
+  #pg-add .desktop-add-select-trigger {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
   }
 }
